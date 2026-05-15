@@ -1,17 +1,37 @@
 const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
+const TOKEN_COLORS = {
+  scratch: "bg-orange-200 border-orange-400 text-orange-700",
+  bite:    "bg-red-200 border-red-400 text-red-700",
+  ignore:  "bg-blue-200 border-blue-400 text-blue-700",
+  charm:   "bg-purple-200 border-purple-400 text-purple-700",
+};
 
-function HPHeart({ current, max }) {
-  const pct = Math.max(0, current / max);
-  const color = pct > 0.5 ? "text-red-500" : pct > 0.25 ? "text-orange-500" : "text-red-800";
+function AttackTokens({ placedAttacks, maxHealth }) {
+  const placed = placedAttacks || {};
+  const totalDamage = Object.entries(placed).reduce((sum, [, n]) => sum + n, 0);
+  const hasAny = totalDamage > 0;
+
   return (
-    <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
-      <div className={`relative text-5xl leading-none ${color}`}>
-        ♥
-        <span className="absolute inset-0 flex items-center justify-center text-white font-bold text-base leading-none mt-1">
-          {current}
-        </span>
-      </div>
-      <span className="text-[10px] text-stone-400">/ {max}</span>
+    <div className="px-2 py-2 bg-stone-50 border-t border-stone-200 min-h-[3rem]">
+      {hasAny ? (
+        <>
+          <div className="flex flex-wrap gap-1 mb-1">
+            {Object.entries(placed).flatMap(([type, count]) =>
+              Array.from({ length: count }).map((_, i) => (
+                <span
+                  key={`${type}-${i}`}
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs ${TOKEN_COLORS[type]}`}
+                >
+                  {ATTACK_ICONS[type]}
+                </span>
+              ))
+            )}
+          </div>
+          <div className="text-[10px] text-stone-400">{totalDamage} / {maxHealth} damage</div>
+        </>
+      ) : (
+        <div className="text-[10px] text-stone-300 italic">No attacks placed yet</div>
+      )}
     </div>
   );
 }
@@ -29,28 +49,19 @@ function TypePill({ label, type }) {
   );
 }
 
-function PlacedToken({ type, amount }) {
-  if (!amount || amount === 0) return null;
-  return (
-    <span className="text-[10px] bg-stone-700 text-white rounded px-1.5 py-0.5 font-mono">
-      {ATTACK_ICONS[type]}{amount}
-    </span>
-  );
-}
-
 export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, isMyTurn }) {
-  const placed = enemy.placedAttacks || {};
-  const hasPlaced = Object.values(placed).some((v) => v > 0);
-
   return (
     <div className="w-44 flex-shrink-0 bg-stone-100 border-2 border-stone-700 rounded-xl shadow-md overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="bg-stone-800 px-2 py-1.5 flex items-start justify-between gap-1">
+      <div className="bg-stone-800 px-2 py-1.5 flex items-center justify-between gap-1">
         <div className="min-w-0">
           <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase">Enemy</div>
           <div className="text-white font-bold text-xs leading-tight">{enemy.name}</div>
         </div>
-        <HPHeart current={enemy.currentHealth} max={enemy.maxHealth} />
+        <div className="flex-shrink-0 text-right">
+          <div className="text-white font-bold text-lg leading-none">{enemy.maxHealth}</div>
+          <div className="text-stone-400 text-[9px]">HP</div>
+        </div>
       </div>
 
       {/* Illustration */}
@@ -77,21 +88,25 @@ export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, 
         <div className="text-[10px] text-stone-700 leading-snug">{enemy.reward?.description}</div>
       </div>
 
-      {/* Weakness / resistance + placed tokens */}
-      <div className="px-2 py-1.5 bg-white border-t border-stone-200 flex flex-wrap gap-1 items-center">
-        {enemy.weakTo?.map((t) => <TypePill key={`w-${t}`} label={t} type="weak" />)}
-        {enemy.resistantTo?.map((t) => <TypePill key={`r-${t}`} label={t} type="resist" />)}
-        {hasPlaced && Object.entries(placed).map(([t, n]) => <PlacedToken key={t} type={t} amount={n} />)}
-      </div>
+      {/* Weakness / resistance */}
+      {((enemy.weakTo?.length > 0) || (enemy.resistantTo?.length > 0)) && (
+        <div className="px-2 py-1.5 bg-white border-t border-stone-200 flex flex-wrap gap-1">
+          {enemy.weakTo?.map((t) => <TypePill key={`w-${t}`} label={t} type="weak" />)}
+          {enemy.resistantTo?.map((t) => <TypePill key={`r-${t}`} label={t} type="resist" />)}
+        </div>
+      )}
+
+      {/* Placed attack tokens */}
+      <AttackTokens placedAttacks={enemy.placedAttacks} maxHealth={enemy.maxHealth} />
 
       {/* Attack buttons */}
       {isMyTurn && availableAttackTypes.length > 0 && (
-        <div className="px-2 pb-2 pt-1 flex flex-wrap gap-1">
+        <div className="px-2 pb-2 pt-1 flex flex-wrap gap-1 bg-stone-50 border-t border-stone-200">
           {availableAttackTypes.map(([type, amount]) => (
             <button
               key={type}
               onClick={() => onAttack(enemy.id, type)}
-              className="text-[10px] bg-stone-700 hover:bg-stone-600 text-white px-2 py-1 rounded transition-colors font-semibold"
+              className={`text-[10px] px-2 py-1 rounded border-2 transition-colors font-semibold ${TOKEN_COLORS[type]}`}
             >
               {ATTACK_ICONS[type]} {amount}
             </button>
