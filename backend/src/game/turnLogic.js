@@ -344,6 +344,12 @@ function endRound(state) {
   log(state, `--- Round ${state.turn.roundNumber} begins ---`);
   startRound(state);
 
+  // Handle stun for first player of the new round
+  const firstPlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
+  if (firstPlayer && firstPlayer.isStunned) {
+    handleStunnedPlayer(state, firstPlayer.playerId);
+  }
+
   return state;
 }
 
