@@ -1,5 +1,5 @@
 {
-  "name": "project-good-boy",
+  "name": "operation-good-boy",
   "private": true,
   "workspaces": [
     "frontend",
