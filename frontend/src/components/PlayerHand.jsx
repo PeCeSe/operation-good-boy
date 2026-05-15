@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CardComponent from "./CardComponent";
 import socket from "../socket";
 
 export default function PlayerHand({ hand, isMyTurn }) {
   const [playingCardId, setPlayingCardId] = useState(null);
+
+  useEffect(() => {
+    setPlayingCardId(null);
+  }, [hand]);
 
   const handlePlay = (cardId) => {
     if (!isMyTurn || playingCardId) return;
