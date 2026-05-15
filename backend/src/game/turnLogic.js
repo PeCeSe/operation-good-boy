@@ -294,11 +294,6 @@ function buyCard(state, playerId, cardId) {
   state.shop.splice(shopIdx, 1);
   player.discard.push(card);
 
-  // Refill shop
-  if (state.shopDeck.length > 0) {
-    state.shop.splice(shopIdx, 0, state.shopDeck.shift());
-  }
-
   // Kitten passive: refund 1 pawcoin on buy
   if (player.character.id === "char_kitten") {
     player.currentPawcoins += 1;
@@ -378,6 +373,11 @@ function endTurn(state, playerId) {
   // Street Cat passive: draw 6 instead of 5
   const drawCount = player.character.id === "char_streetcat" ? 6 : 5;
   drawCards(player, drawCount);
+
+  // Restock shop to 6 cards at end of turn
+  while (state.shop.length < 6 && state.shopDeck.length > 0) {
+    state.shop.push(state.shopDeck.shift());
+  }
 
   log(state, `${player.name} ends their turn.`);
 
