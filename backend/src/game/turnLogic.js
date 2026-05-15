@@ -37,6 +37,7 @@ function applyEventEffect(state, event) {
       p.lives = Math.max(0, p.lives - e.damageAll);
     });
     log(state, `Event: All players lose ${e.damageAll} life.`);
+    checkStun(state);
   }
 
   if (e.discardCards > 0) {
@@ -51,6 +52,15 @@ function applyEventEffect(state, event) {
   if (e.blockShop) log(state, `Event: Shop is closed this round.`);
   if (e.blockAttack) log(state, `Event: Players cannot attack this round.`);
   if (e.pawcoinPenalty > 0) log(state, `Event: Each player generates ${e.pawcoinPenalty} fewer pawcoin(s) this round.`);
+}
+
+function checkStun(state) {
+  state.players.forEach((p) => {
+    if (p.lives === 0 && !p.isStunned) {
+      p.isStunned = true;
+      log(state, `${p.name} was knocked out and is stunned!`);
+    }
+  });
 }
 
 function applyEnemyAbility(state, enemy) {
@@ -69,10 +79,12 @@ function applyEnemyAbility(state, enemy) {
   if (e.damageAll > 0) {
     state.players.forEach((p) => { p.lives = Math.max(0, p.lives - e.damageAll); });
     log(state, `${enemy.name}: all players lose ${e.damageAll} life.`);
+    checkStun(state);
   }
   if (e.damageActive > 0 && activePlayer) {
     activePlayer.lives = Math.max(0, activePlayer.lives - e.damageActive);
     log(state, `${enemy.name}: ${activePlayer.name} loses ${e.damageActive} life.`);
+    checkStun(state);
   }
   if (e.discardActive > 0 && activePlayer) {
     const n = Math.min(e.discardActive, activePlayer.hand.length);
@@ -306,13 +318,7 @@ function checkWinLose(state) {
 }
 
 function endRound(state) {
-  // Check for knocked-out players (lives === 0)
-  state.players.forEach((p) => {
-    if (p.lives === 0 && !p.isStunned) {
-      p.isStunned = true;
-      log(state, `${p.name} was knocked out and will be stunned next round!`);
-    }
-  });
+  checkStun(state);
 
   // Check location loss
   if (state.currentLocation.currentCucumberTokens >= state.currentLocation.maxCucumberTokens) {
