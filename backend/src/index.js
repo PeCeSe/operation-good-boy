@@ -45,12 +45,22 @@ io.on("connection", (socket) => {
 
   const { playerToken, roomCode } = socket.handshake.auth || {};
   if (playerToken && roomCode) {
-    const result = rejoinRoom(socket.id, playerToken, roomCode);
-    if (result.success) {
+    const rejoin = rejoinRoom(socket.id, playerToken, roomCode);
+    if (rejoin.success) {
       socket.join(roomCode);
       emitRoomUpdate(roomCode);
-      if (result.hasGame) emitGameUpdate(roomCode);
+      if (rejoin.hasGame) emitGameUpdate(roomCode);
       console.log(`Rejoined: ${socket.id} → room ${roomCode}`);
+    } else {
+      const join = roomManager.joinRoom(socket.id, roomCode, null, playerToken);
+      if (join.success) {
+        socket.join(roomCode);
+        socket.emit("room_joined", { code: roomCode });
+        emitRoomUpdate(roomCode);
+        console.log(`Auto-joined: ${socket.id} → room ${roomCode}`);
+      } else if (join.error) {
+        socket.emit("error", { message: join.error });
+      }
     }
   }
 

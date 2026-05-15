@@ -39,7 +39,7 @@ export default function Lobby({ roomInfo, mySocketId }) {
     (roomInfo?.players || []).map((p) => p.characterId).filter(Boolean)
   );
 
-  const handleCopyCode = () => navigator.clipboard.writeText(code);
+  const handleCopyLink = () => navigator.clipboard.writeText(window.location.href);
   const handleSetName = () => {
     const trimmed = nameInput.trim();
     if (!trimmed) return;
@@ -71,10 +71,10 @@ export default function Lobby({ roomInfo, mySocketId }) {
             {code}
           </span>
           <button
-            onClick={handleCopyCode}
+            onClick={handleCopyLink}
             className="text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded transition-colors"
           >
-            Copy
+            Copy invite link
           </button>
         </div>
       </div>
