@@ -130,18 +130,10 @@ export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, 
       {/* Placed attack tokens */}
       <AttackTokens placedAttacks={enemy.placedAttacks} maxHealth={enemy.maxHealth} />
 
-      {/* Attack buttons */}
-      {isMyTurn && availableAttackTypes.length > 0 && (
-        <div className="px-2 pb-2 pt-1 flex flex-wrap gap-1 bg-stone-50 border-t border-stone-200">
-          {availableAttackTypes.map(([type, amount]) => (
-            <button
-              key={type}
-              onClick={() => onAttack(enemy.id, type)}
-              className={`text-[10px] px-2 py-1 rounded border-2 transition-colors font-semibold ${TOKEN_COLORS[type]}`}
-            >
-              {ATTACK_ICONS[type]} {amount}
-            </button>
-          ))}
+      {/* Drop hint */}
+      {isDropTarget && (
+        <div className="px-2 py-1.5 bg-amber-50 border-t border-amber-200 text-center text-[10px] text-amber-500 font-semibold">
+          Drop attack here
         </div>
       )}
     </div>

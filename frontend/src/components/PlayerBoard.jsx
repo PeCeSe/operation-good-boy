@@ -2,23 +2,13 @@ import { useState } from "react";
 import PlayerHand from "./PlayerHand";
 
 const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
-const ATTACK_COLORS = {
-  scratch: { active: "border-orange-300 bg-orange-50 text-orange-700", inactive: "border-stone-200 bg-stone-50 text-stone-300" },
-  bite:    { active: "border-red-300 bg-red-50 text-red-700",          inactive: "border-stone-200 bg-stone-50 text-stone-300" },
-  ignore:  { active: "border-blue-300 bg-blue-50 text-blue-700",       inactive: "border-stone-200 bg-stone-50 text-stone-300" },
-  charm:   { active: "border-purple-300 bg-purple-50 text-purple-700", inactive: "border-stone-200 bg-stone-50 text-stone-300" },
+const TOKEN_COLORS = {
+  scratch: "bg-orange-200 border-orange-400 text-orange-700",
+  bite:    "bg-red-200 border-red-400 text-red-700",
+  ignore:  "bg-blue-200 border-blue-400 text-blue-700",
+  charm:   "bg-purple-200 border-purple-400 text-purple-700",
 };
 
-function ResourceBadge({ icon, amount, colorClass }) {
-  return (
-    <div className="flex flex-col items-center gap-0.5">
-      <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-base transition-all ${colorClass}`}>
-        {amount}
-      </div>
-      <span className="text-sm leading-none">{icon}</span>
-    </div>
-  );
-}
 
 function PileBadge({ count, label }) {
   return (
@@ -106,31 +96,32 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
           colorClass={currentPawcoins > 0 ? "border-amber-300 bg-amber-50 text-amber-700" : "border-stone-200 bg-stone-50 text-stone-300"}
         />
 
-        <div className="w-px h-10 bg-stone-200 flex-shrink-0" />
-
-        {/* Attack types — draggable when > 0 */}
-        {Object.entries(currentAttack).map(([type, amount]) => {
-          const active = amount > 0 && isMyTurn;
-          return (
-            <div
-              key={type}
-              draggable={active}
-              onDragStart={active ? (e) => {
-                e.dataTransfer.setData("attackType", type);
-                e.dataTransfer.effectAllowed = "move";
-                onDragAttackStart?.(type);
-              } : undefined}
-              onDragEnd={active ? () => onDragAttackEnd?.() : undefined}
-              className={active ? "cursor-grab active:cursor-grabbing" : ""}
-            >
-              <ResourceBadge
-                icon={ATTACK_ICONS[type]}
-                amount={amount}
-                colorClass={amount > 0 ? ATTACK_COLORS[type].active : ATTACK_COLORS[type].inactive}
-              />
-            </div>
-          );
-        })}
+        {/* Attack tokens — individual draggable chips */}
+        {Object.entries(currentAttack).some(([, n]) => n > 0) ? (
+          <div className="flex flex-wrap gap-1 items-center">
+            {Object.entries(currentAttack).flatMap(([type, amount]) =>
+              Array.from({ length: amount }).map((_, i) => (
+                <div
+                  key={`${type}-${i}`}
+                  draggable={isMyTurn}
+                  onDragStart={isMyTurn ? (e) => {
+                    e.dataTransfer.setData("attackType", type);
+                    e.dataTransfer.effectAllowed = "move";
+                    onDragAttackStart?.(type);
+                  } : undefined}
+                  onDragEnd={() => onDragAttackEnd?.()}
+                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm select-none transition-transform
+                    ${TOKEN_COLORS[type]}
+                    ${isMyTurn ? "cursor-grab active:cursor-grabbing hover:scale-110" : ""}`}
+                >
+                  {ATTACK_ICONS[type]}
+                </div>
+              ))
+            )}
+          </div>
+        ) : (
+          <span className="text-xs text-stone-300 italic">No attacks</span>
+        )}
 
         <div className="w-px h-10 bg-stone-200 flex-shrink-0" />
 
