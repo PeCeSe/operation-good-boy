@@ -10,10 +10,11 @@ export default function App() {
   const navigateRef = useRef(navigate);
   navigateRef.current = navigate;
 
-  const [roomInfo, setRoomInfo] = useState(null);   // lobby state from server
+  const [roomInfo, setRoomInfo] = useState(null);
   const [gameState, setGameState] = useState(null);
   const [mySocketId, setMySocketId] = useState(null);
   const [error, setError] = useState(null);
+  const [needsPassword, setNeedsPassword] = useState(false);
 
   useEffect(() => {
     let token = localStorage.getItem("ogb_player_token");
@@ -30,7 +31,8 @@ export default function App() {
     socket.on("connect", () => setMySocketId(socket.id));
 
     socket.on("room_created", ({ code }) => navigateRef.current(`/room/${code}`));
-    socket.on("room_joined", ({ code }) => navigateRef.current(`/room/${code}`));
+    socket.on("room_joined", ({ code }) => { setNeedsPassword(false); navigateRef.current(`/room/${code}`); });
+    socket.on("room_requires_password", () => setNeedsPassword(true));
 
     socket.on("room_update", (lobby) => {
       setMySocketId(socket.id);
@@ -69,7 +71,7 @@ export default function App() {
             gameState ? (
               <Game gameState={gameState} mySocketId={mySocketId} />
             ) : (
-              <Lobby roomInfo={roomInfo} mySocketId={mySocketId} />
+              <Lobby roomInfo={roomInfo} mySocketId={mySocketId} needsPassword={needsPassword} />
             )
           }
         />

@@ -58,6 +58,8 @@ io.on("connection", (socket) => {
         socket.emit("room_joined", { code: roomCode });
         emitRoomUpdate(roomCode);
         console.log(`Auto-joined: ${socket.id} → room ${roomCode}`);
+      } else if (join.error === "Wrong password.") {
+        socket.emit("room_requires_password", { code: roomCode });
       } else if (join.error) {
         socket.emit("error", { message: join.error });
       }

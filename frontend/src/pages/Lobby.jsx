@@ -26,10 +26,11 @@ const CHARACTERS = [
   },
 ];
 
-export default function Lobby({ roomInfo, mySocketId }) {
+export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const { code } = useParams();
   const [nameInput, setNameInput] = useState("");
   const [nameSent, setNameSent] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
 
   const myPlayer = roomInfo?.players.find((p) => p.socketId === mySocketId);
   const isHost = roomInfo?.hostSocketId === mySocketId;
@@ -51,6 +52,36 @@ export default function Lobby({ roomInfo, mySocketId }) {
   };
   const handleReady = () => socket.emit("player_ready");
   const handleStart = () => socket.emit("game_start");
+
+  if (!roomInfo && needsPassword) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="bg-slate-800 rounded-xl p-8 w-full max-w-sm flex flex-col gap-4">
+          <div className="text-center">
+            <div className="text-3xl mb-2">🔒</div>
+            <h2 className="text-xl font-bold text-amber-400">Password required</h2>
+            <p className="text-slate-400 text-sm mt-1">This room is password protected.</p>
+          </div>
+          <input
+            type="password"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && socket.emit("join_room", { code, password: passwordInput })}
+            placeholder="Enter room password"
+            className="bg-slate-700 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400"
+            autoFocus
+          />
+          <button
+            onClick={() => socket.emit("join_room", { code, password: passwordInput })}
+            disabled={!passwordInput}
+            className="bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-slate-900 font-bold py-2 rounded-lg transition-colors"
+          >
+            Join Room
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!roomInfo) {
     return (
