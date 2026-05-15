@@ -7,14 +7,19 @@ const roomManager = require("./game/roomManager");
 const { initGameState } = require("./game/gameState");
 const { startRound, playCard, attackEnemy, buyCard, endTurn } = require("./game/turnLogic");
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
+];
+
 const app = express();
-app.use(cors());
+app.use(cors({ origin: allowedOrigins }));
 app.get("/health", (_, res) => res.json({ ok: true }));
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
   },
 });
