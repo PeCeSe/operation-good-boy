@@ -30,7 +30,7 @@ export default function EventDisplay({ events }) {
   if (!events || events.length === 0) return null;
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 flex-1 flex-wrap content-start">
       {events.map((event) => (
         <SingleEvent key={event.id} event={event} />
       ))}

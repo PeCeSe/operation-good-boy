@@ -132,11 +132,11 @@ export default function Game({ gameState, mySocketId }) {
         </div>
       </div>
 
-      {/* Events */}
-      <EventDisplay events={currentEvents} />
-
-      {/* Location */}
-      <LocationBar currentLocation={currentLocation} lostLocations={lostLocations} totalLocations={3} />
+      {/* Location + Events */}
+      <div className="flex gap-3 items-start">
+        <LocationBar currentLocation={currentLocation} lostLocations={lostLocations} totalLocations={3} />
+        <EventDisplay events={currentEvents} />
+      </div>
 
       {/* Players panel */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
