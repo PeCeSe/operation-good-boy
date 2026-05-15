@@ -62,7 +62,6 @@ export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, 
       <div className="px-2 pt-2 pb-1 flex-1">
         {enemy.ability && (
           <div className="text-[10px] text-stone-700 leading-snug">
-            <span className="font-semibold text-stone-500 uppercase text-[9px] tracking-wide">Ability · </span>
             {enemy.ability.description}
           </div>
         )}

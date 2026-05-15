@@ -223,8 +223,8 @@ function attackEnemy(state, playerId, enemyId, attackType) {
   if (state.turn.currentPlayerId !== playerId) return { state, error: "Not your turn." };
   if (state.blockAttack) return { state, error: "Attacks are blocked this round." };
 
-  const attackAmount = player.currentAttack[attackType] || 0;
-  if (attackAmount <= 0) return { state, error: `No ${attackType} attack available.` };
+  const attackAmount = 1;
+  if ((player.currentAttack[attackType] || 0) <= 0) return { state, error: `No ${attackType} attack available.` };
 
   const enemyIdx = state.enemies.findIndex((e) => e.id === enemyId);
   if (enemyIdx === -1) return { state, error: "Enemy not found." };
@@ -234,7 +234,7 @@ function attackEnemy(state, playerId, enemyId, attackType) {
   enemy.currentHealth = Math.max(0, enemy.currentHealth - damage);
   enemy.placedAttacks = enemy.placedAttacks || { scratch: 0, bite: 0, ignore: 0, charm: 0 };
   enemy.placedAttacks[attackType] = (enemy.placedAttacks[attackType] || 0) + attackAmount;
-  player.currentAttack[attackType] = 0;
+  player.currentAttack[attackType] -= 1;
 
   const modifier =
     enemy.weakTo.includes(attackType) ? " (WEAK — double damage!)" :
