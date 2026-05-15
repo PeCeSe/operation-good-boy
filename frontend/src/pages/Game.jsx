@@ -1,0 +1,197 @@
+import socket from "../socket";
+import CardComponent from "../components/CardComponent";
+import EnemyComponent from "../components/EnemyComponent";
+import PlayerHand from "../components/PlayerHand";
+import ShopRow from "../components/ShopRow";
+import LocationBar from "../components/LocationBar";
+import EventDisplay from "../components/EventDisplay";
+import GameLog from "../components/GameLog";
+
+function Lives({ lives, max }) {
+  return (
+    <span className="text-red-400 font-mono text-sm">
+      {"♥".repeat(Math.max(0, lives))}
+      {"♡".repeat(Math.max(0, max - lives))}
+    </span>
+  );
+}
+
+function PlayerPanel({ player, isCurrentTurn, isMe }) {
+  const attackEntries = Object.entries(player.currentAttack).filter(([, v]) => v > 0);
+
+  return (
+    <div
+      className={`rounded-lg p-3 border-2 transition-all ${
+        isCurrentTurn ? "border-amber-400 bg-amber-400/10" : "border-slate-700 bg-slate-800"
+      }`}
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-lg">{player.character.emoji}</span>
+        <span className="font-semibold text-sm">
+          {player.name} {isMe && <span className="text-slate-500 text-xs">(you)</span>}
+        </span>
+        {player.isStunned && <span className="text-xs text-red-400 font-bold">STUNNED</span>}
+      </div>
+      <Lives lives={player.lives} max={player.character.maxLives} />
+      {isCurrentTurn && (
+        <div className="text-xs mt-1 space-y-0.5">
+          <div className="text-amber-400">🪙 {player.currentPawcoins} pawcoins</div>
+          {attackEntries.map(([type, amount]) => (
+            <div key={type} className="text-slate-300">
+              {type}: {amount}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Game({ gameState, mySocketId }) {
+  const {
+    turn,
+    players,
+    enemies,
+    currentLocation,
+    lostLocations,
+    currentEvent,
+    shop,
+    shopDeck,
+    blockShop,
+    log,
+    phase,
+  } = gameState;
+
+  const me = players.find((p) => p.socketId === mySocketId);
+  const isMyTurn = me && turn.currentPlayerId === me.playerId;
+
+  const availableAttackTypes = me
+    ? Object.entries(me.currentAttack).filter(([, v]) => v > 0)
+    : [];
+
+  const handleAttack = (enemyId, attackType) => {
+    socket.emit("attack_enemy", { enemyId, attackType });
+  };
+
+  const handleEndTurn = () => {
+    socket.emit("end_turn");
+  };
+
+  if (phase === "victory") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <div className="text-6xl">🎉</div>
+        <h1 className="text-4xl font-bold text-amber-400">Victory!</h1>
+        <p className="text-slate-400">Good Boy has been defeated. The neighborhood is safe.</p>
+        <p className="text-slate-500 text-sm italic">For now.</p>
+      </div>
+    );
+  }
+
+  if (phase === "defeat") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <div className="text-6xl">🥒</div>
+        <h1 className="text-4xl font-bold text-red-400">Defeat</h1>
+        <p className="text-slate-400">The neighborhood is overrun with cucumbers.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col gap-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-xl">🐾</span>
+          <span className="font-bold text-amber-400">Operation: Good Boy</span>
+          <span className="text-slate-500 text-sm">Round {turn.roundNumber}</span>
+        </div>
+        <div className="text-sm text-slate-400">
+          {isMyTurn ? (
+            <span className="text-amber-400 font-semibold animate-pulse">Your turn!</span>
+          ) : (
+            <span>
+              {players.find((p) => p.playerId === turn.currentPlayerId)?.name}'s turn
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Event */}
+      {currentEvent && <EventDisplay event={currentEvent} />}
+
+      {/* Location */}
+      <LocationBar currentLocation={currentLocation} lostLocations={lostLocations} />
+
+      {/* Players panel */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {players.map((p) => (
+          <PlayerPanel
+            key={p.playerId}
+            player={p}
+            isCurrentTurn={p.playerId === turn.currentPlayerId}
+            isMe={p.socketId === mySocketId}
+          />
+        ))}
+      </div>
+
+      {/* Enemies */}
+      <div>
+        <h2 className="text-sm font-semibold text-slate-400 mb-2">
+          Enemies ({enemies.length} active)
+        </h2>
+        {enemies.length === 0 ? (
+          <p className="text-slate-600 text-sm italic">No enemies on the board. 🎉</p>
+        ) : (
+          <div className="flex gap-3 flex-wrap">
+            {enemies.map((enemy) => (
+              <EnemyComponent
+                key={enemy.id}
+                enemy={enemy}
+                onAttack={handleAttack}
+                availableAttackTypes={availableAttackTypes}
+                isMyTurn={isMyTurn}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Hand */}
+      {me && (
+        <PlayerHand hand={me.hand} isMyTurn={isMyTurn} />
+      )}
+
+      {/* Pawcoins + End Turn */}
+      {me && isMyTurn && (
+        <div className="flex items-center gap-4">
+          <span className="text-amber-400 font-semibold">
+            🪙 {me.currentPawcoins} pawcoins
+          </span>
+          <button
+            onClick={handleEndTurn}
+            className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-5 py-2 rounded-lg transition-colors"
+          >
+            End Turn →
+          </button>
+        </div>
+      )}
+
+      {/* Shop */}
+      <ShopRow
+        shop={shop}
+        currentPawcoins={me?.currentPawcoins || 0}
+        isMyTurn={isMyTurn}
+        blockShop={blockShop}
+      />
+
+      <div className="text-xs text-slate-600 text-right">
+        Shop deck: {shopDeck?.length || 0} cards remaining
+      </div>
+
+      {/* Log */}
+      <GameLog log={log} />
+    </div>
+  );
+}
