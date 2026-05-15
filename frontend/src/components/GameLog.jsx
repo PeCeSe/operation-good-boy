@@ -4,7 +4,8 @@ export default function GameLog({ log }) {
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = bottomRef.current;
+    if (el) el.parentElement.scrollTop = el.parentElement.scrollHeight;
   }, [log]);
 
   return (
