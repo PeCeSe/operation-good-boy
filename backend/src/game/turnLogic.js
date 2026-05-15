@@ -306,7 +306,7 @@ function checkWinLose(state) {
 }
 
 function endRound(state) {
-  // Enemies add cucumber tokens
+  // Enemies add cucumber tokens for surviving the round
   state.enemies.forEach((enemy) => {
     state.currentLocation.currentCucumberTokens += enemy.cucumberTokensOnSurvive;
   });
@@ -314,24 +314,11 @@ function endRound(state) {
     log(state, `Surviving enemies add cucumber tokens to ${state.currentLocation.name}.`);
   }
 
-  // Enemies attack all players
-  const totalEnemyAttack = state.enemies.reduce((sum, e) => sum + e.attack, 0);
-  if (totalEnemyAttack > 0) {
-    state.players.forEach((p) => {
-      p.lives = Math.max(0, p.lives - totalEnemyAttack);
-      if (p.lives === 0 && !p.isStunned) {
-        p.isStunned = true;
-        log(state, `${p.name} was knocked out and will be stunned next round!`);
-      }
-    });
-    log(state, `Enemies attack! All players take ${totalEnemyAttack} damage.`);
-  }
-
-  // Persian passive: charm on damage
+  // Check for knocked-out players (lives === 0)
   state.players.forEach((p) => {
-    if (p.character.id === "char_persian" && totalEnemyAttack > 0) {
-      p.currentAttack.charm = (p.currentAttack.charm || 0) + 1;
-      log(state, `${p.name}'s passive triggers: +1 charm attack from indignation.`);
+    if (p.lives === 0 && !p.isStunned) {
+      p.isStunned = true;
+      log(state, `${p.name} was knocked out and will be stunned next round!`);
     }
   });
 
