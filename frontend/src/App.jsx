@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import socket from "./socket";
 import Home from "./pages/Home";
@@ -7,6 +7,9 @@ import Game from "./pages/Game";
 
 export default function App() {
   const navigate = useNavigate();
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+
   const [roomInfo, setRoomInfo] = useState(null);   // lobby state from server
   const [gameState, setGameState] = useState(null);
   const [mySocketId, setMySocketId] = useState(null);
@@ -17,8 +20,8 @@ export default function App() {
 
     socket.on("connect", () => setMySocketId(socket.id));
 
-    socket.on("room_created", ({ code }) => navigate(`/room/${code}`));
-    socket.on("room_joined", ({ code }) => navigate(`/room/${code}`));
+    socket.on("room_created", ({ code }) => navigateRef.current(`/room/${code}`));
+    socket.on("room_joined", ({ code }) => navigateRef.current(`/room/${code}`));
 
     socket.on("room_update", (lobby) => {
       setRoomInfo(lobby);
@@ -33,7 +36,7 @@ export default function App() {
     socket.on("error", ({ message }) => setError(message));
 
     return () => socket.disconnect();
-  }, [navigate]);
+  }, []);
 
   const clearError = () => setError(null);
 
