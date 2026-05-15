@@ -58,8 +58,16 @@ function rejoinRoom(newSocketId, playerToken, code) {
   if (!room) return { success: false };
   const player = room.players.find((p) => p.playerToken === playerToken);
   if (!player) return { success: false };
+
+  const oldSocketId = player.socketId;
   player.socketId = newSocketId;
-  if (room.hostSocketId === null) room.hostSocketId = newSocketId;
+  if (room.hostSocketId === oldSocketId) room.hostSocketId = newSocketId;
+
+  if (room.gameState) {
+    const gamePlayer = room.gameState.players.find((p) => p.socketId === oldSocketId);
+    if (gamePlayer) gamePlayer.socketId = newSocketId;
+  }
+
   room.lastActivity = Date.now();
   return { success: true, hasGame: !!room.gameState };
 }
