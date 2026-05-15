@@ -90,11 +90,12 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
       {/* Resources + piles + End Turn */}
       <div className="bg-white border-t border-b border-stone-200 px-4 py-3 flex items-center gap-3 flex-wrap">
         {/* Pawcoins */}
-        <ResourceBadge
-          icon="🪙"
-          amount={currentPawcoins}
-          colorClass={currentPawcoins > 0 ? "border-amber-300 bg-amber-50 text-amber-700" : "border-stone-200 bg-stone-50 text-stone-300"}
-        />
+        <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+          <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-base transition-all ${currentPawcoins > 0 ? "border-amber-300 bg-amber-50 text-amber-700" : "border-stone-200 bg-stone-50 text-stone-300"}`}>
+            {currentPawcoins}
+          </div>
+          <span className="text-sm leading-none">🪙</span>
+        </div>
 
         {/* Attack tokens — individual draggable chips */}
         {Object.entries(currentAttack).some(([, n]) => n > 0) ? (
