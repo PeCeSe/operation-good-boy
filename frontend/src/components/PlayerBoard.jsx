@@ -104,16 +104,17 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
               Array.from({ length: amount }).map((_, i) => (
                 <div
                   key={`${type}-${i}`}
-                  draggable={isMyTurn}
-                  onDragStart={isMyTurn ? (e) => {
-                    e.dataTransfer.setData("attackType", type);
+                  draggable="true"
+                  onDragStart={(e) => {
+                    if (!isMyTurn) { e.preventDefault(); return; }
+                    e.dataTransfer.setData("text/plain", type);
                     e.dataTransfer.effectAllowed = "move";
                     onDragAttackStart?.(type);
-                  } : undefined}
+                  }}
                   onDragEnd={() => onDragAttackEnd?.()}
                   className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm select-none transition-transform
                     ${TOKEN_COLORS[type]}
-                    ${isMyTurn ? "cursor-grab active:cursor-grabbing hover:scale-110" : ""}`}
+                    ${isMyTurn ? "cursor-grab active:cursor-grabbing hover:scale-110" : "opacity-60"}`}
                 >
                   {ATTACK_ICONS[type]}
                 </div>

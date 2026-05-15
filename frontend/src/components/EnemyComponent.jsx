@@ -66,7 +66,7 @@ export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, 
   const handleDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
-    const type = e.dataTransfer.getData("attackType");
+    const type = e.dataTransfer.getData("text/plain");
     if (type) onAttack(enemy.id, type);
   };
 
