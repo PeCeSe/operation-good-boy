@@ -117,7 +117,9 @@ function applyEnemyReward(state, enemy, activePlayer) {
     if (removed > 0) log(state, `Reward: removed ${removed} 🥒 from ${state.currentLocation.name}.`);
   }
   if (r.healAll > 0) {
-    state.players.forEach((p) => { p.lives = Math.min(p.character.maxLives, p.lives + r.healAll); });
+    state.players.forEach((p) => {
+      if (!p.isStunned) p.lives = Math.min(p.character.maxLives, p.lives + r.healAll);
+    });
     log(state, `Reward: all players gain ${r.healAll} life.`);
   }
   if (r.drawCardsAll > 0) {
@@ -223,8 +225,12 @@ function playCard(state, playerId, cardId) {
     drawCards(player, 1);
     log(state, `${player.name} played ${card.name} and drew a card.`);
   } else if (special === "heal") {
-    player.lives = Math.min(player.character.maxLives, player.lives + 1);
-    log(state, `${player.name} played ${card.name} and healed 1 life.`);
+    if (!player.isStunned) {
+      player.lives = Math.min(player.character.maxLives, player.lives + 1);
+      log(state, `${player.name} played ${card.name} and healed 1 life.`);
+    } else {
+      log(state, `${player.name} played ${card.name} but is stunned — heal has no effect.`);
+    }
   } else {
     log(state, `${player.name} played ${card.name}.`);
   }
