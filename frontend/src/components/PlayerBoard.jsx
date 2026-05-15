@@ -108,14 +108,10 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
                   onDragStart={(e) => {
                     e.dataTransfer.setData("text/plain", type);
                     e.dataTransfer.effectAllowed = "move";
-                    // Create ghost outside overflow-hidden container
-                    const ghost = document.createElement("div");
-                    ghost.textContent = ATTACK_ICONS[type];
-                    ghost.style.cssText = "position:fixed;top:-200px;left:-200px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:white;border:2px solid #999;";
-                    document.body.appendChild(ghost);
-                    e.dataTransfer.setDragImage(ghost, 18, 18);
-                    setTimeout(() => document.body.removeChild(ghost), 0);
-                    onDragAttackStart?.(type);
+                    // Defer state update — calling it synchronously triggers a
+                    // re-render during dragstart which destroys the element and
+                    // cancels the drag before the browser can establish it.
+                    setTimeout(() => onDragAttackStart?.(type), 0);
                   }}
                   onDragEnd={() => onDragAttackEnd?.()}
                   className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm select-none transition-transform
