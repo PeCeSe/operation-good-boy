@@ -53,6 +53,68 @@ function applyEventEffect(state, event) {
   if (e.pawcoinPenalty > 0) log(state, `Event: Each player generates ${e.pawcoinPenalty} fewer pawcoin(s) this round.`);
 }
 
+function applyEnemyAbility(state, enemy) {
+  const e = enemy.ability?.effect;
+  if (!e) return;
+
+  const activePlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
+
+  if (e.addCucumber > 0) {
+    state.currentLocation.currentCucumberTokens = Math.min(
+      state.currentLocation.maxCucumberTokens,
+      state.currentLocation.currentCucumberTokens + e.addCucumber
+    );
+    log(state, `${enemy.name}: +${e.addCucumber} 🥒 to ${state.currentLocation.name}.`);
+  }
+  if (e.damageAll > 0) {
+    state.players.forEach((p) => { p.lives = Math.max(0, p.lives - e.damageAll); });
+    log(state, `${enemy.name}: all players lose ${e.damageAll} life.`);
+  }
+  if (e.damageActive > 0 && activePlayer) {
+    activePlayer.lives = Math.max(0, activePlayer.lives - e.damageActive);
+    log(state, `${enemy.name}: ${activePlayer.name} loses ${e.damageActive} life.`);
+  }
+  if (e.discardActive > 0 && activePlayer) {
+    const n = Math.min(e.discardActive, activePlayer.hand.length);
+    activePlayer.discard.push(...activePlayer.hand.splice(0, n));
+    log(state, `${enemy.name}: ${activePlayer.name} discards ${n} card(s).`);
+  }
+  if (e.discardAll > 0) {
+    state.players.forEach((p) => {
+      const n = Math.min(e.discardAll, p.hand.length);
+      p.discard.push(...p.hand.splice(0, n));
+    });
+    log(state, `${enemy.name}: all players discard ${e.discardAll} card(s).`);
+  }
+}
+
+function applyEnemyReward(state, enemy, activePlayer) {
+  const r = enemy.reward;
+  if (!r) return;
+
+  if (r.pawcoins > 0) {
+    activePlayer.currentPawcoins += r.pawcoins;
+    log(state, `Reward: ${activePlayer.name} gains ${r.pawcoins} 🪙.`);
+  }
+  if (r.removeCucumbers > 0 && state.currentLocation) {
+    const removed = Math.min(r.removeCucumbers, state.currentLocation.currentCucumberTokens);
+    state.currentLocation.currentCucumberTokens -= removed;
+    if (removed > 0) log(state, `Reward: removed ${removed} 🥒 from ${state.currentLocation.name}.`);
+  }
+  if (r.healAll > 0) {
+    state.players.forEach((p) => { p.lives = Math.min(p.character.maxLives, p.lives + r.healAll); });
+    log(state, `Reward: all players gain ${r.healAll} life.`);
+  }
+  if (r.drawCardsAll > 0) {
+    state.players.forEach((p) => drawCards(p, r.drawCardsAll));
+    log(state, `Reward: all players draw ${r.drawCardsAll} card(s).`);
+  }
+  if (r.drawCardsActive > 0) {
+    drawCards(activePlayer, r.drawCardsActive);
+    log(state, `Reward: ${activePlayer.name} draws ${r.drawCardsActive} card(s).`);
+  }
+}
+
 function startRound(state) {
   // Reset per-round flags
   state.blockShop = false;
@@ -78,9 +140,16 @@ function startRound(state) {
     log(state, `New enemy appeared: ${enemy.name}!`);
   }
 
+  // Apply start_of_round enemy abilities
+  state.enemies.forEach((enemy) => {
+    if (enemy.ability?.trigger === "start_of_round") {
+      applyEnemyAbility(state, enemy);
+    }
+  });
+
   if (state.enemies.length > 0) {
     const names = state.enemies.map((e) => e.name).join(", ");
-    log(state, `Enemies announce their attacks: ${names}.`);
+    log(state, `Enemies on the board: ${names}.`);
   }
 
   return state;
@@ -163,6 +232,8 @@ function attackEnemy(state, playerId, enemyId, attackType) {
   const enemy = state.enemies[enemyIdx];
   const damage = calcDamage(attackAmount, attackType, enemy);
   enemy.currentHealth = Math.max(0, enemy.currentHealth - damage);
+  enemy.placedAttacks = enemy.placedAttacks || { scratch: 0, bite: 0, ignore: 0, charm: 0 };
+  enemy.placedAttacks[attackType] = (enemy.placedAttacks[attackType] || 0) + attackAmount;
   player.currentAttack[attackType] = 0;
 
   const modifier =
@@ -172,13 +243,8 @@ function attackEnemy(state, playerId, enemyId, attackType) {
 
   if (enemy.currentHealth <= 0) {
     state.enemies.splice(enemyIdx, 1);
-    log(state, `${enemy.name} defeated! +${enemy.reward.pawcoins} pawcoins.`);
-    player.currentPawcoins += enemy.reward.pawcoins;
-
-    if (enemy.reward.special === "draw_card") {
-      drawCards(player, 1);
-      log(state, `${player.name} draws a card from the reward!`);
-    }
+    log(state, `${enemy.name} defeated! ${enemy.reward.description}`);
+    applyEnemyReward(state, enemy, player);
 
     // Refill board
     if (state.enemyDeck.length > 0 && state.enemies.length < 3) {
