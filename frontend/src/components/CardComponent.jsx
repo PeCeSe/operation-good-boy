@@ -50,7 +50,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       disabled={!isPlayable || isPlaying}
       title={card.flavorText}
       className={`
-        w-28 flex-shrink-0 rounded-xl border-2 overflow-hidden shadow-md
+        w-40 flex-shrink-0 rounded-xl border-2 overflow-hidden shadow-md
         bg-amber-50 text-left select-none
         transition-all duration-300
         ${cfg.border}
@@ -61,16 +61,16 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
     >
       {/* Header: name + cost */}
       <div className="flex items-start justify-between gap-1 px-2 pt-2 pb-1">
-        <span className="font-bold text-[11px] leading-tight text-stone-800">{card.name}</span>
+        <span className="font-bold text-xs leading-tight text-stone-800">{card.name}</span>
         {showCost && (
-          <span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-400 text-white text-[10px] font-bold flex items-center justify-center shadow-sm">
+          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-400 text-white text-xs font-bold flex items-center justify-center shadow-sm">
             {card.cost}
           </span>
         )}
       </div>
 
       {/* Image placeholder */}
-      <div className={`mx-1.5 rounded-lg h-14 flex items-center justify-center text-3xl ${cfg.image}`}>
+      <div className={`mx-1.5 rounded-lg h-24 flex items-center justify-center text-5xl ${cfg.image}`}>
         {cfg.emoji}
       </div>
 
@@ -80,7 +80,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* Effect */}
-      <div className="px-2 pt-1.5 text-[10px] text-stone-700 font-medium leading-snug">
+      <div className="px-2 pt-1.5 text-xs text-stone-700 font-medium leading-snug">
         {effectText(card.effect)}
       </div>
 
@@ -88,7 +88,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       {card.flavorText && (
         <>
           <div className="mx-2 mt-1 border-t border-stone-300" />
-          <div className="px-2 pt-1 pb-2 text-[9px] italic text-stone-400 leading-snug line-clamp-2">
+          <div className="px-2 pt-1 pb-2 text-[10px] italic text-stone-400 leading-snug line-clamp-2">
             "{card.flavorText}"
           </div>
         </>
