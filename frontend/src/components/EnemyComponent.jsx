@@ -8,28 +8,50 @@ const TOKEN_COLORS = {
   charm:   "bg-purple-200 border-purple-400 text-purple-700",
 };
 
-function AttackTokens({ placedAttacks, maxHealth }) {
+function calcEffective(placed, weakTo, resistantTo) {
+  return Object.entries(placed).reduce((sum, [type, n]) => {
+    if (weakTo.includes(type)) return sum + n * 2;
+    if (resistantTo.includes(type)) return sum + Math.floor(n / 2);
+    return sum + n;
+  }, 0);
+}
+
+function Token({ type, modifier }) {
+  const base = `rounded-full border-2 flex items-center justify-center text-xs ${TOKEN_COLORS[type]}`;
+  if (modifier === "weak") {
+    return (
+      <span className="relative inline-flex w-7 h-7 flex-shrink-0">
+        <span className={`absolute w-5 h-5 ${base}`} style={{ top: 0, left: 0 }}>{ATTACK_ICONS[type]}</span>
+        <span className={`absolute w-5 h-5 ${base}`} style={{ top: 4, left: 4 }}>{ATTACK_ICONS[type]}</span>
+      </span>
+    );
+  }
+  if (modifier === "resist") {
+    return (
+      <span className={`w-6 h-6 ${base} opacity-35 flex-shrink-0`}>{ATTACK_ICONS[type]}</span>
+    );
+  }
+  return <span className={`w-6 h-6 ${base} flex-shrink-0`}>{ATTACK_ICONS[type]}</span>;
+}
+
+function AttackTokens({ placedAttacks, maxHealth, weakTo = [], resistantTo = [] }) {
   const placed = placedAttacks || {};
-  const totalDamage = Object.entries(placed).reduce((sum, [, n]) => sum + n, 0);
-  const hasAny = totalDamage > 0;
+  const hasAny = Object.values(placed).some((v) => v > 0);
+  const effectiveDamage = calcEffective(placed, weakTo, resistantTo);
 
   return (
     <div className="px-2 py-2 bg-stone-50 border-t border-stone-200 min-h-[3rem]">
       {hasAny ? (
         <>
-          <div className="flex flex-wrap gap-1 mb-1">
-            {Object.entries(placed).flatMap(([type, count]) =>
-              Array.from({ length: count }).map((_, i) => (
-                <span
-                  key={`${type}-${i}`}
-                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs ${TOKEN_COLORS[type]}`}
-                >
-                  {ATTACK_ICONS[type]}
-                </span>
-              ))
-            )}
+          <div className="flex flex-wrap gap-1 mb-1 items-center">
+            {Object.entries(placed).flatMap(([type, count]) => {
+              const modifier = weakTo.includes(type) ? "weak" : resistantTo.includes(type) ? "resist" : "normal";
+              return Array.from({ length: count }).map((_, i) => (
+                <Token key={`${type}-${i}`} type={type} modifier={modifier} />
+              ));
+            })}
           </div>
-          <div className="text-[10px] text-stone-400">{totalDamage} / {maxHealth} damage</div>
+          <div className="text-[10px] text-stone-400">{effectiveDamage} / {maxHealth} damage</div>
         </>
       ) : (
         <div className="text-[10px] text-stone-300 italic">No attacks placed yet</div>
@@ -128,7 +150,7 @@ export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, 
       )}
 
       {/* Placed attack tokens */}
-      <AttackTokens placedAttacks={enemy.placedAttacks} maxHealth={enemy.maxHealth} />
+      <AttackTokens placedAttacks={enemy.placedAttacks} maxHealth={enemy.maxHealth} weakTo={enemy.weakTo} resistantTo={enemy.resistantTo} />
 
       {/* Drop hint */}
       {isDropTarget && (

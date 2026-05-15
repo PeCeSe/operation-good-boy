@@ -238,29 +238,37 @@ function playCard(state, playerId, cardId) {
   return { state, error: null };
 }
 
+function calcEffectiveDamage(placedAttacks, weakTo, resistantTo) {
+  return Object.entries(placedAttacks).reduce((sum, [type, n]) => {
+    if (weakTo.includes(type)) return sum + n * 2;
+    if (resistantTo.includes(type)) return sum + Math.floor(n / 2);
+    return sum + n;
+  }, 0);
+}
+
 function attackEnemy(state, playerId, enemyId, attackType) {
   const player = state.players.find((p) => p.playerId === playerId);
   if (!player) return { state, error: "Player not found." };
   if (state.turn.currentPlayerId !== playerId) return { state, error: "Not your turn." };
   if (state.blockAttack) return { state, error: "Attacks are blocked this round." };
 
-  const attackAmount = 1;
   if ((player.currentAttack[attackType] || 0) <= 0) return { state, error: `No ${attackType} attack available.` };
 
   const enemyIdx = state.enemies.findIndex((e) => e.id === enemyId);
   if (enemyIdx === -1) return { state, error: "Enemy not found." };
 
   const enemy = state.enemies[enemyIdx];
-  const damage = calcDamage(attackAmount, attackType, enemy);
-  enemy.currentHealth = Math.max(0, enemy.currentHealth - damage);
   enemy.placedAttacks = enemy.placedAttacks || { scratch: 0, bite: 0, ignore: 0, charm: 0 };
-  enemy.placedAttacks[attackType] = (enemy.placedAttacks[attackType] || 0) + attackAmount;
+  enemy.placedAttacks[attackType] = (enemy.placedAttacks[attackType] || 0) + 1;
   player.currentAttack[attackType] -= 1;
+
+  const effectiveDamage = calcEffectiveDamage(enemy.placedAttacks, enemy.weakTo, enemy.resistantTo);
+  enemy.currentHealth = Math.max(0, enemy.maxHealth - effectiveDamage);
 
   const modifier =
     enemy.weakTo.includes(attackType) ? " (WEAK — double damage!)" :
     enemy.resistantTo.includes(attackType) ? " (resistant — half damage)" : "";
-  log(state, `${player.name} used ${attackType} on ${enemy.name} for ${damage} damage${modifier}.`);
+  log(state, `${player.name} placed ${attackType} on ${enemy.name}${modifier}. Effective damage: ${effectiveDamage}/${enemy.maxHealth}.`);
 
   if (enemy.currentHealth <= 0) {
     state.enemies.splice(enemyIdx, 1);
