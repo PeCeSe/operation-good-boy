@@ -1,6 +1,9 @@
 import { useState } from "react";
 
 const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
+const TOKEN_BG     = { scratch: "bg-orange-200", bite: "bg-red-200",    ignore: "bg-blue-200",   charm: "bg-purple-200" };
+const TOKEN_BORDER = { scratch: "border-orange-400", bite: "border-red-400", ignore: "border-blue-400", charm: "border-purple-400" };
+const TOKEN_TEXT   = { scratch: "text-orange-700", bite: "text-red-700",   ignore: "text-blue-700",  charm: "text-purple-700" };
 const TOKEN_COLORS = {
   scratch: "bg-orange-200 border-orange-400 text-orange-700",
   bite:    "bg-red-200 border-red-400 text-red-700",
@@ -28,7 +31,13 @@ function Token({ type, modifier }) {
   }
   if (modifier === "resist") {
     return (
-      <span className={`w-6 h-6 ${base} opacity-35 flex-shrink-0`}>{ATTACK_ICONS[type]}</span>
+      <span className={`relative w-6 h-6 rounded-full border-2 ${TOKEN_BORDER[type]} overflow-hidden flex-shrink-0`}>
+        <span className={`absolute left-0 top-0 w-1/2 h-full ${TOKEN_BG[type]}`} />
+        <span className="absolute right-0 top-0 w-1/2 h-full bg-stone-100" />
+        <span className={`absolute inset-0 flex items-center justify-center text-xs ${TOKEN_TEXT[type]}`}>
+          {ATTACK_ICONS[type]}
+        </span>
+      </span>
     );
   }
   return <span className={`w-6 h-6 ${base} flex-shrink-0`}>{ATTACK_ICONS[type]}</span>;
