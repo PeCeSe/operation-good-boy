@@ -33,11 +33,13 @@ export default function App() {
     socket.on("room_joined", ({ code }) => navigateRef.current(`/room/${code}`));
 
     socket.on("room_update", (lobby) => {
+      setMySocketId(socket.id);
       setRoomInfo(lobby);
       setError(null);
     });
 
     socket.on("game_update", (state) => {
+      setMySocketId(socket.id);
       setGameState(state);
       setError(null);
     });
