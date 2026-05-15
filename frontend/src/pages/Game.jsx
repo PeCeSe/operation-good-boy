@@ -1,3 +1,4 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../socket";
 import CardComponent from "../components/CardComponent";
@@ -50,6 +51,7 @@ function PlayerPanel({ player, isCurrentTurn, isMe }) {
 
 export default function Game({ gameState, mySocketId }) {
   const navigate = useNavigate();
+  const [draggingAttackType, setDraggingAttackType] = React.useState(null);
   const {
     turn,
     players,
@@ -154,6 +156,7 @@ export default function Game({ gameState, mySocketId }) {
                 onAttack={handleAttack}
                 availableAttackTypes={availableAttackTypes}
                 isMyTurn={isMyTurn}
+                draggingAttackType={draggingAttackType}
               />
             ))}
           </div>
@@ -178,7 +181,13 @@ export default function Game({ gameState, mySocketId }) {
 
       {/* My player board */}
       {me && (
-        <PlayerBoard player={me} isMyTurn={isMyTurn} onEndTurn={handleEndTurn} />
+        <PlayerBoard
+          player={me}
+          isMyTurn={isMyTurn}
+          onEndTurn={handleEndTurn}
+          onDragAttackStart={setDraggingAttackType}
+          onDragAttackEnd={() => setDraggingAttackType(null)}
+        />
       )}
 
       {/* Shop */}

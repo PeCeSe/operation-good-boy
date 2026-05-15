@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
 const TOKEN_COLORS = {
   scratch: "bg-orange-200 border-orange-400 text-orange-700",
@@ -49,9 +51,38 @@ function TypePill({ label, type }) {
   );
 }
 
-export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, isMyTurn }) {
+export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, isMyTurn, draggingAttackType }) {
+  const [dragOver, setDragOver] = useState(false);
+  const placed = enemy.placedAttacks || {};
+  const isDropTarget = isMyTurn && !!draggingAttackType;
+
+  const handleDragOver = (e) => {
+    if (!isDropTarget) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOver(true);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const type = e.dataTransfer.getData("attackType");
+    if (type) onAttack(enemy.id, type);
+  };
+
   return (
-    <div className="w-44 flex-shrink-0 bg-stone-100 border-2 border-stone-700 rounded-xl shadow-md overflow-hidden flex flex-col">
+    <div
+      className={`w-44 flex-shrink-0 bg-stone-100 rounded-xl shadow-md overflow-hidden flex flex-col transition-all border-2 ${
+        dragOver
+          ? "border-amber-400 shadow-lg scale-105"
+          : isDropTarget
+          ? "border-amber-300 border-dashed"
+          : "border-stone-700"
+      }`}
+      onDragOver={handleDragOver}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={handleDrop}
+    >
       {/* Header */}
       <div className="bg-stone-800 px-2 py-1.5 flex items-center justify-between gap-1">
         <div className="min-w-0">

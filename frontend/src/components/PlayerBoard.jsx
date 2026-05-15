@@ -43,7 +43,7 @@ function Lives({ lives, max }) {
   );
 }
 
-export default function PlayerBoard({ player, isMyTurn, onEndTurn }) {
+export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackStart, onDragAttackEnd }) {
   const [showCharacter, setShowCharacter] = useState(false);
   if (!player) return null;
 
@@ -108,15 +108,29 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn }) {
 
         <div className="w-px h-10 bg-stone-200 flex-shrink-0" />
 
-        {/* Attack types */}
-        {Object.entries(currentAttack).map(([type, amount]) => (
-          <ResourceBadge
-            key={type}
-            icon={ATTACK_ICONS[type]}
-            amount={amount}
-            colorClass={amount > 0 ? ATTACK_COLORS[type].active : ATTACK_COLORS[type].inactive}
-          />
-        ))}
+        {/* Attack types — draggable when > 0 */}
+        {Object.entries(currentAttack).map(([type, amount]) => {
+          const active = amount > 0 && isMyTurn;
+          return (
+            <div
+              key={type}
+              draggable={active}
+              onDragStart={active ? (e) => {
+                e.dataTransfer.setData("attackType", type);
+                e.dataTransfer.effectAllowed = "move";
+                onDragAttackStart?.(type);
+              } : undefined}
+              onDragEnd={active ? () => onDragAttackEnd?.() : undefined}
+              className={active ? "cursor-grab active:cursor-grabbing" : ""}
+            >
+              <ResourceBadge
+                icon={ATTACK_ICONS[type]}
+                amount={amount}
+                colorClass={amount > 0 ? ATTACK_COLORS[type].active : ATTACK_COLORS[type].inactive}
+              />
+            </div>
+          );
+        })}
 
         <div className="w-px h-10 bg-stone-200 flex-shrink-0" />
 
