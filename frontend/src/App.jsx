@@ -16,6 +16,15 @@ export default function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let token = localStorage.getItem("ogb_player_token");
+    if (!token) {
+      token = crypto.randomUUID();
+      localStorage.setItem("ogb_player_token", token);
+    }
+    const roomCodeMatch = window.location.pathname.match(/\/room\/([A-Z0-9-]+)/i);
+    const roomCode = roomCodeMatch?.[1]?.toUpperCase() || null;
+
+    socket.auth = { playerToken: token, roomCode };
     socket.connect();
 
     socket.on("connect", () => setMySocketId(socket.id));

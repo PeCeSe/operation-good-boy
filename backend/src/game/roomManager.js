@@ -10,7 +10,7 @@ function generateRoomCode() {
   return code;
 }
 
-function createRoom(socketId, password = null) {
+function createRoom(socketId, password = null, playerToken = null) {
   let code;
   do { code = generateRoomCode(); } while (rooms.has(code));
 
@@ -18,7 +18,7 @@ function createRoom(socketId, password = null) {
     code,
     password,
     hostSocketId: socketId,
-    players: [{ socketId, name: `Player 1`, characterId: null, isReady: false }],
+    players: [{ socketId, playerToken, name: `Player 1`, characterId: null, isReady: false }],
     gameState: null,
     lastActivity: Date.now(),
   });
@@ -26,22 +26,42 @@ function createRoom(socketId, password = null) {
   return code;
 }
 
-function joinRoom(socketId, code, password = null) {
+function joinRoom(socketId, code, password = null, playerToken = null) {
   const room = rooms.get(code);
   if (!room) return { success: false, error: "Room not found." };
+  if (room.password && room.password !== password) return { success: false, error: "Wrong password." };
+
+  const existing = room.players.find((p) => p.playerToken && p.playerToken === playerToken);
+  if (existing) {
+    existing.socketId = socketId;
+    room.lastActivity = Date.now();
+    return { success: true };
+  }
+
   if (room.gameState) return { success: false, error: "Game already in progress." };
   if (room.players.length >= 4) return { success: false, error: "Room is full." };
-  if (room.password && room.password !== password) return { success: false, error: "Wrong password." };
   if (room.players.find((p) => p.socketId === socketId)) return { success: true };
 
   room.players.push({
     socketId,
+    playerToken,
     name: `Player ${room.players.length + 1}`,
     characterId: null,
     isReady: false,
   });
   room.lastActivity = Date.now();
   return { success: true };
+}
+
+function rejoinRoom(newSocketId, playerToken, code) {
+  const room = rooms.get(code);
+  if (!room) return { success: false };
+  const player = room.players.find((p) => p.playerToken === playerToken);
+  if (!player) return { success: false };
+  player.socketId = newSocketId;
+  if (room.hostSocketId === null) room.hostSocketId = newSocketId;
+  room.lastActivity = Date.now();
+  return { success: true, hasGame: !!room.gameState };
 }
 
 function leaveRoom(socketId) {
@@ -126,6 +146,7 @@ function cleanup() {
 module.exports = {
   createRoom,
   joinRoom,
+  rejoinRoom,
   leaveRoom,
   getRoom,
   getRoomBySocket,

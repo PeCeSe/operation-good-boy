@@ -4,6 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 
 const roomManager = require("./game/roomManager");
+const { rejoinRoom } = roomManager;
 const { initGameState } = require("./game/gameState");
 const { startRound, playCard, attackEnemy, buyCard, endTurn } = require("./game/turnLogic");
 
@@ -42,15 +43,26 @@ function emitGameUpdate(code) {
 io.on("connection", (socket) => {
   console.log(`Connected: ${socket.id}`);
 
+  const { playerToken, roomCode } = socket.handshake.auth || {};
+  if (playerToken && roomCode) {
+    const result = rejoinRoom(socket.id, playerToken, roomCode);
+    if (result.success) {
+      socket.join(roomCode);
+      emitRoomUpdate(roomCode);
+      if (result.hasGame) emitGameUpdate(roomCode);
+      console.log(`Rejoined: ${socket.id} → room ${roomCode}`);
+    }
+  }
+
   socket.on("create_room", ({ password } = {}) => {
-    const code = roomManager.createRoom(socket.id, password || null);
+    const code = roomManager.createRoom(socket.id, password || null, playerToken);
     socket.join(code);
     socket.emit("room_created", { code });
     emitRoomUpdate(code);
   });
 
   socket.on("join_room", ({ code, password } = {}) => {
-    const result = roomManager.joinRoom(socket.id, code, password || null);
+    const result = roomManager.joinRoom(socket.id, code, password || null, playerToken);
     if (!result.success) {
       socket.emit("error", { message: result.error });
       return;
@@ -138,8 +150,14 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`Disconnected: ${socket.id}`);
-    const code = roomManager.leaveRoom(socket.id);
-    if (code) emitRoomUpdate(code);
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room) return;
+    if (room.gameState) {
+      emitRoomUpdate(room.code);
+    } else {
+      const code = roomManager.leaveRoom(socket.id);
+      if (code) emitRoomUpdate(code);
+    }
   });
 });
 
