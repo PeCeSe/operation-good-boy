@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import socket from "../socket";
 import CardComponent from "../components/CardComponent";
 import EnemyComponent from "../components/EnemyComponent";
-import PlayerHand from "../components/PlayerHand";
+import PlayerBoard from "../components/PlayerBoard";
 import ShopRow from "../components/ShopRow";
 import LocationBar from "../components/LocationBar";
 import EventDisplay from "../components/EventDisplay";
@@ -138,18 +138,6 @@ export default function Game({ gameState, mySocketId }) {
         <EventDisplay events={currentEvents} />
       </div>
 
-      {/* Players panel */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {players.map((p) => (
-          <PlayerPanel
-            key={p.playerId}
-            player={p}
-            isCurrentTurn={p.playerId === turn.currentPlayerId}
-            isMe={p.socketId === mySocketId}
-          />
-        ))}
-      </div>
-
       {/* Enemies */}
       <div>
         <h2 className="text-sm font-semibold text-stone-500 mb-2">
@@ -172,24 +160,25 @@ export default function Game({ gameState, mySocketId }) {
         )}
       </div>
 
-      {/* Hand */}
-      {me && (
-        <PlayerHand hand={me.hand} isMyTurn={isMyTurn} />
+      {/* Other players panel */}
+      {players.filter((p) => p.socketId !== mySocketId).length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {players
+            .filter((p) => p.socketId !== mySocketId)
+            .map((p) => (
+              <PlayerPanel
+                key={p.playerId}
+                player={p}
+                isCurrentTurn={p.playerId === turn.currentPlayerId}
+                isMe={false}
+              />
+            ))}
+        </div>
       )}
 
-      {/* Pawcoins + End Turn */}
-      {me && isMyTurn && (
-        <div className="flex items-center gap-4">
-          <span className="text-amber-600 font-semibold">
-            🪙 {me.currentPawcoins} pawcoins
-          </span>
-          <button
-            onClick={handleEndTurn}
-            className="bg-amber-500 hover:bg-amber-400 text-white font-bold px-5 py-2 rounded-lg transition-colors"
-          >
-            End Turn →
-          </button>
-        </div>
+      {/* My player board */}
+      {me && (
+        <PlayerBoard player={me} isMyTurn={isMyTurn} onEndTurn={handleEndTurn} />
       )}
 
       {/* Shop */}
