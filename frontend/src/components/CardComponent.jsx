@@ -1,13 +1,13 @@
 const TYPE_STYLES = {
-  move: "border-blue-500/60 bg-blue-900/20",
-  item: "border-amber-500/60 bg-amber-900/20",
-  ally: "border-green-500/60 bg-green-900/20",
+  move: "border-blue-400/70 bg-blue-50",
+  item: "border-amber-400/70 bg-amber-50",
+  ally: "border-green-400/70 bg-green-50",
 };
 
 const TYPE_BADGE = {
-  move: "bg-blue-600 text-blue-100",
-  item: "bg-amber-600 text-amber-100",
-  ally: "bg-green-600 text-green-100",
+  move: "bg-blue-100 text-blue-700",
+  item: "bg-amber-100 text-amber-700",
+  ally: "bg-green-100 text-green-700",
 };
 
 const ATTACK_ICONS = {
@@ -27,22 +27,22 @@ function EffectSummary({ effect }) {
   if (effect.special === "heal") parts.push("Heal 1 life");
   if (effect.special?.startsWith("bite_")) parts.push(`${ATTACK_ICONS.bite} +${effect.special.split("_")[1]} bite`);
   if (effect.special?.startsWith("charm_")) parts.push(`${ATTACK_ICONS.charm} +${effect.special.split("_")[1]} charm`);
-  return <span className="text-xs text-slate-300">{parts.join(" · ") || "No effect"}</span>;
+  return <span className="text-xs text-stone-600">{parts.join(" · ") || "No effect"}</span>;
 }
 
 export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false }) {
-  const base = TYPE_STYLES[card.type] || "border-slate-600 bg-slate-800";
+  const base = TYPE_STYLES[card.type] || "border-stone-300 bg-white";
 
   return (
     <button
       onClick={onClick}
       disabled={!isPlayable || isPlaying}
       title={card.flavorText}
-      className={`border-2 rounded-lg p-2 text-left w-28 flex-shrink-0 transition-all duration-300 select-none
+      className={`border-2 rounded-lg p-2 text-left w-28 flex-shrink-0 transition-all duration-300 select-none shadow-sm
         ${base}
         ${isPlaying ? "-translate-y-8 scale-110 opacity-0 pointer-events-none" : ""}
-        ${isPlayable && !isPlaying ? "hover:scale-105 hover:-translate-y-1 hover:brightness-110 cursor-pointer" : ""}
-        ${!isPlayable && !isPlaying ? "opacity-60 cursor-default" : ""}
+        ${isPlayable && !isPlaying ? "hover:scale-105 hover:-translate-y-1 hover:shadow-md cursor-pointer" : ""}
+        ${!isPlayable && !isPlaying ? "opacity-50 cursor-default" : ""}
       `}
     >
       <div className="flex items-start justify-between mb-1">
@@ -50,13 +50,13 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
           {card.type}
         </span>
         {showCost && (
-          <span className="text-xs font-bold text-amber-400">🪙{card.cost}</span>
+          <span className="text-xs font-bold text-amber-600">🪙{card.cost}</span>
         )}
       </div>
-      <div className="font-semibold text-xs leading-tight mb-1">{card.name}</div>
+      <div className="font-semibold text-xs leading-tight mb-1 text-stone-800">{card.name}</div>
       <EffectSummary effect={card.effect} />
       {card.flavorText && (
-        <div className="text-[10px] text-slate-500 italic mt-1 line-clamp-2">{card.flavorText}</div>
+        <div className="text-[10px] text-stone-400 italic mt-1 line-clamp-2">{card.flavorText}</div>
       )}
     </button>
   );

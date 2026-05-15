@@ -23,22 +23,22 @@ function PlayerPanel({ player, isCurrentTurn, isMe }) {
   return (
     <div
       className={`rounded-lg p-3 border-2 transition-all ${
-        isCurrentTurn ? "border-amber-400 bg-amber-400/10" : "border-slate-700 bg-slate-800"
+        isCurrentTurn ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-white shadow-sm"
       }`}
     >
       <div className="flex items-center gap-2 mb-1">
         <span className="text-lg">{player.character.emoji}</span>
         <span className="font-semibold text-sm">
-          {player.name} {isMe && <span className="text-slate-500 text-xs">(you)</span>}
+          {player.name} {isMe && <span className="text-stone-400 text-xs">(you)</span>}
         </span>
         {player.isStunned && <span className="text-xs text-red-400 font-bold">STUNNED</span>}
       </div>
       <Lives lives={player.lives} max={player.character.maxLives} />
       {isCurrentTurn && (
         <div className="text-xs mt-1 space-y-0.5">
-          <div className="text-amber-400">🪙 {player.currentPawcoins} pawcoins</div>
+          <div className="text-amber-600">🪙 {player.currentPawcoins} pawcoins</div>
           {attackEntries.map(([type, amount]) => (
-            <div key={type} className="text-slate-300">
+            <div key={type} className="text-stone-700">
               {type}: {amount}
             </div>
           ))}
@@ -83,12 +83,12 @@ export default function Game({ gameState, mySocketId }) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <div className="text-6xl">🎉</div>
-        <h1 className="text-4xl font-bold text-amber-400">Victory!</h1>
-        <p className="text-slate-400">Good Boy has been defeated. The neighborhood is safe.</p>
-        <p className="text-slate-500 text-sm italic">For now.</p>
+        <h1 className="text-4xl font-bold text-amber-600">Victory!</h1>
+        <p className="text-stone-500">Good Boy has been defeated. The neighborhood is safe.</p>
+        <p className="text-stone-400 text-sm italic">For now.</p>
         <button
           onClick={() => navigate("/")}
-          className="mt-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-lg transition-colors"
+          className="mt-4 bg-amber-500 hover:bg-amber-400 text-white font-bold px-6 py-3 rounded-lg transition-colors"
         >
           Back to Home
         </button>
@@ -101,10 +101,10 @@ export default function Game({ gameState, mySocketId }) {
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <div className="text-6xl">🥒</div>
         <h1 className="text-4xl font-bold text-red-400">Defeat</h1>
-        <p className="text-slate-400">The neighborhood is overrun with cucumbers.</p>
+        <p className="text-stone-500">The neighborhood is overrun with cucumbers.</p>
         <button
           onClick={() => navigate("/")}
-          className="mt-4 bg-slate-600 hover:bg-slate-500 font-bold px-6 py-3 rounded-lg transition-colors"
+          className="mt-4 bg-stone-300 hover:bg-stone-400 font-bold px-6 py-3 rounded-lg transition-colors"
         >
           Back to Home
         </button>
@@ -118,12 +118,12 @@ export default function Game({ gameState, mySocketId }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="text-xl">🐾</span>
-          <span className="font-bold text-amber-400">Operation: Good Boy</span>
-          <span className="text-slate-500 text-sm">Round {turn.roundNumber}</span>
+          <span className="font-bold text-amber-600">Operation: Good Boy</span>
+          <span className="text-stone-400 text-sm">Round {turn.roundNumber}</span>
         </div>
-        <div className="text-sm text-slate-400">
+        <div className="text-sm text-stone-500">
           {isMyTurn ? (
-            <span className="text-amber-400 font-semibold animate-pulse">Your turn!</span>
+            <span className="text-amber-600 font-semibold animate-pulse">Your turn!</span>
           ) : (
             <span>
               {players.find((p) => p.playerId === turn.currentPlayerId)?.name}'s turn
@@ -152,11 +152,11 @@ export default function Game({ gameState, mySocketId }) {
 
       {/* Enemies */}
       <div>
-        <h2 className="text-sm font-semibold text-slate-400 mb-2">
+        <h2 className="text-sm font-semibold text-stone-500 mb-2">
           Enemies ({enemies.length} active)
         </h2>
         {enemies.length === 0 ? (
-          <p className="text-slate-600 text-sm italic">No enemies on the board. 🎉</p>
+          <p className="text-stone-400 text-sm italic">No enemies on the board. 🎉</p>
         ) : (
           <div className="flex gap-3 flex-wrap">
             {enemies.map((enemy) => (
@@ -180,12 +180,12 @@ export default function Game({ gameState, mySocketId }) {
       {/* Pawcoins + End Turn */}
       {me && isMyTurn && (
         <div className="flex items-center gap-4">
-          <span className="text-amber-400 font-semibold">
+          <span className="text-amber-600 font-semibold">
             🪙 {me.currentPawcoins} pawcoins
           </span>
           <button
             onClick={handleEndTurn}
-            className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-5 py-2 rounded-lg transition-colors"
+            className="bg-amber-500 hover:bg-amber-400 text-white font-bold px-5 py-2 rounded-lg transition-colors"
           >
             End Turn →
           </button>
@@ -200,7 +200,7 @@ export default function Game({ gameState, mySocketId }) {
         blockShop={blockShop}
       />
 
-      <div className="text-xs text-slate-600 text-right">
+      <div className="text-xs text-stone-400 text-right">
         Shop deck: {shopDeck?.length || 0} cards remaining
       </div>
 
