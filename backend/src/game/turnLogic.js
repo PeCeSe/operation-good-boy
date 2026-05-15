@@ -234,12 +234,6 @@ function checkWinLose(state) {
     log(state, "🎉 Victory! Good Boy has been defeated. The neighborhood is safe... for now.");
     return true;
   }
-  if (state.locationDeck.length === 0 && state.lostLocations.length >= 3) {
-    // All 4 locations lost
-    state.phase = "defeat";
-    log(state, "🥒 Defeat. The neighborhood is overrun with cucumbers.");
-    return true;
-  }
   return false;
 }
 

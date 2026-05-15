@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 
 const roomManager = require("./game/roomManager");
-const { rejoinRoom } = roomManager;
+const { rejoinRoom, setName } = roomManager;
 const { initGameState } = require("./game/gameState");
 const { startRound, playCard, attackEnemy, buyCard, endTurn } = require("./game/turnLogic");
 
@@ -70,6 +70,13 @@ io.on("connection", (socket) => {
     socket.join(code);
     socket.emit("room_joined", { code });
     emitRoomUpdate(code);
+  });
+
+  socket.on("set_name", ({ name } = {}) => {
+    if (!name) return;
+    setName(socket.id, name);
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (room) emitRoomUpdate(room.code);
   });
 
   socket.on("select_character", ({ characterId } = {}) => {

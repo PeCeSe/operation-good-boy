@@ -101,6 +101,16 @@ function getRoomBySocket(socketId) {
   return null;
 }
 
+function setName(socketId, name) {
+  const room = getRoomBySocket(socketId);
+  if (!room) return;
+  const player = room.players.find((p) => p.socketId === socketId);
+  if (player) {
+    player.name = name.trim().slice(0, 20) || player.name;
+    room.lastActivity = Date.now();
+  }
+}
+
 function setCharacter(socketId, characterId) {
   const room = getRoomBySocket(socketId);
   if (!room) return;
@@ -156,6 +166,7 @@ module.exports = {
   joinRoom,
   rejoinRoom,
   leaveRoom,
+  setName,
   getRoom,
   getRoomBySocket,
   setCharacter,

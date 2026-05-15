@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import socket from "../socket";
 import CardComponent from "../components/CardComponent";
 import EnemyComponent from "../components/EnemyComponent";
@@ -48,6 +49,7 @@ function PlayerPanel({ player, isCurrentTurn, isMe }) {
 }
 
 export default function Game({ gameState, mySocketId }) {
+  const navigate = useNavigate();
   const {
     turn,
     players,
@@ -84,6 +86,12 @@ export default function Game({ gameState, mySocketId }) {
         <h1 className="text-4xl font-bold text-amber-400">Victory!</h1>
         <p className="text-slate-400">Good Boy has been defeated. The neighborhood is safe.</p>
         <p className="text-slate-500 text-sm italic">For now.</p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold px-6 py-3 rounded-lg transition-colors"
+        >
+          Back to Home
+        </button>
       </div>
     );
   }
@@ -94,6 +102,12 @@ export default function Game({ gameState, mySocketId }) {
         <div className="text-6xl">🥒</div>
         <h1 className="text-4xl font-bold text-red-400">Defeat</h1>
         <p className="text-slate-400">The neighborhood is overrun with cucumbers.</p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-4 bg-slate-600 hover:bg-slate-500 font-bold px-6 py-3 rounded-lg transition-colors"
+        >
+          Back to Home
+        </button>
       </div>
     );
   }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import socket from "../socket";
 
@@ -27,6 +28,8 @@ const CHARACTERS = [
 
 export default function Lobby({ roomInfo, mySocketId }) {
   const { code } = useParams();
+  const [nameInput, setNameInput] = useState("");
+  const [nameSent, setNameSent] = useState(false);
 
   const myPlayer = roomInfo?.players.find((p) => p.socketId === mySocketId);
   const isHost = roomInfo?.hostSocketId === mySocketId;
@@ -37,6 +40,12 @@ export default function Lobby({ roomInfo, mySocketId }) {
   );
 
   const handleCopyCode = () => navigator.clipboard.writeText(code);
+  const handleSetName = () => {
+    const trimmed = nameInput.trim();
+    if (!trimmed) return;
+    socket.emit("set_name", { name: trimmed });
+    setNameSent(true);
+  };
   const handleSelectCharacter = (characterId) => {
     socket.emit("select_character", { characterId });
   };
@@ -68,6 +77,26 @@ export default function Lobby({ roomInfo, mySocketId }) {
             Copy
           </button>
         </div>
+      </div>
+
+      {/* Name input */}
+      <div className="flex gap-2 items-center max-w-sm mx-auto w-full">
+        <input
+          type="text"
+          value={nameInput}
+          onChange={(e) => { setNameInput(e.target.value); setNameSent(false); }}
+          onKeyDown={(e) => e.key === "Enter" && handleSetName()}
+          placeholder={myPlayer?.name || "Your name…"}
+          maxLength={20}
+          className="flex-1 bg-slate-800 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400"
+        />
+        <button
+          onClick={handleSetName}
+          disabled={!nameInput.trim()}
+          className="bg-slate-700 hover:bg-slate-600 disabled:opacity-40 px-4 py-2 rounded text-sm font-semibold transition-colors"
+        >
+          {nameSent ? "✓" : "Set"}
+        </button>
       </div>
 
       {/* Players */}
