@@ -306,14 +306,6 @@ function checkWinLose(state) {
 }
 
 function endRound(state) {
-  // Enemies add cucumber tokens for surviving the round
-  state.enemies.forEach((enemy) => {
-    state.currentLocation.currentCucumberTokens += enemy.cucumberTokensOnSurvive;
-  });
-  if (state.enemies.length > 0) {
-    log(state, `Surviving enemies add cucumber tokens to ${state.currentLocation.name}.`);
-  }
-
   // Check for knocked-out players (lives === 0)
   state.players.forEach((p) => {
     if (p.lives === 0 && !p.isStunned) {
