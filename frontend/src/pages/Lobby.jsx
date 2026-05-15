@@ -30,7 +30,7 @@ export default function Lobby({ roomInfo, mySocketId }) {
 
   const myPlayer = roomInfo?.players.find((p) => p.socketId === mySocketId);
   const isHost = roomInfo?.hostSocketId === mySocketId;
-  const allReady = roomInfo?.players.length >= 2 && roomInfo.players.every((p) => p.isReady);
+  const allReady = roomInfo?.players.length >= 1 && roomInfo.players.every((p) => p.isReady);
 
   const takenCharacters = new Set(
     (roomInfo?.players || []).map((p) => p.characterId).filter(Boolean)
@@ -174,7 +174,7 @@ export default function Lobby({ roomInfo, mySocketId }) {
       </div>
 
       {!allReady && roomInfo.players.length < 2 && (
-        <p className="text-center text-slate-500 text-sm">Need at least 2 players to start.</p>
+        <p className="text-center text-slate-500 text-sm">Select a character and ready up to start.</p>
       )}
     </div>
   );

@@ -99,7 +99,7 @@ function canStart(code) {
   if (!room || room.gameState) return false;
   const { players } = room;
   return (
-    players.length >= 2 &&
+    players.length >= 1 &&
     players.length <= 4 &&
     players.every((p) => p.characterId && p.isReady)
   );
