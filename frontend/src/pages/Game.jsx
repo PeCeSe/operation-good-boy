@@ -56,7 +56,7 @@ export default function Game({ gameState, mySocketId }) {
     enemies,
     currentLocation,
     lostLocations,
-    currentEvent,
+    currentEvents,
     shop,
     shopDeck,
     blockShop,
@@ -132,11 +132,11 @@ export default function Game({ gameState, mySocketId }) {
         </div>
       </div>
 
-      {/* Event */}
-      {currentEvent && <EventDisplay event={currentEvent} />}
+      {/* Events */}
+      <EventDisplay events={currentEvents} />
 
       {/* Location */}
-      <LocationBar currentLocation={currentLocation} lostLocations={lostLocations} />
+      <LocationBar currentLocation={currentLocation} lostLocations={lostLocations} totalLocations={3} />
 
       {/* Players panel */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">

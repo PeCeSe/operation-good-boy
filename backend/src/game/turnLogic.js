@@ -59,15 +59,17 @@ function startRound(state) {
   state.blockAttack = false;
   state.pawcoinPenalty = 0;
 
-  // Draw event
-  if (state.eventDeck.length > 0) {
-    const event = state.eventDeck.shift();
-    state.currentEvent = event;
+  // Draw events (count based on current location)
+  const eventsToDraw = state.currentLocation?.eventsToDraw || 1;
+  const drawnEvents = [];
+  for (let i = 0; i < eventsToDraw && state.eventDeck.length > 0; i++) {
+    drawnEvents.push(state.eventDeck.shift());
+  }
+  state.currentEvents = drawnEvents;
+  drawnEvents.forEach((event) => {
     log(state, `📣 Event: "${event.name}" — ${event.flavorText}`);
     applyEventEffect(state, event);
-  } else {
-    state.currentEvent = null;
-  }
+  });
 
   // Draw enemy if board has fewer than 3
   while (state.enemies.length < 3 && state.enemyDeck.length > 0) {

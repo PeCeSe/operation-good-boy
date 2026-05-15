@@ -73,7 +73,7 @@ function initGameState(room) {
     currentLocation: locationDeck.shift(),
     locationDeck,
     lostLocations: [],
-    currentEvent: null,
+    currentEvents: [],
     eventDeck,
     shop,
     shopDeck,
