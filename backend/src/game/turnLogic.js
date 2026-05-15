@@ -58,7 +58,10 @@ function checkStun(state) {
   state.players.forEach((p) => {
     if (p.lives === 0 && !p.isStunned) {
       p.isStunned = true;
-      log(state, `${p.name} was knocked out and is stunned!`);
+      const discardCount = Math.floor(p.hand.length / 2);
+      if (discardCount > 0) p.discard.push(...p.hand.splice(0, discardCount));
+      if (state.currentLocation) state.currentLocation.currentCucumberTokens += 1;
+      log(state, `${p.name} was knocked out! Discarded ${discardCount} card(s), +1 🥒.`);
     }
   });
 }
@@ -344,11 +347,6 @@ function endRound(state) {
   log(state, `--- Round ${state.turn.roundNumber} begins ---`);
   startRound(state);
 
-  // Handle stun for first player of the new round
-  const firstPlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
-  if (firstPlayer && firstPlayer.isStunned) {
-    handleStunnedPlayer(state, firstPlayer.playerId);
-  }
 
   return state;
 }
@@ -364,6 +362,13 @@ function endTurn(state, playerId) {
   player.currentPawcoins = 0;
   player.currentAttack = { scratch: 0, bite: 0, ignore: 0, charm: 0 };
 
+  // Recover from stun
+  if (player.isStunned) {
+    player.lives = player.character.maxLives;
+    player.isStunned = false;
+    log(state, `${player.name} recovers from stun with full lives.`);
+  }
+
   // Street Cat passive: draw 6 instead of 5
   const drawCount = player.character.id === "char_streetcat" ? 6 : 5;
   drawCards(player, drawCount);
@@ -374,12 +379,6 @@ function endTurn(state, playerId) {
 
   if (roundComplete) {
     endRound(state);
-  } else {
-    // Handle stun at start of next player's turn
-    const nextPlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
-    if (nextPlayer && nextPlayer.isStunned) {
-      handleStunnedPlayer(state, nextPlayer.playerId);
-    }
   }
 
   return { state, error: null };
