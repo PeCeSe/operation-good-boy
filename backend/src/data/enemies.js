@@ -42,7 +42,7 @@ const ENEMIES = [
     },
     reward: {
       description: "Remove 1 🥒.",
-      pawcoins: 3,
+      pawcoins: 0,
       removeCucumbers: 1,
       healAll: 0,
       drawCardsAll: 0,
@@ -68,7 +68,7 @@ const ENEMIES = [
     },
     reward: {
       description: "All players gain 1 life.",
-      pawcoins: 2,
+      pawcoins: 0,
       removeCucumbers: 0,
       healAll: 1,
       drawCardsAll: 0,
@@ -94,7 +94,7 @@ const ENEMIES = [
     },
     reward: {
       description: "All players draw 1 card.",
-      pawcoins: 3,
+      pawcoins: 0,
       removeCucumbers: 0,
       healAll: 0,
       drawCardsAll: 1,
@@ -120,7 +120,7 @@ const ENEMIES = [
     },
     reward: {
       description: "Remove 1 🥒.",
-      pawcoins: 2,
+      pawcoins: 0,
       removeCucumbers: 1,
       healAll: 0,
       drawCardsAll: 0,
@@ -146,7 +146,7 @@ const ENEMIES = [
     },
     reward: {
       description: "All players gain 1 life. Remove 1 🥒.",
-      pawcoins: 3,
+      pawcoins: 0,
       removeCucumbers: 1,
       healAll: 1,
       drawCardsAll: 0,
@@ -172,7 +172,7 @@ const ENEMIES = [
     },
     reward: {
       description: "All players draw 2 cards.",
-      pawcoins: 3,
+      pawcoins: 0,
       removeCucumbers: 0,
       healAll: 0,
       drawCardsAll: 2,
@@ -198,7 +198,7 @@ const ENEMIES = [
     },
     reward: {
       description: "Active player draws 2 cards.",
-      pawcoins: 4,
+      pawcoins: 0,
       removeCucumbers: 0,
       healAll: 0,
       drawCardsAll: 0,
