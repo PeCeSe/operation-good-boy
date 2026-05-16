@@ -82,6 +82,7 @@ function initGameState(room) {
     eventDeck,
     shop,
     shopDeck,
+    pendingPhase: null,
     log: [],
   };
 }
