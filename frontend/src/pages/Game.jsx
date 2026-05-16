@@ -20,7 +20,7 @@ function Lives({ lives, max }) {
   );
 }
 
-function PlayerPanel({ player, isCurrentTurn, isMe }) {
+function PlayerPanel({ player, isCurrentTurn, isNextUp }) {
   const attackEntries = Object.entries(player.currentAttack).filter(([, v]) => v > 0);
   const charData = CHARACTERS.find((c) => c.id === player.character.id);
 
@@ -30,22 +30,28 @@ function PlayerPanel({ player, isCurrentTurn, isMe }) {
         isCurrentTurn ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-white shadow-sm"
       }`}
     >
-      <div className="flex items-center gap-2 p-2">
+      <div className="flex items-center gap-3 p-3">
         {charData?.headshot ? (
-          <img src={charData.headshot} alt={player.name} className="w-10 h-10 object-contain shrink-0" />
+          <img src={charData.headshot} alt={player.name} className="w-14 h-14 object-contain shrink-0" />
         ) : (
-          <span className="text-lg shrink-0">{player.character.emoji}</span>
+          <span className="text-2xl shrink-0">{player.character.emoji}</span>
         )}
-        <div className="min-w-0">
-          <div className="font-semibold text-sm truncate">
-            {player.name} {isMe && <span className="text-stone-400 text-xs">(you)</span>}
-          </div>
-          {charData && <div className="text-[10px] text-stone-400 truncate">{charData.subtitle}</div>}
+        <div className="min-w-0 flex-1">
+          <div className="font-semibold text-sm truncate">{player.name}</div>
+          {charData && <div className="text-xs font-medium text-stone-500 truncate">{charData.name}</div>}
+          {charData && <div className="text-[10px] text-stone-400 truncate uppercase tracking-wide">{charData.subtitle}</div>}
           {player.isStunned && <span className="text-xs text-red-400 font-bold">STUNNED</span>}
+          {isNextUp && !isCurrentTurn && (
+            <div className="text-[10px] font-bold text-indigo-500 uppercase tracking-wide mt-0.5">Next up</div>
+          )}
         </div>
       </div>
-      <div className="px-2 pb-2">
-        <Lives lives={player.lives} max={player.character.maxLives} />
+      <div className="px-3 pb-3">
+        <div className="flex gap-1 flex-wrap">
+          {Array.from({ length: player.character.maxLives }).map((_, i) => (
+            <span key={i} className={`text-base leading-none ${i < player.lives ? "text-red-400" : "text-stone-200"}`}>♥</span>
+          ))}
+        </div>
         {isCurrentTurn && (
           <div className="text-xs mt-1 space-y-0.5">
             <div className="text-amber-600">🪙 {player.currentPawcoins} pawcoins</div>
@@ -228,16 +234,20 @@ export default function Game({ gameState, mySocketId }) {
       {/* Other players panel */}
       {players.filter((p) => p.socketId !== mySocketId).length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {players
-            .filter((p) => p.socketId !== mySocketId)
-            .map((p) => (
-              <PlayerPanel
-                key={p.playerId}
-                player={p}
-                isCurrentTurn={p.playerId === turn.currentPlayerId}
-                isMe={false}
-              />
-            ))}
+          {(() => {
+            const currentIdx = players.findIndex((p) => p.playerId === turn.currentPlayerId);
+            const nextPlayerId = players[(currentIdx + 1) % players.length]?.playerId;
+            return players
+              .filter((p) => p.socketId !== mySocketId)
+              .map((p) => (
+                <PlayerPanel
+                  key={p.playerId}
+                  player={p}
+                  isCurrentTurn={p.playerId === turn.currentPlayerId}
+                  isNextUp={p.playerId === nextPlayerId}
+                />
+              ));
+          })()}
         </div>
       )}
 

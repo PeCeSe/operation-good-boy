@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PlayerHand from "./PlayerHand";
+import CHARACTERS from "../data/characters";
 
 const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
 const TOKEN_COLORS = {
@@ -38,13 +39,17 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
   if (!player) return null;
 
   const { name, character, lives, isStunned, hand, deck, discard, currentPawcoins, currentAttack } = player;
+  const charData = CHARACTERS.find((c) => c.id === character.id);
 
   return (
     <div className={`rounded-xl border-2 shadow-md overflow-hidden transition-all ${isMyTurn ? "border-amber-400" : "border-stone-200"}`}>
       {/* Header: name + lives + chevron */}
       <div className={`flex items-center justify-between px-4 py-2 ${isMyTurn ? "bg-amber-50" : "bg-stone-50"}`}>
         <div className="flex items-center gap-2">
-          <span className="text-xl">{character.emoji}</span>
+          {charData?.headshot
+            ? <img src={charData.headshot} alt={name} className="w-9 h-9 object-contain shrink-0" />
+            : <span className="text-xl">{character.emoji}</span>
+          }
           <span className="font-bold text-stone-800">{name}</span>
           <span className="text-stone-400 text-xs">(you)</span>
           {isStunned && (
@@ -68,21 +73,28 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
 
       {/* Collapsible character section */}
       {showCharacter && (
-        <div className={`border-t border-stone-100 px-4 py-3 flex gap-4 items-start ${isMyTurn ? "bg-amber-50/60" : "bg-stone-50/60"}`}>
-          <div className="w-16 h-20 rounded-lg bg-gradient-to-b from-amber-100 to-amber-200 border-2 border-amber-300 flex items-center justify-center text-4xl flex-shrink-0 shadow-sm">
-            {character.emoji}
-          </div>
-          <div className="min-w-0">
-            <div className="font-bold text-stone-800 text-sm">{character.name}</div>
+        <div className={`border-t border-stone-100 ${isMyTurn ? "bg-amber-50/60" : "bg-stone-50/60"}`}>
+          {charData?.image && (
+            <div
+              className="relative w-full h-48 overflow-hidden"
+              style={{ background: `linear-gradient(160deg, ${charData.bgFrom} 0%, ${charData.bgTo} 100%)` }}
+            >
+              <img src={charData.image} alt={charData.name} className="absolute inset-0 w-full h-full object-cover object-center" />
+              <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-8" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)" }}>
+                <div className="text-white font-bold text-base leading-tight">{charData.name}</div>
+                <div className="text-white/60 text-xs uppercase tracking-wide">{charData.subtitle}</div>
+              </div>
+            </div>
+          )}
+          <div className="px-4 py-3 space-y-2">
+            {charData?.trait && <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 italic">{charData.trait}</div>}
             {character.passiveAbility?.description && (
-              <div className="text-xs text-stone-600 mt-1">
-                <span className="font-semibold text-stone-500">Passive:</span> {character.passiveAbility.description}
+              <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                <div className="text-[9px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Passive</div>
+                <div className="text-xs text-stone-700 font-semibold">⚡ {character.passiveAbility.description}</div>
               </div>
             )}
-            {character.flavorText && (
-              <div className="text-xs text-stone-400 italic mt-1">"{character.flavorText}"</div>
-            )}
-            <div className="text-xs text-stone-400 mt-1">Max lives: {character.maxLives}</div>
+            <div className="text-xs text-stone-400">Max lives: {character.maxLives}</div>
           </div>
         </div>
       )}
