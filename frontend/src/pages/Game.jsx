@@ -289,9 +289,9 @@ export default function Game({ gameState, mySocketId }) {
         />
       )}
 
-      {/* Phase overlay — shown when events or enemy abilities are pending */}
+      {/* Phase overlay — hidden while a discard is pending */}
       <PhaseOverlay
-        pendingPhase={pendingPhase}
+        pendingPhase={gameState.pendingDiscard ? null : pendingPhase}
         isMyTurn={isMyTurn}
         onReveal={handleRevealPhase}
         onAdvance={handleAdvancePhase}

@@ -196,6 +196,20 @@ function revealPhase(state, playerId) {
   return { state, error: null };
 }
 
+function advancePendingPhase(state) {
+  if (!state.pendingPhase) return;
+  const { items, resolvedIndex } = state.pendingPhase;
+  const newIndex = resolvedIndex + 1;
+  if (newIndex >= items.length) {
+    state.pendingPhase = null;
+    if (items[resolvedIndex]?.kind !== "turn_start" && state.enemies.length > 0) {
+      log(state, `Enemies on the board: ${state.enemies.map((e) => e.name).join(", ")}.`);
+    }
+  } else {
+    state.pendingPhase = makePendingPhase(items, newIndex);
+  }
+}
+
 function advancePhase(state, playerId) {
   if (state.turn.currentPlayerId !== playerId) return { state, error: "Not your turn." };
   if (!state.pendingPhase) return { state, error: "No pending phase." };
@@ -216,16 +230,10 @@ function advancePhase(state, playerId) {
     if (enemy) applyEnemyAbility(state, enemy);
   }
 
-  const newIndex = resolvedIndex + 1;
-  if (newIndex >= items.length) {
-    state.pendingPhase = null;
-    if (item.kind !== "turn_start" && state.enemies.length > 0) {
-      log(state, `Enemies on the board: ${state.enemies.map((e) => e.name).join(", ")}.`);
-    }
-  } else {
-    state.pendingPhase = makePendingPhase(items, newIndex);
-  }
+  // If a discard was triggered, hold the phase here until discards are done
+  if (state.pendingDiscard) return { state, error: null };
 
+  advancePendingPhase(state);
   return { state, error: null };
 }
 
@@ -429,7 +437,11 @@ function discardCards(state, playerId, cardIds) {
   }
 
   state.pendingDiscard = state.pendingDiscard.filter((d) => d.playerId !== playerId);
-  if (state.pendingDiscard.length === 0) state.pendingDiscard = null;
+  if (state.pendingDiscard.length === 0) {
+    state.pendingDiscard = null;
+    // Resume the phase that was paused waiting for discards
+    if (state.pendingPhase) advancePendingPhase(state);
+  }
 
   log(state, `${player.name} discarded ${cardIds.length} card(s).`);
   return { state, error: null };
