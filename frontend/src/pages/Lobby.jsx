@@ -160,19 +160,45 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
             return (
               <div
                 key={p.socketId}
-                className="bg-white border border-stone-200 shadow-sm rounded-lg p-3 text-center"
+                className="bg-white border border-stone-200 shadow-sm rounded-lg overflow-hidden text-center"
               >
-                <div className="text-2xl mb-1">{char ? char.emoji : "❓"}</div>
-                <div className="text-sm font-medium">{p.name}</div>
-                <div className="text-xs text-stone-500">{char ? char.subtitle : "No character"}</div>
+                {/* Portrait or placeholder */}
                 <div
-                  className={`text-xs mt-1 font-semibold ${p.isReady ? "text-green-400" : "text-stone-400"}`}
+                  className="relative h-24 flex items-center justify-center"
+                  style={char ? { background: `linear-gradient(160deg, ${char.bgFrom} 0%, ${char.bgTo} 100%)` } : { background: "#e7e5e4" }}
                 >
-                  {p.isReady ? "Ready" : "Not ready"}
+                  {char ? (
+                    <img
+                      src={char.image}
+                      alt={char.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ objectPosition: char.objectPosition ?? "center" }}
+                    />
+                  ) : (
+                    <span className="text-3xl opacity-40">❓</span>
+                  )}
+                  {p.isReady && (
+                    <div className="absolute top-1 right-1 bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">✓</div>
+                  )}
+                  {p.socketId === roomInfo.hostSocketId && (
+                    <div className="absolute top-1 left-1 bg-amber-400 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Host</div>
+                  )}
                 </div>
-                {p.socketId === roomInfo.hostSocketId && (
-                  <div className="text-xs text-amber-600 mt-1">Host</div>
-                )}
+                {/* Info */}
+                <div className="p-2">
+                  <div className="text-sm font-bold truncate">{p.name}</div>
+                  {char ? (
+                    <>
+                      <div className="text-xs font-semibold text-stone-700 truncate">{char.name}</div>
+                      <div className="text-[10px] text-stone-400 uppercase tracking-wide">{char.subtitle}</div>
+                    </>
+                  ) : (
+                    <div className="text-xs text-stone-400 italic">No character</div>
+                  )}
+                  <div className={`text-xs mt-1 font-semibold ${p.isReady ? "text-green-500" : "text-stone-400"}`}>
+                    {p.isReady ? "Ready!" : "Not ready"}
+                  </div>
+                </div>
               </div>
             );
           })}
