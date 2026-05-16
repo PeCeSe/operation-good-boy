@@ -15,13 +15,33 @@ function drawCards(player, count) {
   }
 }
 
+function checkLocationLoss(state) {
+  if (!state.currentLocation) return;
+  if (state.currentLocation.currentCucumberTokens < state.currentLocation.maxCucumberTokens) return;
+
+  log(state, `💀 ${state.currentLocation.name} is lost!`);
+  state.lostLocations.push(state.currentLocation);
+
+  if (state.locationDeck.length > 0) {
+    state.currentLocation = state.locationDeck.shift();
+    log(state, `Moving to ${state.currentLocation.name}.`);
+  } else {
+    state.currentLocation = null;
+    state.phase = "defeat";
+    log(state, "🥒 Defeat. All locations have been lost.");
+  }
+}
+
 function checkStun(state) {
   state.players.forEach((p) => {
     if (p.lives === 0 && !p.isStunned) {
       p.isStunned = true;
       const discardCount = Math.floor(p.hand.length / 2);
       if (discardCount > 0) p.discard.push(...p.hand.splice(0, discardCount));
-      if (state.currentLocation) state.currentLocation.currentCucumberTokens += 1;
+      if (state.currentLocation) {
+        state.currentLocation.currentCucumberTokens += 1;
+        checkLocationLoss(state);
+      }
       log(state, `${p.name} was knocked out! Discarded ${discardCount} card(s), +1 🥒.`);
     }
   });
@@ -36,6 +56,7 @@ function applyEventEffect(state, event) {
   if (e.cucumberTokens > 0) {
     state.currentLocation.currentCucumberTokens += e.cucumberTokens;
     log(state, `Event: +${e.cucumberTokens} 🥒 to ${state.currentLocation.name}.`);
+    checkLocationLoss(state);
   }
   if (e.damageAll > 0) {
     state.players.forEach((p) => { p.lives = Math.max(0, p.lives - e.damageAll); });
@@ -65,6 +86,7 @@ function applyEnemyAbility(state, enemy) {
       state.currentLocation.currentCucumberTokens + e.addCucumber
     );
     log(state, `${enemy.name}: +${e.addCucumber} 🥒 to ${state.currentLocation.name}.`);
+    checkLocationLoss(state);
   }
   if (e.damageAll > 0) {
     state.players.forEach((p) => { p.lives = Math.max(0, p.lives - e.damageAll); });
@@ -334,21 +356,9 @@ function checkWinLose(state) {
 
 function endRound(state) {
   checkStun(state);
+  checkLocationLoss(state);
 
-  if (state.currentLocation.currentCucumberTokens >= state.currentLocation.maxCucumberTokens) {
-    log(state, `💀 ${state.currentLocation.name} is lost!`);
-    state.lostLocations.push(state.currentLocation);
-    if (state.locationDeck.length > 0) {
-      state.currentLocation = state.locationDeck.shift();
-      log(state, `Moving to ${state.currentLocation.name}.`);
-    } else {
-      state.currentLocation = null;
-      state.phase = "defeat";
-      log(state, "🥒 Defeat. All locations have been lost.");
-      return state;
-    }
-  }
-
+  if (state.phase === "defeat") return state;
   if (checkWinLose(state)) return state;
 
   state.turn.roundNumber += 1;
