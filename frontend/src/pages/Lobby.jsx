@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socket from "../socket";
 import CHARACTERS from "../data/characters";
@@ -8,6 +8,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const [nameInput, setNameInput] = useState("");
   const [nameSent, setNameSent] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const myPlayer = roomInfo?.players.find((p) => p.socketId === mySocketId);
   const isHost = roomInfo?.hostSocketId === mySocketId;
@@ -17,7 +18,11 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
     (roomInfo?.players || []).map((p) => p.characterId).filter(Boolean)
   );
 
-  const handleCopyLink = () => navigator.clipboard.writeText(window.location.href);
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   const handleSetName = () => {
     const trimmed = nameInput.trim();
     if (!trimmed) return;
@@ -70,6 +75,11 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-8">
+      {copied && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-stone-800 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg anim-slide-up">
+          Link copied! 🔗
+        </div>
+      )}
       {/* Header */}
       <div className="text-center">
         <div className="text-4xl mb-2">🐾</div>
