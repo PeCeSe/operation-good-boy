@@ -155,10 +155,10 @@ function EffectResult({ effectResult, isMyTurn, onDone }) {
                   return (
                     <span
                       key={i}
-                      className={`text-lg leading-none ${wasLost ? "anim-heart-loss" : ""} ${isFull ? "text-red-400" : "text-stone-200"}`}
+                      className={`text-lg leading-none ${wasLost ? "anim-heart-loss text-red-400" : isFull ? "text-red-400" : "text-stone-200"}`}
                       style={wasLost ? { animationDelay: `${400 + (i - newLives) * 100}ms` } : {}}
                     >
-                      {isFull ? "♥" : "♡"}
+                      {isFull || wasLost ? "♥" : "♡"}
                     </span>
                   );
                 })}
