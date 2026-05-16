@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../socket";
 import CardComponent from "../components/CardComponent";
@@ -50,9 +50,57 @@ function PlayerPanel({ player, isCurrentTurn, isMe }) {
   );
 }
 
+function computeDelta(prev, next) {
+  const prevCuc = prev.currentLocation?.currentCucumberTokens ?? 0;
+  const nextCuc = next.currentLocation?.currentCucumberTokens ?? 0;
+  const cucumberDelta = nextCuc - prevCuc;
+
+  const lifeDeltas = next.players
+    .map((p) => {
+      const prevP = prev.players.find((pl) => pl.playerId === p.playerId);
+      if (!prevP) return null;
+      const delta = p.lives - prevP.lives;
+      const becameStunned = p.isStunned && !prevP.isStunned;
+      if (delta === 0 && !becameStunned) return null;
+      return { playerId: p.playerId, name: p.name, delta, newLives: p.lives, maxLives: p.character.maxLives, becameStunned };
+    })
+    .filter(Boolean);
+
+  return {
+    cucumberDelta,
+    locationName: next.currentLocation?.name,
+    locationCurrent: nextCuc,
+    locationMax: next.currentLocation?.maxCucumberTokens ?? 5,
+    lifeDeltas,
+    hasDelta: cucumberDelta !== 0 || lifeDeltas.length > 0,
+  };
+}
+
 export default function Game({ gameState, mySocketId }) {
   const navigate = useNavigate();
-  const [draggingAttackType, setDraggingAttackType] = React.useState(null);
+  const [draggingAttackType, setDraggingAttackType] = useState(null);
+  const prevGameStateRef = useRef(null);
+  const [effectResult, setEffectResult] = useState(null);
+
+  useEffect(() => {
+    const prev = prevGameStateRef.current;
+    if (prev && gameState) {
+      const prevIndex = prev.pendingPhase?.resolvedIndex ?? 0;
+      const nextIndex = gameState.pendingPhase?.resolvedIndex ?? 0;
+      const prevHad = !!prev.pendingPhase;
+      const nextHas = !!gameState.pendingPhase;
+      const itemResolved = nextIndex > prevIndex || (prevHad && !nextHas);
+      if (itemResolved) {
+        const resolvedItem = prev.pendingPhase?.items[prevIndex];
+        if (resolvedItem?.kind === "event" || resolvedItem?.kind === "enemy_ability") {
+          const delta = computeDelta(prev, gameState);
+          if (delta.hasDelta) setEffectResult(delta);
+        }
+      }
+    }
+    prevGameStateRef.current = gameState;
+  }, [gameState]);
+
   const {
     turn,
     players,
@@ -83,9 +131,8 @@ export default function Game({ gameState, mySocketId }) {
     socket.emit("end_turn");
   };
 
-  const handleAdvancePhase = () => {
-    socket.emit("advance_phase");
-  };
+  const handleRevealPhase = () => socket.emit("reveal_phase");
+  const handleAdvancePhase = () => socket.emit("advance_phase");
 
   if (phase === "victory") {
     return (
@@ -215,7 +262,10 @@ export default function Game({ gameState, mySocketId }) {
       <PhaseOverlay
         pendingPhase={pendingPhase}
         isMyTurn={isMyTurn}
+        onReveal={handleRevealPhase}
         onAdvance={handleAdvancePhase}
+        effectResult={effectResult}
+        onEffectDone={() => setEffectResult(null)}
       />
     </div>
   );
