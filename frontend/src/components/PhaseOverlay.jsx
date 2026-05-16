@@ -127,7 +127,7 @@ function EffectResult({ effectResult, isMyTurn, onDone }) {
                   <span
                     key={i}
                     className={`text-xl ${isFilled ? "" : "opacity-20"} ${isNew ? "anim-cucumber-pop" : ""}`}
-                    style={isNew ? { animationDelay: `${(i - (locationCurrent - cucumberDelta)) * 100}ms` } : {}}
+                    style={isNew ? { animationDelay: `${400 + (i - (locationCurrent - cucumberDelta)) * 120}ms`, opacity: 0 } : {}}
                   >
                     🥒
                   </span>
@@ -156,7 +156,7 @@ function EffectResult({ effectResult, isMyTurn, onDone }) {
                     <span
                       key={i}
                       className={`text-lg leading-none ${wasLost ? "anim-heart-loss" : ""} ${isFull ? "text-red-400" : "text-stone-200"}`}
-                      style={wasLost ? { animationDelay: `${(i - newLives) * 80}ms` } : {}}
+                      style={wasLost ? { animationDelay: `${400 + (i - newLives) * 100}ms` } : {}}
                     >
                       {isFull ? "♥" : "♡"}
                     </span>
