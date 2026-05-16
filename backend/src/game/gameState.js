@@ -83,6 +83,7 @@ function initGameState(room) {
     shop,
     shopDeck,
     pendingPhase: null,
+    pendingDiscard: null,
     log: [],
   };
 }

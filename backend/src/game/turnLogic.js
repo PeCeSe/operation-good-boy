@@ -64,11 +64,11 @@ function applyEventEffect(state, event) {
     checkStun(state);
   }
   if (e.discardCards > 0) {
-    state.players.forEach((p) => {
-      const n = Math.min(e.discardCards, p.hand.length);
-      p.discard.push(...p.hand.splice(0, n));
-    });
-    log(state, `Event: Each player discards ${e.discardCards} card(s).`);
+    const entries = state.players
+      .filter((p) => p.hand.length > 0)
+      .map((p) => ({ playerId: p.playerId, count: Math.min(e.discardCards, p.hand.length) }));
+    if (entries.length > 0) state.pendingDiscard = entries;
+    log(state, `Event: Each player must discard ${e.discardCards} card(s).`);
   }
   if (e.blockShop) log(state, `Event: Shop is closed this round.`);
   if (e.blockAttack) log(state, `Event: Players cannot attack this round.`);
@@ -100,15 +100,15 @@ function applyEnemyAbility(state, enemy) {
   }
   if (e.discardActive > 0 && activePlayer) {
     const n = Math.min(e.discardActive, activePlayer.hand.length);
-    activePlayer.discard.push(...activePlayer.hand.splice(0, n));
-    log(state, `${enemy.name}: ${activePlayer.name} discards ${n} card(s).`);
+    if (n > 0) state.pendingDiscard = [{ playerId: activePlayer.playerId, count: n }];
+    log(state, `${enemy.name}: ${activePlayer.name} must discard ${n} card(s).`);
   }
   if (e.discardAll > 0) {
-    state.players.forEach((p) => {
-      const n = Math.min(e.discardAll, p.hand.length);
-      p.discard.push(...p.hand.splice(0, n));
-    });
-    log(state, `${enemy.name}: all players discard ${e.discardAll} card(s).`);
+    const entries = state.players
+      .filter((p) => p.hand.length > 0)
+      .map((p) => ({ playerId: p.playerId, count: Math.min(e.discardAll, p.hand.length) }));
+    if (entries.length > 0) state.pendingDiscard = entries;
+    log(state, `${enemy.name}: all players must discard ${e.discardAll} card(s).`);
   }
 }
 
@@ -408,4 +408,31 @@ function endTurn(state, playerId) {
   return { state, error: null };
 }
 
-module.exports = { startRound, revealPhase, advancePhase, playCard, attackEnemy, buyCard, endTurn };
+function discardCards(state, playerId, cardIds) {
+  const player = state.players.find((p) => p.playerId === playerId);
+  if (!player) return { state, error: "Player not found." };
+
+  const entry = state.pendingDiscard?.find((d) => d.playerId === playerId);
+  if (!entry) return { state, error: "No discard pending for you." };
+
+  if (cardIds.length !== entry.count)
+    return { state, error: `Must discard exactly ${entry.count} card(s).` };
+
+  for (const cardId of cardIds) {
+    if (!player.hand.find((c) => c.id === cardId))
+      return { state, error: "Card not in hand." };
+  }
+
+  for (const cardId of cardIds) {
+    const idx = player.hand.findIndex((c) => c.id === cardId);
+    player.discard.push(player.hand.splice(idx, 1)[0]);
+  }
+
+  state.pendingDiscard = state.pendingDiscard.filter((d) => d.playerId !== playerId);
+  if (state.pendingDiscard.length === 0) state.pendingDiscard = null;
+
+  log(state, `${player.name} discarded ${cardIds.length} card(s).`);
+  return { state, error: null };
+}
+
+module.exports = { startRound, revealPhase, advancePhase, playCard, attackEnemy, buyCard, endTurn, discardCards };

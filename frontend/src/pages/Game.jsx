@@ -10,6 +10,7 @@ import LocationBar from "../components/LocationBar";
 import EventDisplay from "../components/EventDisplay";
 import GameLog from "../components/GameLog";
 import PhaseOverlay from "../components/PhaseOverlay";
+import DiscardOverlay from "../components/DiscardOverlay";
 
 function Lives({ lives, max }) {
   return (
@@ -276,6 +277,17 @@ export default function Game({ gameState, mySocketId }) {
 
       {/* Log */}
       <GameLog log={log} />
+
+      {/* Discard overlay — shown when a discard is required */}
+      {gameState.pendingDiscard && (
+        <DiscardOverlay
+          myEntry={gameState.pendingDiscard.find((d) => d.playerId === me?.playerId)}
+          myHand={me?.hand || []}
+          pendingDiscardList={gameState.pendingDiscard}
+          players={players}
+          onConfirm={(cardIds) => socket.emit("discard_cards", { cardIds })}
+        />
+      )}
 
       {/* Phase overlay — shown when events or enemy abilities are pending */}
       <PhaseOverlay
