@@ -25,7 +25,7 @@ const CHARACTERS = [
     bgFrom: "#0f766e",
     bgTo: "#134e4a",
     accentColor: "teal",
-    objectPosition: "center -4px",
+    objectPosition: "top",
     passive: "Draw 1 extra card at the start of each turn.",
     backstory: "Scrappy, lean, and weathered in all the right ways. Ace had claimed that sunny patch in Good Boy's garden fair and square. Now that spot is gone. This isn't just a mission — it's personal.",
     trait: "Resourceful. Cool. Always lands on their feet.",
