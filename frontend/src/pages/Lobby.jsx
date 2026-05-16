@@ -121,10 +121,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                 className="bg-white border border-stone-200 shadow-sm rounded-lg overflow-hidden text-center"
               >
                 {/* Portrait or placeholder */}
-                <div
-                  className="relative h-24 flex items-center justify-center"
-                  style={char ? { background: `linear-gradient(160deg, ${char.bgFrom} 0%, ${char.bgTo} 100%)` } : { background: "#e7e5e4" }}
-                >
+                <div className="relative h-24 flex items-center justify-center bg-white">
                   {char ? (
                     <img
                       src={char.headshot}
