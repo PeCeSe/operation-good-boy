@@ -200,7 +200,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                 key={char.id}
                 onClick={() => !isTaken && handleSelectCharacter(char.id)}
                 disabled={isTaken}
-                className={`text-left rounded-2xl overflow-hidden border-2 transition-all duration-200 p-0 ${
+                className={`text-left rounded-2xl overflow-hidden border-2 transition-all duration-200 p-0 flex flex-col ${
                   isSelected
                     ? "border-amber-400 shadow-lg shadow-amber-200/50 scale-[1.02]"
                     : isTaken
