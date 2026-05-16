@@ -25,6 +25,7 @@ const CHARACTERS = [
     bgFrom: "#0f766e",
     bgTo: "#134e4a",
     accentColor: "teal",
+    objectPosition: "center 4px",
     passive: "Draw 1 extra card at the start of each turn.",
     backstory: "Scrappy, lean, and weathered in all the right ways. Ace had claimed that sunny patch in Good Boy's garden fair and square. Now that spot is gone. This isn't just a mission — it's personal.",
     trait: "Resourceful. Cool. Always lands on their feet.",
@@ -215,7 +216,8 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                   <img
                     src={char.image}
                     alt={char.name}
-                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ objectPosition: char.objectPosition ?? "center" }}
                   />
                   {/* Name badge at bottom */}
                   <div className="relative z-10 w-full px-3 pb-3 pt-8"
