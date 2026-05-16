@@ -147,22 +147,16 @@ function makePendingPhase(items, resolvedIndex) {
   return { items, resolvedIndex, currentRevealed };
 }
 
-function startRound(state) {
+function buildTurnPhase(state) {
   state.blockShop = false;
   state.blockAttack = false;
   state.pawcoinPenalty = 0;
+  state.currentEvents = [];
 
   const eventsToDraw = state.currentLocation?.eventsToDraw || 1;
   const drawnEvents = [];
   for (let i = 0; i < eventsToDraw && state.eventDeck.length > 0; i++) {
     drawnEvents.push(state.eventDeck.shift());
-  }
-  state.currentEvents = [];
-
-  while (state.enemies.length < 3 && state.enemyDeck.length > 0) {
-    const enemy = state.enemyDeck.shift();
-    state.enemies.push(enemy);
-    log(state, `New enemy appeared: ${enemy.name}!`);
   }
 
   const activePlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
@@ -181,6 +175,16 @@ function startRound(state) {
   ];
 
   state.pendingPhase = makePendingPhase(items, 0);
+}
+
+function startRound(state) {
+  while (state.enemies.length < 3 && state.enemyDeck.length > 0) {
+    const enemy = state.enemyDeck.shift();
+    state.enemies.push(enemy);
+    log(state, `New enemy appeared: ${enemy.name}!`);
+  }
+
+  buildTurnPhase(state);
   return state;
 }
 
@@ -398,12 +402,7 @@ function endTurn(state, playerId) {
   if (roundComplete) {
     endRound(state);
   } else {
-    const nextPlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
-    state.pendingPhase = {
-      items: [{ kind: "turn_start", playerName: nextPlayer.name, roundNumber: state.turn.roundNumber }],
-      resolvedIndex: 0,
-      currentRevealed: true,
-    };
+    buildTurnPhase(state);
   }
 
   return { state, error: null };
