@@ -37,24 +37,18 @@ function applyEventEffect(state, event) {
     state.currentLocation.currentCucumberTokens += e.cucumberTokens;
     log(state, `Event: +${e.cucumberTokens} 🥒 to ${state.currentLocation.name}.`);
   }
-
   if (e.damageAll > 0) {
-    state.players.forEach((p) => {
-      p.lives = Math.max(0, p.lives - e.damageAll);
-    });
+    state.players.forEach((p) => { p.lives = Math.max(0, p.lives - e.damageAll); });
     log(state, `Event: All players lose ${e.damageAll} life.`);
     checkStun(state);
   }
-
   if (e.discardCards > 0) {
     state.players.forEach((p) => {
       const n = Math.min(e.discardCards, p.hand.length);
-      const discarded = p.hand.splice(0, n);
-      p.discard.push(...discarded);
+      p.discard.push(...p.hand.splice(0, n));
     });
     log(state, `Event: Each player discards ${e.discardCards} card(s).`);
   }
-
   if (e.blockShop) log(state, `Event: Shop is closed this round.`);
   if (e.blockAttack) log(state, `Event: Players cannot attack this round.`);
   if (e.pawcoinPenalty > 0) log(state, `Event: Each player generates ${e.pawcoinPenalty} fewer pawcoin(s) this round.`);
@@ -63,7 +57,6 @@ function applyEventEffect(state, event) {
 function applyEnemyAbility(state, enemy) {
   const e = enemy.ability?.effect;
   if (!e) return;
-
   const activePlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
 
   if (e.addCucumber > 0) {
@@ -100,7 +93,6 @@ function applyEnemyAbility(state, enemy) {
 function applyEnemyReward(state, enemy, activePlayer) {
   const r = enemy.reward;
   if (!r) return;
-
   if (r.pawcoins > 0) {
     activePlayer.currentPawcoins += r.pawcoins;
     log(state, `Reward: ${activePlayer.name} gains ${r.pawcoins} 🪙.`);
@@ -126,12 +118,18 @@ function applyEnemyReward(state, enemy, activePlayer) {
   }
 }
 
+function makePendingPhase(items, resolvedIndex) {
+  const item = items[resolvedIndex];
+  // turn_start is auto-revealed (no flip needed)
+  const currentRevealed = item?.kind === "turn_start";
+  return { items, resolvedIndex, currentRevealed };
+}
+
 function startRound(state) {
   state.blockShop = false;
   state.blockAttack = false;
   state.pawcoinPenalty = 0;
 
-  // Draw events — held back until revealed one by one via pendingPhase
   const eventsToDraw = state.currentLocation?.eventsToDraw || 1;
   const drawnEvents = [];
   for (let i = 0; i < eventsToDraw && state.eventDeck.length > 0; i++) {
@@ -139,15 +137,15 @@ function startRound(state) {
   }
   state.currentEvents = [];
 
-  // Draw new enemies to fill the board
   while (state.enemies.length < 3 && state.enemyDeck.length > 0) {
     const enemy = state.enemyDeck.shift();
     state.enemies.push(enemy);
     log(state, `New enemy appeared: ${enemy.name}!`);
   }
 
-  // Build pending queue: events first, then enemy abilities
+  const activePlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
   const items = [
+    { kind: "turn_start", playerName: activePlayer?.name || "Player", roundNumber: state.turn.roundNumber },
     ...drawnEvents.map((e) => ({ kind: "event", data: e })),
     ...state.enemies
       .filter((e) => e.ability?.trigger === "start_of_round")
@@ -160,16 +158,16 @@ function startRound(state) {
       })),
   ];
 
-  if (items.length === 0) {
-    state.pendingPhase = null;
-    if (state.enemies.length > 0) {
-      log(state, `Enemies on the board: ${state.enemies.map((e) => e.name).join(", ")}.`);
-    }
-  } else {
-    state.pendingPhase = { items, resolvedIndex: 0 };
-  }
-
+  state.pendingPhase = makePendingPhase(items, 0);
   return state;
+}
+
+function revealPhase(state, playerId) {
+  if (state.turn.currentPlayerId !== playerId) return { state, error: "Not your turn." };
+  if (!state.pendingPhase) return { state, error: "No pending phase." };
+  if (state.pendingPhase.currentRevealed) return { state, error: "Already revealed." };
+  state.pendingPhase = { ...state.pendingPhase, currentRevealed: true };
+  return { state, error: null };
 }
 
 function advancePhase(state, playerId) {
@@ -178,6 +176,10 @@ function advancePhase(state, playerId) {
 
   const { items, resolvedIndex } = state.pendingPhase;
   const item = items[resolvedIndex];
+
+  if (item.kind !== "turn_start" && !state.pendingPhase.currentRevealed) {
+    return { state, error: "Reveal the card first." };
+  }
 
   if (item.kind === "event") {
     state.currentEvents.push(item.data);
@@ -188,13 +190,14 @@ function advancePhase(state, playerId) {
     if (enemy) applyEnemyAbility(state, enemy);
   }
 
-  state.pendingPhase.resolvedIndex++;
-
-  if (state.pendingPhase.resolvedIndex >= items.length) {
+  const newIndex = resolvedIndex + 1;
+  if (newIndex >= items.length) {
     state.pendingPhase = null;
-    if (state.enemies.length > 0) {
+    if (item.kind !== "turn_start" && state.enemies.length > 0) {
       log(state, `Enemies on the board: ${state.enemies.map((e) => e.name).join(", ")}.`);
     }
+  } else {
+    state.pendingPhase = makePendingPhase(items, newIndex);
   }
 
   return { state, error: null };
@@ -212,21 +215,17 @@ function playCard(state, playerId, cardId) {
   player.discard.push(card);
 
   const { attack, attackType, pawcoins, special } = card.effect;
-
   const earnedCoins = Math.max(0, pawcoins - state.pawcoinPenalty);
   player.currentPawcoins += earnedCoins;
 
   if (attack > 0 && attackType) {
     player.currentAttack[attackType] = (player.currentAttack[attackType] || 0) + attack;
   }
-
   if (special && special.startsWith("bite_")) {
-    const bonus = parseInt(special.split("_")[1]);
-    player.currentAttack.bite = (player.currentAttack.bite || 0) + bonus;
+    player.currentAttack.bite = (player.currentAttack.bite || 0) + parseInt(special.split("_")[1]);
   }
   if (special && special.startsWith("charm_")) {
-    const bonus = parseInt(special.split("_")[1]);
-    player.currentAttack.charm = (player.currentAttack.charm || 0) + bonus;
+    player.currentAttack.charm = (player.currentAttack.charm || 0) + parseInt(special.split("_")[1]);
   }
 
   if (special === "draw_card") {
@@ -259,7 +258,6 @@ function attackEnemy(state, playerId, enemyId, attackType) {
   if (!player) return { state, error: "Player not found." };
   if (state.turn.currentPlayerId !== playerId) return { state, error: "Not your turn." };
   if (state.blockAttack) return { state, error: "Attacks are blocked this round." };
-
   if ((player.currentAttack[attackType] || 0) <= 0) return { state, error: `No ${attackType} attack available.` };
 
   const enemyIdx = state.enemies.findIndex((e) => e.id === enemyId);
@@ -282,7 +280,6 @@ function attackEnemy(state, playerId, enemyId, attackType) {
     state.enemies.splice(enemyIdx, 1);
     log(state, `${enemy.name} defeated! ${enemy.reward.description}`);
     applyEnemyReward(state, enemy, player);
-
     if (state.enemyDeck.length > 0 && state.enemies.length < 3) {
       const next = state.enemyDeck.shift();
       state.enemies.push(next);
@@ -341,7 +338,6 @@ function endRound(state) {
   if (state.currentLocation.currentCucumberTokens >= state.currentLocation.maxCucumberTokens) {
     log(state, `💀 ${state.currentLocation.name} is lost!`);
     state.lostLocations.push(state.currentLocation);
-
     if (state.locationDeck.length > 0) {
       state.currentLocation = state.locationDeck.shift();
       log(state, `Moving to ${state.currentLocation.name}.`);
@@ -359,7 +355,6 @@ function endRound(state) {
   state.turn.currentPlayerId = state.players[0].playerId;
   log(state, `--- Round ${state.turn.roundNumber} begins ---`);
   startRound(state);
-
   return state;
 }
 
@@ -392,9 +387,16 @@ function endTurn(state, playerId) {
 
   if (roundComplete) {
     endRound(state);
+  } else {
+    const nextPlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
+    state.pendingPhase = {
+      items: [{ kind: "turn_start", playerName: nextPlayer.name, roundNumber: state.turn.roundNumber }],
+      resolvedIndex: 0,
+      currentRevealed: true,
+    };
   }
 
   return { state, error: null };
 }
 
-module.exports = { startRound, advancePhase, playCard, attackEnemy, buyCard, endTurn };
+module.exports = { startRound, revealPhase, advancePhase, playCard, attackEnemy, buyCard, endTurn };

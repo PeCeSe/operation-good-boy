@@ -6,7 +6,7 @@ const cors = require("cors");
 const roomManager = require("./game/roomManager");
 const { rejoinRoom, setName } = roomManager;
 const { initGameState } = require("./game/gameState");
-const { startRound, advancePhase, playCard, attackEnemy, buyCard, endTurn } = require("./game/turnLogic");
+const { startRound, revealPhase, advancePhase, playCard, attackEnemy, buyCard, endTurn } = require("./game/turnLogic");
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -112,6 +112,17 @@ io.on("connection", (socket) => {
     let gameState = initGameState(room);
     gameState = startRound(gameState);
     room.gameState = gameState;
+    emitGameUpdate(room.code);
+  });
+
+  socket.on("reveal_phase", () => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
+    const player = room.gameState.players.find((p) => p.socketId === socket.id);
+    if (!player) return socket.emit("error", { message: "You are not in this game." });
+    const { state, error } = revealPhase(room.gameState, player.playerId);
+    room.gameState = state;
+    if (error) return socket.emit("error", { message: error });
     emitGameUpdate(room.code);
   });
 
