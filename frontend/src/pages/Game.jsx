@@ -6,6 +6,7 @@ import ShopRow from "../components/ShopRow";
 import LocationBar from "../components/LocationBar";
 import EventDisplay from "../components/EventDisplay";
 import GameLog from "../components/GameLog";
+import PhaseOverlay from "../components/PhaseOverlay";
 
 function Lives({ lives, max }) {
   return (
@@ -58,6 +59,7 @@ export default function Game({ gameState, mySocketId }) {
     shop,
     shopDeck,
     blockShop,
+    pendingPhase,
     log,
     phase,
   } = gameState;
@@ -75,6 +77,10 @@ export default function Game({ gameState, mySocketId }) {
 
   const handleEndTurn = () => {
     socket.emit("end_turn");
+  };
+
+  const handleAdvancePhase = () => {
+    socket.emit("advance_phase");
   };
 
   if (phase === "victory") {
@@ -192,6 +198,13 @@ export default function Game({ gameState, mySocketId }) {
 
       {/* Log */}
       <GameLog log={log} />
+
+      {/* Phase overlay — shown when events or enemy abilities are pending */}
+      <PhaseOverlay
+        pendingPhase={pendingPhase}
+        isMyTurn={isMyTurn}
+        onAdvance={handleAdvancePhase}
+      />
     </div>
   );
 }

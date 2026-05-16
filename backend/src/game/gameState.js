@@ -17,9 +17,14 @@ function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
 
+let _cardInstanceId = 1;
+function uniqueCard(card) {
+  return { ...deepClone(card), id: `${card.id}_${_cardInstanceId++}` };
+}
+
 function buildStartingDeck(character) {
   return shuffle(
-    character.startingDeck.map((cardId) => deepClone(STARTING_CARDS[cardId]))
+    character.startingDeck.map((cardId) => uniqueCard(STARTING_CARDS[cardId]))
   );
 }
 
@@ -31,7 +36,7 @@ function initGameState(room) {
 
   const locationDeck = deepClone(LOCATIONS);
   const eventDeck = shuffle(deepClone(EVENTS));
-  const shopDeck = shuffle(deepClone(CARDS));
+  const shopDeck = shuffle(CARDS.map((c) => uniqueCard(c)));
 
   const initialEnemies = enemyDeck.splice(0, Math.min(3, enemyDeck.length));
   const shop = shopDeck.splice(0, 6);
@@ -73,10 +78,11 @@ function initGameState(room) {
     currentLocation: locationDeck.shift(),
     locationDeck,
     lostLocations: [],
-    currentEvent: null,
+    currentEvents: [],
     eventDeck,
     shop,
     shopDeck,
+    pendingPhase: null,
     log: [],
   };
 }
