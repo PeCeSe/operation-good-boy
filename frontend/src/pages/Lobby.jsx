@@ -209,19 +209,14 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
               >
                 {/* Portrait */}
                 <div
-                  className="relative h-44 flex items-end justify-center overflow-hidden"
+                  className="relative h-56 flex items-end justify-center overflow-hidden"
                   style={{ background: `linear-gradient(160deg, ${char.bgFrom} 0%, ${char.bgTo} 100%)` }}
                 >
-                  {/* Try image first, fall back to giant emoji */}
                   <img
                     src={char.image}
                     alt={char.name}
-                    className="absolute inset-0 w-full h-full object-cover object-top"
-                    onError={(e) => { e.target.style.display = "none"; }}
+                    className="absolute inset-0 w-full h-full object-cover object-center"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-30 select-none pointer-events-none">
-                    {char.emoji}
-                  </div>
                   {/* Name badge at bottom */}
                   <div className="relative z-10 w-full px-3 pb-3 pt-8"
                     style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)" }}
