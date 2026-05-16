@@ -32,7 +32,7 @@ function PlayerPanel({ player, isCurrentTurn, isNextUp }) {
     >
       <div className="flex items-center gap-3 p-3">
         {charData?.headshot ? (
-          <img src={charData.headshot} alt={player.name} className="w-14 h-14 object-contain shrink-0" />
+          <img src={player.isStunned && charData.stunned ? charData.stunned : charData.headshot} alt={player.name} className="w-14 h-14 object-contain shrink-0" />
         ) : (
           <span className="text-2xl shrink-0">{player.character.emoji}</span>
         )}

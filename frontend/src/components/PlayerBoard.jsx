@@ -47,7 +47,7 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
       <div className={`flex items-center justify-between px-4 py-2 ${isMyTurn ? "bg-amber-50" : "bg-stone-50"}`}>
         <div className="flex items-center gap-2">
           {charData?.headshot
-            ? <img src={charData.headshot} alt={name} className="w-9 h-9 object-contain shrink-0" />
+            ? <img src={isStunned && charData.stunned ? charData.stunned : charData.headshot} alt={name} className="w-9 h-9 object-contain shrink-0" />
             : <span className="text-xl">{character.emoji}</span>
           }
           <span className="font-bold text-stone-800">{name}</span>
