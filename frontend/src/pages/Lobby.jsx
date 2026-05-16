@@ -5,24 +5,42 @@ import socket from "../socket";
 const CHARACTERS = [
   {
     id: "char_persian",
-    name: "The Persian",
+    name: "Lady Fluffington III",
+    subtitle: "The Persian",
     emoji: "😤",
+    image: "/characters/fluffington.png",
+    bgFrom: "#7c3aed",
+    bgTo: "#4c1d95",
+    accentColor: "violet",
     passive: "When taking damage, generate 1 charm attack.",
-    flavor: "She hasn't slept in three weeks. She is DONE.",
+    backstory: "A tortoiseshell Persian of impeccable breeding and absolutely unquestionable importance. Three weeks of beauty sleep, ruined by that dog's insufferable barking. She arrived on the battlefield not because she was asked — she simply decided.",
+    trait: "Serene. Entitled. Unstoppable.",
   },
   {
     id: "char_streetcat",
-    name: "The Street Cat",
+    name: "Ace",
+    subtitle: "The Street Cat",
     emoji: "😎",
+    image: "/characters/ace.png",
+    bgFrom: "#0f766e",
+    bgTo: "#134e4a",
+    accentColor: "teal",
     passive: "Draw 1 extra card at the start of each turn.",
-    flavor: "Just wants to nap in that sunny spot. Is that so much to ask.",
+    backstory: "Scrappy, lean, and weathered in all the right ways. Ace had claimed that sunny patch in Good Boy's garden fair and square. Now that spot is gone. This isn't just a mission — it's personal.",
+    trait: "Resourceful. Cool. Always lands on their feet.",
   },
   {
     id: "char_kitten",
-    name: "The Kitten",
+    name: "Noodle",
+    subtitle: "The Chaos Kitten",
     emoji: "🐱",
+    image: "/characters/noodle.png",
+    bgFrom: "#b45309",
+    bgTo: "#78350f",
+    accentColor: "amber",
     passive: "When buying a card, gain 1 pawcoin refund.",
-    flavor: "The squeaky toy. IT'S SO UNFAIR.",
+    backstory: "Approximately five brain cells, all pointed at one thing: that squeaky toy. Good Boy took it. Noodle does not understand strategy or self-preservation, but she is extremely enthusiastic, and honestly? That might be enough.",
+    trait: "Chaotic. Tiny. Absolutely feral.",
   },
 ];
 
@@ -145,7 +163,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
               >
                 <div className="text-2xl mb-1">{char ? char.emoji : "❓"}</div>
                 <div className="text-sm font-medium">{p.name}</div>
-                <div className="text-xs text-stone-500">{char ? char.name : "No character"}</div>
+                <div className="text-xs text-stone-500">{char ? char.subtitle : "No character"}</div>
                 <div
                   className={`text-xs mt-1 font-semibold ${p.isReady ? "text-green-400" : "text-stone-400"}`}
                 >
@@ -170,8 +188,8 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
 
       {/* Character select */}
       <div>
-        <h2 className="text-lg font-semibold text-stone-800 mb-3">Choose your cat</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <h2 className="text-lg font-semibold text-stone-800 mb-4">Choose your cat</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {CHARACTERS.map((char) => {
             const isSelected = myPlayer?.characterId === char.id;
             const isTaken = takenCharacters.has(char.id) && !isSelected;
@@ -181,21 +199,58 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                 key={char.id}
                 onClick={() => !isTaken && handleSelectCharacter(char.id)}
                 disabled={isTaken}
-                className={`text-left rounded-xl p-4 border-2 transition-all ${
+                className={`text-left rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
                   isSelected
-                    ? "border-amber-400 bg-amber-50"
+                    ? "border-amber-400 shadow-lg shadow-amber-200/50 scale-[1.02]"
                     : isTaken
-                    ? "border-stone-200 bg-stone-100 opacity-50 cursor-not-allowed"
-                    : "border-stone-300 bg-white hover:border-amber-400/50 hover:bg-stone-200"
+                    ? "border-stone-200 opacity-40 cursor-not-allowed"
+                    : "border-transparent hover:border-stone-300 hover:shadow-md hover:scale-[1.01] cursor-pointer"
                 }`}
               >
-                <div className="text-4xl mb-2">{char.emoji}</div>
-                <div className="font-bold text-base">{char.name}</div>
-                <div className="text-sm text-amber-600 mt-1">⚡ {char.passive}</div>
-                <div className="text-xs text-stone-500 mt-2 italic">{char.flavor}</div>
-                {isTaken && (
-                  <div className="text-xs text-red-400 mt-2 font-semibold">Taken</div>
-                )}
+                {/* Portrait */}
+                <div
+                  className="relative h-44 flex items-end justify-center overflow-hidden"
+                  style={{ background: `linear-gradient(160deg, ${char.bgFrom} 0%, ${char.bgTo} 100%)` }}
+                >
+                  {/* Try image first, fall back to giant emoji */}
+                  <img
+                    src={char.image}
+                    alt={char.name}
+                    className="absolute inset-0 w-full h-full object-cover object-top"
+                    onError={(e) => { e.target.style.display = "none"; }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center text-8xl opacity-30 select-none pointer-events-none">
+                    {char.emoji}
+                  </div>
+                  {/* Name badge at bottom */}
+                  <div className="relative z-10 w-full px-3 pb-3 pt-8"
+                    style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)" }}
+                  >
+                    <div className="text-white font-bold text-base leading-tight">{char.name}</div>
+                    <div className="text-white/60 text-xs font-medium tracking-wide uppercase">{char.subtitle}</div>
+                  </div>
+
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+                      Selected ✓
+                    </div>
+                  )}
+                  {isTaken && (
+                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+                      Taken
+                    </div>
+                  )}
+                </div>
+
+                {/* Info */}
+                <div className="bg-white p-4 space-y-3">
+                  <p className="text-xs text-stone-500 leading-relaxed">{char.backstory}</p>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 italic">{char.trait}</div>
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                    <div className="text-[9px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Passive</div>
+                    <div className="text-xs text-stone-700 font-semibold">⚡ {char.passive}</div>
+                  </div>
+                </div>
               </button>
             );
           })}
