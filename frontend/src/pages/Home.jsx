@@ -18,7 +18,7 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-8 px-4">
       <div className="text-center">
-        <img src="/Game-logo.png" alt="Operation: Good Boy" className="w-[60vw] max-w-lg mx-auto mb-2" />
+        <img src="/Game-logo.png" alt="Operation: Good Boy" className="w-[40vw] max-w-xs mx-auto mb-2" />
         <p className="text-stone-400 mt-2">Three cats. One mission. Zero teamwork skills.</p>
       </div>
 
