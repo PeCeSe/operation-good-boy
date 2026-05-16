@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import socket from "../socket";
+import CHARACTERS from "../data/characters";
 import CardComponent from "../components/CardComponent";
 import EnemyComponent from "../components/EnemyComponent";
 import PlayerBoard from "../components/PlayerBoard";
@@ -21,31 +22,39 @@ function Lives({ lives, max }) {
 
 function PlayerPanel({ player, isCurrentTurn, isMe }) {
   const attackEntries = Object.entries(player.currentAttack).filter(([, v]) => v > 0);
+  const charData = CHARACTERS.find((c) => c.id === player.character.id);
 
   return (
     <div
-      className={`rounded-lg p-3 border-2 transition-all ${
+      className={`rounded-lg border-2 transition-all overflow-hidden ${
         isCurrentTurn ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-white shadow-sm"
       }`}
     >
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-lg">{player.character.emoji}</span>
-        <span className="font-semibold text-sm">
-          {player.name} {isMe && <span className="text-stone-400 text-xs">(you)</span>}
-        </span>
-        {player.isStunned && <span className="text-xs text-red-400 font-bold">STUNNED</span>}
-      </div>
-      <Lives lives={player.lives} max={player.character.maxLives} />
-      {isCurrentTurn && (
-        <div className="text-xs mt-1 space-y-0.5">
-          <div className="text-amber-600">🪙 {player.currentPawcoins} pawcoins</div>
-          {attackEntries.map(([type, amount]) => (
-            <div key={type} className="text-stone-700">
-              {type}: {amount}
-            </div>
-          ))}
+      <div className="flex items-center gap-2 p-2">
+        {charData?.headshot ? (
+          <img src={charData.headshot} alt={player.name} className="w-10 h-10 object-contain shrink-0" />
+        ) : (
+          <span className="text-lg shrink-0">{player.character.emoji}</span>
+        )}
+        <div className="min-w-0">
+          <div className="font-semibold text-sm truncate">
+            {player.name} {isMe && <span className="text-stone-400 text-xs">(you)</span>}
+          </div>
+          {charData && <div className="text-[10px] text-stone-400 truncate">{charData.subtitle}</div>}
+          {player.isStunned && <span className="text-xs text-red-400 font-bold">STUNNED</span>}
         </div>
-      )}
+      </div>
+      <div className="px-2 pb-2">
+        <Lives lives={player.lives} max={player.character.maxLives} />
+        {isCurrentTurn && (
+          <div className="text-xs mt-1 space-y-0.5">
+            <div className="text-amber-600">🪙 {player.currentPawcoins} pawcoins</div>
+            {attackEntries.map(([type, amount]) => (
+              <div key={type} className="text-stone-700">{type}: {amount}</div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
