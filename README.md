@@ -12,7 +12,7 @@ A co-op browser deck-builder for 2–4 players. The neighborhood is under siege.
 
 It started, as most neighborhood crises do, with a dog.
 
-Good Boy — a golden retriever of suspiciously innocent demeanor — has been terrorizing the area. Lady Fluffington III hasn't slept in three weeks. Ace's favorite sun patch has been claimed. Noodle's squeaky toy is *gone*. This cannot stand.
+Good Boy — a german shepard of suspiciously innocent demeanor — has been terrorizing the area. Lady Fluffington III hasn't slept in three weeks. Ace's favorite sun patch has been claimed. Noodle's squeaky toy is *gone*. This cannot stand.
 
 Three cats. Different grievances. Questionable teamwork. One mission.
 
