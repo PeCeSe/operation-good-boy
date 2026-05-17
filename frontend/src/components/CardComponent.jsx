@@ -87,7 +87,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
 
       {/* Effect */}
       <div className="px-2 pt-1.5 text-xs text-stone-700 font-medium leading-snug">
-        <EffectText effect={card.effect} />
+        {card.description ?? <EffectText effect={card.effect} />}
       </div>
 
       {/* Divider + flavor */}

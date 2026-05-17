@@ -36,7 +36,7 @@ const ENEMIES = [
   { id: "en_8", name: "Good Boy", emoji: "🐕", maxHealth: 20, attack: 4, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "Remove 2 🥒. All players gain 1 life." }, flavorText: "The humans think he's harmless. He is not.", isBoss: true },
 ];
 
-const KITTEN_EYES = { id: "kitten_eyes", name: "Kitten Eyes", count: 7, type: "move", image: "/KittenEyes.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Resistance is futile." };
+const KITTEN_EYES = { id: "kitten_eyes", name: "Kitten Eyes", count: 7, type: "move", image: "/cards/KittenEyes.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Resistance is futile." };
 
 const STARTING_DECKS = [
   {
@@ -50,7 +50,9 @@ const STARTING_DECKS = [
     charId: "char_streetcat",
     cards: [
       KITTEN_EYES,
-      { id: "sc_2", name: "Scavenged Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Found it. It's fine." },
+      { id: "sc_tuna", name: "Old Can of Tuna", count: 1, type: "item", image: "/cards/OldCanOfTuna.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_scratch_or_bite_cond_coin" }, description: "Gain 1 🐾 scratch or 1 🦷 bite. Defeating an enemy this turn also gains 1 pawcoin.", flavorText: "Still good. Probably." },
+      { id: "sc_hide", name: "The Good Hiding Spot", count: 1, type: "item", image: "/cards/GoodHidingSpot.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: "passive_protection" }, description: "Gain 1 pawcoin. While in hand: lose max 1 life per event or attack.", flavorText: "Nobody checks behind the washing machine." },
+      { id: "sc_roxy", name: "Roxy", count: 1, type: "ally", image: "/cards/Roxy.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_scratch_bite_or_heal2" }, description: "Choose: Gain 1 🐾 scratch, 1 🦷 bite, or 2 ♥.", flavorText: "She showed up one day. Never really left." },
     ],
   },
   {
