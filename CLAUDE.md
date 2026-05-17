@@ -8,6 +8,8 @@ This file is for Claude to understand the project context, decisions made, and w
 
 Push directly to `main`. No feature branches needed until the game is in a playable state.
 
+Frontend auto-deploys to Vercel on every push to `main` — that's the only test environment in use right now. No local dev environment.
+
 ---
 
 ## What This Is
