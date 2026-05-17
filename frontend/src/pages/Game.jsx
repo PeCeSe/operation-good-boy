@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import socket from "../socket";
 import CHARACTERS from "../data/characters";
 import CardComponent from "../components/CardComponent";
+import PawCoin from "../components/PawCoin";
 import EnemyComponent from "../components/EnemyComponent";
 import PlayerBoard from "../components/PlayerBoard";
 import ShopRow from "../components/ShopRow";
@@ -55,7 +56,7 @@ function PlayerPanel({ player, isCurrentTurn, isNextUp }) {
         </div>
         {isCurrentTurn && (
           <div className="text-xs mt-1 space-y-0.5">
-            <div className="text-amber-600">🪙 {player.currentPawcoins} pawcoins</div>
+            <div className="text-amber-600 flex items-center gap-1"><PawCoin className="w-3.5 h-3.5" /> {player.currentPawcoins} pawcoins</div>
             {attackEntries.map(([type, amount]) => (
               <div key={type} className="text-stone-700">{type}: {amount}</div>
             ))}

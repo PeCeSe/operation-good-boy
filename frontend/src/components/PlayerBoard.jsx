@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PlayerHand from "./PlayerHand";
 import CHARACTERS from "../data/characters";
+import PawCoin from "./PawCoin";
 
 const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
 const TOKEN_COLORS = {
@@ -106,7 +107,7 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
           <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-base transition-all ${currentPawcoins > 0 ? "border-amber-300 bg-amber-50 text-amber-700" : "border-stone-200 bg-stone-50 text-stone-300"}`}>
             {currentPawcoins}
           </div>
-          <span className="text-sm leading-none">🪙</span>
+          <PawCoin className="w-5 h-5" />
         </div>
 
         {/* Attack tokens — individual draggable chips */}

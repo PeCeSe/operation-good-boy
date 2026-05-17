@@ -1,3 +1,5 @@
+import PawCoin from "./PawCoin";
+
 const TYPE_CONFIG = {
   move: {
     banner: "bg-green-700 text-white",
@@ -29,16 +31,17 @@ const ATTACK_ICONS = {
   charm: "✨",
 };
 
-function effectText(effect) {
+function EffectText({ effect }) {
   const parts = [];
   if (effect.attack > 0 && effect.attackType)
     parts.push(`+${effect.attack} ${ATTACK_ICONS[effect.attackType]} ${effect.attackType}`);
-  if (effect.pawcoins > 0) parts.push(`+${effect.pawcoins} 🪙`);
+  if (effect.pawcoins > 0) parts.push(<>Gain {effect.pawcoins} <PawCoin />.</>);
   if (effect.special === "draw_card") parts.push("Draw 1 card.");
   if (effect.special === "heal") parts.push("Heal 1 life.");
   if (effect.special?.startsWith("bite_")) parts.push(`+${effect.special.split("_")[1]} 🦷 bite`);
   if (effect.special?.startsWith("charm_")) parts.push(`+${effect.special.split("_")[1]} ✨ charm`);
-  return parts.join(" ") || "—";
+  if (parts.length === 0) return <>—</>;
+  return <>{parts.map((p, i) => <span key={i}>{i > 0 && " "}{p}</span>)}</>;
 }
 
 export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false }) {
@@ -81,7 +84,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
 
       {/* Effect */}
       <div className="px-2 pt-1.5 text-xs text-stone-700 font-medium leading-snug">
-        {effectText(card.effect)}
+        <EffectText effect={card.effect} />
       </div>
 
       {/* Divider + flavor */}
