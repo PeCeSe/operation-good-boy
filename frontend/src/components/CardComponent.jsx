@@ -2,23 +2,23 @@ import PawCoin from "./PawCoin";
 
 const TYPE_CONFIG = {
   move: {
-    banner: "bg-green-700 text-white",
-    image: "bg-green-100",
-    border: "border-green-800",
+    banner: "bg-[#C47A76] text-white",
+    image: "bg-[#F5D5D3]",
+    border: "border-[#B06560]",
     emoji: "🐾",
     label: "MOVE",
   },
   item: {
-    banner: "bg-amber-800 text-white",
-    image: "bg-amber-100",
-    border: "border-amber-900",
+    banner: "bg-[#C98F3A] text-white",
+    image: "bg-[#F5E5C0]",
+    border: "border-[#A0712E]",
     emoji: "📦",
     label: "ITEM",
   },
   ally: {
-    banner: "bg-indigo-700 text-white",
-    image: "bg-indigo-100",
-    border: "border-indigo-900",
+    banner: "bg-[#5D8C9E] text-white",
+    image: "bg-[#D6E8EF]",
+    border: "border-[#4A7080]",
     emoji: "🤝",
     label: "ALLY",
   },
@@ -72,9 +72,12 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         )}
       </div>
 
-      {/* Image placeholder */}
-      <div className={`mx-1.5 rounded-lg h-24 flex items-center justify-center text-5xl ${cfg.image}`}>
-        {cfg.emoji}
+      {/* Image */}
+      <div className={`mx-1.5 rounded-lg h-24 overflow-hidden flex items-center justify-center ${card.image ? "" : `text-5xl ${cfg.image}`}`}>
+        {card.image
+          ? <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+          : cfg.emoji
+        }
       </div>
 
       {/* Type banner */}

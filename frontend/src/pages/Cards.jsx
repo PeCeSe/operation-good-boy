@@ -36,26 +36,28 @@ const ENEMIES = [
   { id: "en_8", name: "Good Boy", emoji: "🐕", maxHealth: 20, attack: 4, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "Remove 2 🥒. All players gain 1 life." }, flavorText: "The humans think he's harmless. He is not.", isBoss: true },
 ];
 
+const KITTEN_EYES = { id: "kitten_eyes", name: "Kitten Eyes", count: 7, type: "move", image: "/KittenEyes.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Resistance is futile." };
+
 const STARTING_DECKS = [
   {
     charId: "char_persian",
     cards: [
-      { id: "ps_1", name: "Delicate Swipe", count: 7, type: "move", effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: null } },
-      { id: "ps_2", name: "Premium Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null } },
+      KITTEN_EYES,
+      { id: "ps_2", name: "Premium Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Only the finest." },
     ],
   },
   {
     charId: "char_streetcat",
     cards: [
-      { id: "sc_1", name: "Street Claw", count: 7, type: "move", effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: null } },
-      { id: "sc_2", name: "Scavenged Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null } },
+      KITTEN_EYES,
+      { id: "sc_2", name: "Scavenged Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Found it. It's fine." },
     ],
   },
   {
     charId: "char_kitten",
     cards: [
-      { id: "ki_1", name: "Tiny Swipe", count: 7, type: "move", effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: null } },
-      { id: "ki_2", name: "Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null } },
+      KITTEN_EYES,
+      { id: "ki_2", name: "Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "It's all about the kibble." },
     ],
   },
 ];
@@ -182,9 +184,9 @@ export default function Cards() {
       <section>
         <SectionHeader>Shop Cards</SectionHeader>
         {[
-          { label: "Move", cards: moveCards, color: "text-green-700" },
-          { label: "Item", cards: itemCards, color: "text-amber-800" },
-          { label: "Ally", cards: allyCards, color: "text-indigo-700" },
+          { label: "Move", cards: moveCards, color: "text-[#B06560]" },
+          { label: "Item", cards: itemCards, color: "text-[#A0712E]" },
+          { label: "Ally", cards: allyCards, color: "text-[#4A7080]" },
         ].map(({ label, cards, color }) => (
           <div key={label} className="mb-8">
             <h3 className={`font-bold text-sm uppercase tracking-widest mb-3 ${color}`}>{label}</h3>

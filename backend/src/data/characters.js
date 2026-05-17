@@ -1,5 +1,14 @@
 // Basic starting cards — not in the shop, character-specific
 const STARTING_CARDS = {
+  kitten_eyes: {
+    id: "kitten_eyes",
+    name: "Kitten Eyes",
+    type: "move",
+    cost: 0,
+    image: "/KittenEyes.png",
+    effect: { attack: 0, attackType: null, pawcoins: 1, special: null },
+    flavorText: "Resistance is futile.",
+  },
   persian_claw: {
     id: "persian_claw",
     name: "Delicate Swipe",
@@ -57,7 +66,7 @@ const CHARACTERS = [
     emoji: "😤",
     maxLives: 9,
     startingDeck: [
-      ...Array(7).fill("persian_claw"),
+      ...Array(7).fill("kitten_eyes"),
       ...Array(3).fill("persian_kibble"),
     ],
     passiveAbility: {
@@ -72,7 +81,7 @@ const CHARACTERS = [
     emoji: "😎",
     maxLives: 9,
     startingDeck: [
-      ...Array(7).fill("streetcat_claw"),
+      ...Array(7).fill("kitten_eyes"),
       ...Array(3).fill("streetcat_kibble"),
     ],
     passiveAbility: {
@@ -87,7 +96,7 @@ const CHARACTERS = [
     emoji: "🐱",
     maxLives: 9,
     startingDeck: [
-      ...Array(7).fill("kitten_claw"),
+      ...Array(7).fill("kitten_eyes"),
       ...Array(3).fill("kitten_kibble"),
     ],
     passiveAbility: {

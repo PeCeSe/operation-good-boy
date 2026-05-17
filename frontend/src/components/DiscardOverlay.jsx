@@ -2,9 +2,9 @@ import { useState } from "react";
 import PawCoin from "./PawCoin";
 
 const TYPE_CONFIG = {
-  move:  { border: "border-green-800",  bg: "bg-green-100",  emoji: "🐾" },
-  item:  { border: "border-amber-900",  bg: "bg-amber-100",  emoji: "📦" },
-  ally:  { border: "border-indigo-900", bg: "bg-indigo-100", emoji: "🤝" },
+  move:  { border: "border-[#B06560]", bg: "bg-[#F5D5D3]", emoji: "🐾" },
+  item:  { border: "border-[#A0712E]", bg: "bg-[#F5E5C0]", emoji: "📦" },
+  ally:  { border: "border-[#4A7080]", bg: "bg-[#D6E8EF]", emoji: "🤝" },
 };
 
 function MiniCard({ card, selected, onClick, dragging, onDragStart, onDragEnd }) {
