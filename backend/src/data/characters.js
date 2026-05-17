@@ -27,7 +27,7 @@ const STARTING_CARDS = {
     image: "/cards/GoodHidingSpot.png",
     effect: { attack: 0, attackType: null, pawcoins: 1, special: "passive_protection" },
     description: "Gain 1 pawcoin. While in hand: lose max 1 life per event or attack.",
-    flavorText: "Nobody checks behind the washing machine.",
+    flavorText: "Stealth mode activated.",
   },
   streetcat_roxy: {
     id: "streetcat_roxy",
@@ -37,7 +37,7 @@ const STARTING_CARDS = {
     image: "/cards/Roxy.png",
     effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_scratch_bite_or_heal2" },
     description: "Choose: Gain 1 🐾 scratch, 1 🦷 bite, or 2 ♥.",
-    flavorText: "She showed up one day. Never really left.",
+    flavorText: "She stops traffic. Literally.",
   },
   persian_claw: {
     id: "persian_claw",

@@ -51,8 +51,8 @@ const STARTING_DECKS = [
     cards: [
       KITTEN_EYES,
       { id: "sc_tuna", name: "Old Can of Tuna", count: 1, type: "item", image: "/cards/OldCanOfTuna.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_scratch_or_bite_cond_coin" }, description: "Gain 1 🐾 scratch or 1 🦷 bite. Defeating an enemy this turn also gains 1 pawcoin.", flavorText: "Still good. Probably." },
-      { id: "sc_hide", name: "The Good Hiding Spot", count: 1, type: "item", image: "/cards/GoodHidingSpot.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: "passive_protection" }, description: "Gain 1 pawcoin. While in hand: lose max 1 life per event or attack.", flavorText: "Nobody checks behind the washing machine." },
-      { id: "sc_roxy", name: "Roxy", count: 1, type: "ally", image: "/cards/Roxy.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_scratch_bite_or_heal2" }, description: "Choose: Gain 1 🐾 scratch, 1 🦷 bite, or 2 ♥.", flavorText: "She showed up one day. Never really left." },
+      { id: "sc_hide", name: "The Good Hiding Spot", count: 1, type: "item", image: "/cards/GoodHidingSpot.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: "passive_protection" }, description: "Gain 1 pawcoin. While in hand: lose max 1 life per event or attack.", flavorText: "Stealth mode activated." },
+      { id: "sc_roxy", name: "Roxy", count: 1, type: "ally", image: "/cards/Roxy.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_scratch_bite_or_heal2" }, description: "Choose: Gain 1 🐾 scratch, 1 🦷 bite, or 2 ♥.", flavorText: "She stops traffic. Literally." },
     ],
   },
   {

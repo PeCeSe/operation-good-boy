@@ -53,7 +53,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       disabled={!isPlayable || isPlaying}
       title={card.flavorText}
       className={`
-        w-40 flex-shrink-0 rounded-xl border-2 overflow-hidden shadow-md
+        w-40 flex-shrink-0 flex flex-col rounded-xl border-2 overflow-hidden shadow-md
         bg-amber-50 text-left select-none
         transition-all duration-300
         ${cfg.border}
@@ -63,7 +63,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       `}
     >
       {/* Header: name + cost */}
-      <div className="flex items-start justify-between gap-1 px-2 pt-2 pb-1">
+      <div className="flex items-start justify-between gap-1 px-2 pt-2 pb-1 min-h-[2rem]">
         <span className="font-bold text-xs leading-tight text-stone-800">{card.name}</span>
         {showCost && (
           <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-400 text-white text-xs font-bold flex items-center justify-center shadow-sm">
@@ -72,10 +72,10 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         )}
       </div>
 
-      {/* Image */}
-      <div className={`mx-1.5 rounded-lg h-24 overflow-hidden flex items-center justify-center ${card.image ? "" : `text-5xl ${cfg.image}`}`}>
+      {/* Image — square, full illustration */}
+      <div className={`mx-1.5 rounded-lg aspect-square overflow-hidden flex items-center justify-center ${cfg.image} ${card.image ? "" : "text-5xl"}`}>
         {card.image
-          ? <img src={card.image} alt={card.name} className="w-full h-full object-cover" />
+          ? <img src={card.image} alt={card.name} className="w-full h-full object-contain" />
           : cfg.emoji
         }
       </div>
@@ -85,15 +85,15 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         {cfg.label}
       </div>
 
-      {/* Effect */}
-      <div className="px-2 pt-1.5 text-xs text-stone-700 font-medium leading-snug">
+      {/* Effect — flex-1 keeps all cards the same height */}
+      <div className="px-2 pt-1.5 pb-1 text-xs text-stone-700 font-medium leading-snug flex-1">
         {card.description ?? <EffectText effect={card.effect} />}
       </div>
 
       {/* Divider + flavor */}
       {card.flavorText && (
         <>
-          <div className="mx-2 mt-1 border-t border-stone-300" />
+          <div className="mx-2 border-t border-stone-300" />
           <div className="px-2 pt-1 pb-2 text-[10px] italic text-stone-400 leading-snug line-clamp-2">
             "{card.flavorText}"
           </div>
