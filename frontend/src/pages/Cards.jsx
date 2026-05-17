@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import CHARACTERS from "../data/characters";
+import CardComponent from "../components/CardComponent";
 
 // ── Raw game data (mirrored from backend/src/data/) ──────────────────────────
 
@@ -58,28 +59,28 @@ const STARTING_DECKS = [
 
 const SHOP_CARDS = [
   // Move
-  { name: "Zoomies", type: "move", cost: 3, effect: "+2 scratch", flavorText: "No warning. No reason. Full speed." },
-  { name: "Dead Cat Flop", type: "move", cost: 4, effect: "+3 ignore", flavorText: "The perfect guilt trip." },
-  { name: "Slow Blink", type: "move", cost: 3, effect: "+2 charm", flavorText: "This means I love you. Now do what I want." },
-  { name: "Pounce", type: "move", cost: 3, effect: "+1 scratch, +1 bite", flavorText: "Maximum commitment." },
-  { name: "Hiss", type: "move", cost: 2, effect: "+2 ignore", flavorText: "Don't touch me. I mean it." },
-  { name: "Swipe", type: "move", cost: 4, effect: "+3 scratch", flavorText: "Lightning fast. No regrets." },
-  { name: "Belly Trap", type: "move", cost: 3, effect: "+2 bite", flavorText: "You were warned." },
-  { name: "Kneading Therapy", type: "move", cost: 4, effect: "Heal all players", flavorText: "Technically helping." },
+  { id: "card_001", name: "Zoomies", type: "move", cost: 3, effect: { attack: 2, attackType: "scratch", pawcoins: 0, special: null }, flavorText: "No warning. No reason. Full speed." },
+  { id: "card_002", name: "Dead Cat Flop", type: "move", cost: 4, effect: { attack: 3, attackType: "ignore", pawcoins: 0, special: null }, flavorText: "The perfect guilt trip." },
+  { id: "card_003", name: "Slow Blink", type: "move", cost: 3, effect: { attack: 2, attackType: "charm", pawcoins: 0, special: null }, flavorText: "This means I love you. Now do what I want." },
+  { id: "card_004", name: "Pounce", type: "move", cost: 3, effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: "bite_1" }, flavorText: "Maximum commitment." },
+  { id: "card_005", name: "Hiss", type: "move", cost: 2, effect: { attack: 2, attackType: "ignore", pawcoins: 0, special: null }, flavorText: "Don't touch me. I mean it." },
+  { id: "card_006", name: "Swipe", type: "move", cost: 4, effect: { attack: 3, attackType: "scratch", pawcoins: 0, special: null }, flavorText: "Lightning fast. No regrets." },
+  { id: "card_007", name: "Belly Trap", type: "move", cost: 3, effect: { attack: 2, attackType: "bite", pawcoins: 0, special: null }, flavorText: "You were warned." },
+  { id: "card_008", name: "Kneading Therapy", type: "move", cost: 4, effect: { attack: 0, attackType: null, pawcoins: 0, special: "heal" }, flavorText: "Technically helping." },
   // Item
-  { name: "Scratching Post", type: "item", cost: 4, effect: "+2 scratch, +1 🪙", flavorText: "Also works on furniture." },
-  { name: "Lure Wand", type: "item", cost: 3, effect: "+3 charm", flavorText: "They never see it coming." },
-  { name: "Cardboard Box", type: "item", cost: 2, effect: "Draw 1 card", flavorText: "Fits any cat. No questions asked." },
-  { name: "Catnip", type: "item", cost: 2, effect: "+3 🪙", flavorText: "For focus. Definitely for focus." },
-  { name: "Hairball", type: "item", cost: 3, effect: "+2 bite", flavorText: "A biological weapon." },
-  { name: "Laser Pointer", type: "item", cost: 2, effect: "+1 scratch, +1 charm", flavorText: "Distracting for everyone involved." },
-  { name: "Yarn Ball", type: "item", cost: 3, effect: "+1 scratch, +2 🪙", flavorText: "Multi-purpose." },
+  { id: "card_009", name: "Scratching Post", type: "item", cost: 4, effect: { attack: 2, attackType: "scratch", pawcoins: 1, special: null }, flavorText: "Also works on furniture." },
+  { id: "card_010", name: "Lure Wand", type: "item", cost: 3, effect: { attack: 3, attackType: "charm", pawcoins: 0, special: null }, flavorText: "They never see it coming." },
+  { id: "card_011", name: "Cardboard Box", type: "item", cost: 2, effect: { attack: 0, attackType: null, pawcoins: 0, special: "draw_card" }, flavorText: "Fits any cat. No questions asked." },
+  { id: "card_012", name: "Catnip", type: "item", cost: 2, effect: { attack: 0, attackType: null, pawcoins: 3, special: null }, flavorText: "For focus. Definitely for focus." },
+  { id: "card_013", name: "Hairball", type: "item", cost: 3, effect: { attack: 2, attackType: "bite", pawcoins: 0, special: null }, flavorText: "A biological weapon." },
+  { id: "card_014", name: "Laser Pointer", type: "item", cost: 2, effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: "charm_1" }, flavorText: "Distracting for everyone involved." },
+  { id: "card_015", name: "Yarn Ball", type: "item", cost: 3, effect: { attack: 1, attackType: "scratch", pawcoins: 2, special: null }, flavorText: "Multi-purpose." },
   // Ally
-  { name: "Friendly Pigeon", type: "ally", cost: 3, effect: "+2 🪙", flavorText: "Surprisingly cooperative for a bird." },
-  { name: "Old Lady Next Door", type: "ally", cost: 5, effect: "+4 charm", flavorText: "She gives out treats. Loyalty secured." },
-  { name: "Stray Kitten", type: "ally", cost: 3, effect: "+1 scratch, Draw 1 card", flavorText: "Chaotic. Enthusiastic. Present." },
-  { name: "Garden Snail", type: "ally", cost: 2, effect: "+2 ignore", flavorText: "Slow. Passive-aggressive. Effective." },
-  { name: "Neighborhood Mouse", type: "ally", cost: 4, effect: "+3 bite", flavorText: "Tiny. Furious. Inexplicable." },
+  { id: "card_016", name: "Friendly Pigeon", type: "ally", cost: 3, effect: { attack: 0, attackType: null, pawcoins: 2, special: null }, flavorText: "Surprisingly cooperative for a bird." },
+  { id: "card_017", name: "Old Lady Next Door", type: "ally", cost: 5, effect: { attack: 4, attackType: "charm", pawcoins: 0, special: null }, flavorText: "She gives out treats. Loyalty secured." },
+  { id: "card_018", name: "Stray Kitten", type: "ally", cost: 3, effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: "draw_card" }, flavorText: "Chaotic. Enthusiastic. Present." },
+  { id: "card_019", name: "Garden Snail", type: "ally", cost: 2, effect: { attack: 2, attackType: "ignore", pawcoins: 0, special: null }, flavorText: "Slow. Passive-aggressive. Effective." },
+  { id: "card_020", name: "Neighborhood Mouse", type: "ally", cost: 4, effect: { attack: 3, attackType: "bite", pawcoins: 0, special: null }, flavorText: "Tiny. Furious. Inexplicable." },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -230,29 +231,15 @@ export default function Cards() {
       <section>
         <SectionHeader>Shop Cards</SectionHeader>
         {[
-          { label: "Move", cards: moveCards, color: "text-blue-600" },
-          { label: "Item", cards: itemCards, color: "text-purple-600" },
-          { label: "Ally", cards: allyCards, color: "text-green-600" },
+          { label: "Move", cards: moveCards, color: "text-green-700" },
+          { label: "Item", cards: itemCards, color: "text-amber-800" },
+          { label: "Ally", cards: allyCards, color: "text-indigo-700" },
         ].map(({ label, cards, color }) => (
-          <div key={label} className="mb-6">
+          <div key={label} className="mb-8">
             <h3 className={`font-bold text-sm uppercase tracking-widest mb-3 ${color}`}>{label}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex flex-wrap gap-3">
               {cards.map((card) => (
-                <div key={card.name} className="bg-white border border-stone-200 rounded-xl p-4 shadow-sm flex gap-3">
-                  <div className="shrink-0">
-                    <div className="w-10 h-10 rounded-lg bg-stone-100 flex items-center justify-center font-bold text-stone-600 text-sm">
-                      {card.cost}🪙
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-semibold text-stone-800 text-sm">{card.name}</span>
-                      <Pill className={TYPE_COLORS[card.type]}>{card.type}</Pill>
-                    </div>
-                    <div className="text-xs font-semibold text-amber-700">{card.effect}</div>
-                    <div className="text-[11px] text-stone-400 italic mt-1">{card.flavorText}</div>
-                  </div>
-                </div>
+                <CardComponent key={card.id} card={card} showCost={true} isPlayable={false} />
               ))}
             </div>
           </div>
