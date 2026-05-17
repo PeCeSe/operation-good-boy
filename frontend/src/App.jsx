@@ -4,6 +4,7 @@ import socket from "./socket";
 import Home from "./pages/Home";
 import Lobby from "./pages/Lobby";
 import Game from "./pages/Game";
+import Cards from "./pages/Cards";
 
 export default function App() {
   const navigate = useNavigate();
@@ -72,6 +73,7 @@ export default function App() {
       )}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/cards" element={<Cards />} />
         <Route
           path="/room/:code"
           element={

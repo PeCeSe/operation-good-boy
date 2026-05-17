@@ -1,7 +1,59 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import socket from "../socket";
 import CHARACTERS from "../data/characters";
+
+const DIFFICULTY_LABELS = ["Easy", "Medium", "Hard"];
+const DIFFICULTY_COLORS = ["text-green-600", "text-amber-500", "text-red-500"];
+
+function DifficultySlider({ value, onChange }) {
+  return (
+    <div className="space-y-2">
+      <div className="text-sm font-semibold text-center text-stone-700">
+        Difficulty:{" "}
+        <span className={`font-bold ${DIFFICULTY_COLORS[value]}`}>{DIFFICULTY_LABELS[value]}</span>
+      </div>
+      <div className="relative flex items-center h-6">
+        <div className="absolute left-4 right-4 h-1 bg-stone-200 rounded-full" />
+        <div
+          className="absolute left-4 h-1 bg-amber-400 rounded-full transition-all duration-200"
+          style={{ width: `calc(${value * 50}% - ${value}rem)` }}
+        />
+        <div className="relative w-full flex justify-between px-4">
+          {DIFFICULTY_LABELS.map((label, i) => (
+            <button
+              key={label}
+              onClick={() => onChange(i)}
+              className="flex items-center justify-center w-4 h-4 -mx-2 focus:outline-none"
+              title={label}
+            >
+              <div
+                className={`rounded-full border-2 transition-all duration-200 ${
+                  i === value
+                    ? "w-4 h-4 bg-amber-500 border-amber-500"
+                    : "w-3 h-3 bg-white border-stone-300 hover:border-amber-400"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="flex justify-between px-3">
+        {DIFFICULTY_LABELS.map((label, i) => (
+          <span
+            key={label}
+            className={`text-[11px] font-medium cursor-pointer transition-colors ${
+              i === value ? DIFFICULTY_COLORS[i] : "text-stone-400 hover:text-stone-500"
+            }`}
+            onClick={() => onChange(i)}
+          >
+            {label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const { code } = useParams();
@@ -9,6 +61,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const [nameSent, setNameSent] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const [difficulty, setDifficulty] = useState(1);
 
   const myPlayer = roomInfo?.players.find((p) => p.socketId === mySocketId);
   const isHost = roomInfo?.hostSocketId === mySocketId;
@@ -242,6 +295,11 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
             );
           })}
         </div>
+      </div>
+
+      {/* Difficulty */}
+      <div className="max-w-xs mx-auto w-full">
+        <DifficultySlider value={difficulty} onChange={setDifficulty} />
       </div>
 
       {/* Actions */}
