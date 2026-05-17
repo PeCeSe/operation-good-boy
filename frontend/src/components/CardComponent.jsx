@@ -53,7 +53,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       disabled={!isPlayable || isPlaying}
       title={card.flavorText}
       className={`
-        w-40 flex-shrink-0 flex flex-col rounded-xl border-2 overflow-hidden shadow-md
+        w-40 flex-shrink-0 flex flex-col h-full rounded-xl border-2 overflow-hidden shadow-md
         bg-amber-50 text-left select-none
         transition-all duration-300
         ${cfg.border}
