@@ -1,58 +1,170 @@
-const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
+import { useState } from "react";
 
-export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, isMyTurn }) {
-  const hpPct = Math.max(0, (enemy.currentHealth / enemy.maxHealth) * 100);
+const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
+const TOKEN_BG     = { scratch: "bg-orange-200", bite: "bg-red-200",    ignore: "bg-blue-200",   charm: "bg-purple-200" };
+const TOKEN_BORDER = { scratch: "border-orange-400", bite: "border-red-400", ignore: "border-blue-400", charm: "border-purple-400" };
+const TOKEN_TEXT   = { scratch: "text-orange-700", bite: "text-red-700",   ignore: "text-blue-700",  charm: "text-purple-700" };
+const TOKEN_COLORS = {
+  scratch: "bg-orange-200 border-orange-400 text-orange-700",
+  bite:    "bg-red-200 border-red-400 text-red-700",
+  ignore:  "bg-blue-200 border-blue-400 text-blue-700",
+  charm:   "bg-purple-200 border-purple-400 text-purple-700",
+};
+
+function calcEffective(placed, weakTo, resistantTo) {
+  return Object.entries(placed).reduce((sum, [type, n]) => {
+    if (weakTo.includes(type)) return sum + n * 2;
+    if (resistantTo.includes(type)) return sum + Math.floor(n / 2);
+    return sum + n;
+  }, 0);
+}
+
+function Token({ type, modifier }) {
+  const base = `rounded-full border-2 flex items-center justify-center text-xs ${TOKEN_COLORS[type]}`;
+  if (modifier === "weak") {
+    return (
+      <span className="relative inline-flex w-7 h-7 flex-shrink-0">
+        <span className={`absolute w-5 h-5 ${base}`} style={{ top: 0, left: 0 }}>{ATTACK_ICONS[type]}</span>
+        <span className={`absolute w-5 h-5 ${base}`} style={{ top: 4, left: 4 }}>{ATTACK_ICONS[type]}</span>
+      </span>
+    );
+  }
+  if (modifier === "resist") {
+    return (
+      <span className={`relative w-6 h-6 rounded-full border-2 ${TOKEN_BORDER[type]} overflow-hidden flex-shrink-0`}>
+        <span className={`absolute left-0 top-0 w-1/2 h-full ${TOKEN_BG[type]}`} />
+        <span className="absolute right-0 top-0 w-1/2 h-full bg-stone-100" />
+        <span className={`absolute inset-0 flex items-center justify-center text-xs ${TOKEN_TEXT[type]}`}>
+          {ATTACK_ICONS[type]}
+        </span>
+      </span>
+    );
+  }
+  return <span className={`w-6 h-6 ${base} flex-shrink-0`}>{ATTACK_ICONS[type]}</span>;
+}
+
+function AttackTokens({ placedAttacks, maxHealth, weakTo = [], resistantTo = [] }) {
+  const placed = placedAttacks || {};
+  const hasAny = Object.values(placed).some((v) => v > 0);
+  const effectiveDamage = calcEffective(placed, weakTo, resistantTo);
 
   return (
-    <div className="bg-slate-800 border-2 border-red-800/60 rounded-xl p-3 w-44 flex-shrink-0">
-      <div className="font-bold text-sm text-red-300 mb-1">{enemy.name}</div>
+    <div className="px-2 py-2 bg-stone-50 border-t border-stone-200 min-h-[3rem]">
+      {hasAny ? (
+        <>
+          <div className="flex flex-wrap gap-1 mb-1 items-center">
+            {Object.entries(placed).flatMap(([type, count]) => {
+              const modifier = weakTo.includes(type) ? "weak" : resistantTo.includes(type) ? "resist" : "normal";
+              return Array.from({ length: count }).map((_, i) => (
+                <Token key={`${type}-${i}`} type={type} modifier={modifier} />
+              ));
+            })}
+          </div>
+          <div className="text-[10px] text-stone-400">{effectiveDamage} / {maxHealth} damage</div>
+        </>
+      ) : (
+        <div className="text-[10px] text-stone-300 italic">No attacks placed yet</div>
+      )}
+    </div>
+  );
+}
 
-      {/* HP bar */}
-      <div className="mb-2">
-        <div className="flex justify-between text-xs text-slate-400 mb-0.5">
-          <span>HP</span>
-          <span>{enemy.currentHealth}/{enemy.maxHealth}</span>
+function TypePill({ label, type }) {
+  const colors =
+    type === "weak"
+      ? "bg-green-100 border-green-400 text-green-700"
+      : "bg-red-100 border-red-400 text-red-700";
+  const prefix = type === "weak" ? "↑" : "↓";
+  return (
+    <span className={`text-[10px] font-semibold border rounded px-1.5 py-0.5 ${colors}`}>
+      {prefix} {ATTACK_ICONS[label]}
+    </span>
+  );
+}
+
+export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, isMyTurn, draggingAttackType }) {
+  const [dragOver, setDragOver] = useState(false);
+  const placed = enemy.placedAttacks || {};
+  const isDropTarget = isMyTurn && !!draggingAttackType;
+
+  const handleDragOver = (e) => {
+    if (!isDropTarget) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOver(true);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const type = e.dataTransfer.getData("text/plain");
+    if (type) onAttack(enemy.id, type);
+  };
+
+  return (
+    <div
+      className={`w-44 flex-shrink-0 bg-stone-100 rounded-xl shadow-md overflow-hidden flex flex-col transition-all border-2 ${
+        dragOver
+          ? "border-amber-400 shadow-lg scale-105"
+          : isDropTarget
+          ? "border-amber-300 border-dashed"
+          : "border-stone-700"
+      }`}
+      onDragOver={handleDragOver}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={handleDrop}
+    >
+      {/* Header */}
+      <div className="bg-stone-800 px-2 py-1.5 flex items-center justify-between gap-1">
+        <div className="min-w-0">
+          <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase">Enemy</div>
+          <div className="text-white font-bold text-xs leading-tight">{enemy.name}</div>
         </div>
-        <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-red-500 rounded-full transition-all"
-            style={{ width: `${hpPct}%` }}
-          />
+        <div className="flex-shrink-0 text-right">
+          <div className="text-white font-bold text-lg leading-none">{enemy.maxHealth}</div>
+          <div className="text-stone-400 text-[9px]">HP</div>
         </div>
       </div>
 
-      <div className="text-xs text-slate-400 mb-2">⚔️ Attacks for {enemy.attack}/round</div>
+      {/* Illustration */}
+      <div className="h-24 bg-gradient-to-b from-stone-200 to-stone-300 flex items-center justify-center text-5xl">
+        {enemy.emoji || "👾"}
+      </div>
 
-      {/* Weaknesses and resistances */}
-      {enemy.weakTo.length > 0 && (
-        <div className="text-xs mb-1">
-          <span className="text-green-400 font-semibold">Weak: </span>
-          {enemy.weakTo.map((t) => (
-            <span key={t} className="mr-1">{ATTACK_ICONS[t]} {t}</span>
-          ))}
+      {/* Ability */}
+      <div className="px-2 pt-2 pb-1 flex-1">
+        {enemy.ability && (
+          <div className="text-[10px] text-stone-700 leading-snug">
+            {enemy.ability.description}
+          </div>
+        )}
+        {enemy.flavorText && (
+          <div className="mt-1 text-[9px] italic text-stone-400 leading-snug">"{enemy.flavorText}"</div>
+        )}
+      </div>
+
+      {/* Reward */}
+      <div className="mx-2 border-t-2 border-stone-600 mt-1" />
+      <div className="px-2 py-1.5 bg-stone-200">
+        <div className="text-[9px] font-bold tracking-widest text-stone-500 uppercase mb-0.5">Reward</div>
+        <div className="text-[10px] text-stone-700 leading-snug">{enemy.reward?.description}</div>
+      </div>
+
+      {/* Weakness / resistance */}
+      {((enemy.weakTo?.length > 0) || (enemy.resistantTo?.length > 0)) && (
+        <div className="px-2 py-1.5 bg-white border-t border-stone-200 flex flex-wrap gap-1">
+          {enemy.weakTo?.map((t) => <TypePill key={`w-${t}`} label={t} type="weak" />)}
+          {enemy.resistantTo?.map((t) => <TypePill key={`r-${t}`} label={t} type="resist" />)}
         </div>
       )}
-      {enemy.resistantTo.length > 0 && (
-        <div className="text-xs mb-2">
-          <span className="text-red-400 font-semibold">Resistant: </span>
-          {enemy.resistantTo.map((t) => (
-            <span key={t} className="mr-1">{ATTACK_ICONS[t]} {t}</span>
-          ))}
-        </div>
-      )}
 
-      {/* Attack buttons */}
-      {isMyTurn && (
-        <div className="flex flex-wrap gap-1 mt-1">
-          {availableAttackTypes.map(([type, amount]) => (
-            <button
-              key={type}
-              onClick={() => onAttack(enemy.id, type)}
-              className="text-[10px] bg-red-700 hover:bg-red-600 px-1.5 py-0.5 rounded transition-colors"
-            >
-              {ATTACK_ICONS[type]} {amount}
-            </button>
-          ))}
+      {/* Placed attack tokens */}
+      <AttackTokens placedAttacks={enemy.placedAttacks} maxHealth={enemy.maxHealth} weakTo={enemy.weakTo} resistantTo={enemy.resistantTo} />
+
+      {/* Drop hint */}
+      {isDropTarget && (
+        <div className="px-2 py-1.5 bg-amber-50 border-t border-amber-200 text-center text-[10px] text-amber-500 font-semibold">
+          Drop attack here
         </div>
       )}
     </div>

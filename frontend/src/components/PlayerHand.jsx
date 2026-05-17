@@ -1,9 +1,17 @@
+import { useEffect, useState } from "react";
 import CardComponent from "./CardComponent";
 import socket from "../socket";
 
 export default function PlayerHand({ hand, isMyTurn }) {
+  const [playingCardId, setPlayingCardId] = useState(null);
+
+  useEffect(() => {
+    setPlayingCardId(null);
+  }, [hand]);
+
   const handlePlay = (cardId) => {
-    if (!isMyTurn) return;
+    if (!isMyTurn || playingCardId) return;
+    setPlayingCardId(cardId);
     socket.emit("play_card", { cardId });
   };
 
@@ -18,9 +26,10 @@ export default function PlayerHand({ hand, isMyTurn }) {
         <div className="flex gap-2 flex-wrap">
           {hand.map((card) => (
             <CardComponent
-              key={card.id + Math.random()}
+              key={card.id}
               card={card}
-              isPlayable={isMyTurn}
+              isPlayable={isMyTurn && !playingCardId}
+              isPlaying={playingCardId === card.id}
               onClick={() => handlePlay(card.id)}
             />
           ))}

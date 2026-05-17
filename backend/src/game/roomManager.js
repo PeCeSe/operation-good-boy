@@ -10,7 +10,7 @@ function generateRoomCode() {
   return code;
 }
 
-function createRoom(socketId, password = null) {
+function createRoom(socketId, password = null, playerToken = null) {
   let code;
   do { code = generateRoomCode(); } while (rooms.has(code));
 
@@ -18,7 +18,7 @@ function createRoom(socketId, password = null) {
     code,
     password,
     hostSocketId: socketId,
-    players: [{ socketId, name: `Player 1`, characterId: null, isReady: false }],
+    players: [{ socketId, playerToken, name: `Player 1`, characterId: null, isReady: false }],
     gameState: null,
     lastActivity: Date.now(),
   });
@@ -26,22 +26,50 @@ function createRoom(socketId, password = null) {
   return code;
 }
 
-function joinRoom(socketId, code, password = null) {
+function joinRoom(socketId, code, password = null, playerToken = null) {
   const room = rooms.get(code);
   if (!room) return { success: false, error: "Room not found." };
+  if (room.password && room.password !== password) return { success: false, error: "Wrong password." };
+
+  const existing = room.players.find((p) => p.playerToken && p.playerToken === playerToken);
+  if (existing) {
+    existing.socketId = socketId;
+    room.lastActivity = Date.now();
+    return { success: true };
+  }
+
   if (room.gameState) return { success: false, error: "Game already in progress." };
   if (room.players.length >= 4) return { success: false, error: "Room is full." };
-  if (room.password && room.password !== password) return { success: false, error: "Wrong password." };
   if (room.players.find((p) => p.socketId === socketId)) return { success: true };
 
   room.players.push({
     socketId,
+    playerToken,
     name: `Player ${room.players.length + 1}`,
     characterId: null,
     isReady: false,
   });
   room.lastActivity = Date.now();
   return { success: true };
+}
+
+function rejoinRoom(newSocketId, playerToken, code) {
+  const room = rooms.get(code);
+  if (!room) return { success: false };
+  const player = room.players.find((p) => p.playerToken === playerToken);
+  if (!player) return { success: false };
+
+  const oldSocketId = player.socketId;
+  player.socketId = newSocketId;
+  if (room.hostSocketId === oldSocketId) room.hostSocketId = newSocketId;
+
+  if (room.gameState) {
+    const gamePlayer = room.gameState.players.find((p) => p.socketId === oldSocketId);
+    if (gamePlayer) gamePlayer.socketId = newSocketId;
+  }
+
+  room.lastActivity = Date.now();
+  return { success: true, hasGame: !!room.gameState };
 }
 
 function leaveRoom(socketId) {
@@ -73,6 +101,16 @@ function getRoomBySocket(socketId) {
   return null;
 }
 
+function setName(socketId, name) {
+  const room = getRoomBySocket(socketId);
+  if (!room) return;
+  const player = room.players.find((p) => p.socketId === socketId);
+  if (player) {
+    player.name = name.trim().slice(0, 20) || player.name;
+    room.lastActivity = Date.now();
+  }
+}
+
 function setCharacter(socketId, characterId) {
   const room = getRoomBySocket(socketId);
   if (!room) return;
@@ -99,7 +137,7 @@ function canStart(code) {
   if (!room || room.gameState) return false;
   const { players } = room;
   return (
-    players.length >= 2 &&
+    players.length >= 1 &&
     players.length <= 4 &&
     players.every((p) => p.characterId && p.isReady)
   );
@@ -126,7 +164,9 @@ function cleanup() {
 module.exports = {
   createRoom,
   joinRoom,
+  rejoinRoom,
   leaveRoom,
+  setName,
   getRoom,
   getRoomBySocket,
   setCharacter,

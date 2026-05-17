@@ -9,8 +9,8 @@ export default function ShopRow({ shop, currentPawcoins, isMyTurn, blockShop }) 
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-slate-400 mb-2">
-        Shop {blockShop && <span className="text-red-400 font-normal">(closed this round)</span>}
+      <h3 className="text-sm font-semibold text-stone-600 mb-2">
+        Shop {blockShop && <span className="text-red-500 font-normal">(closed this round)</span>}
       </h3>
       <div className="flex gap-2 flex-wrap">
         {shop.map((card) => (
@@ -23,7 +23,7 @@ export default function ShopRow({ shop, currentPawcoins, isMyTurn, blockShop }) 
           />
         ))}
         {shop.length === 0 && (
-          <p className="text-slate-600 text-sm italic">Shop is empty.</p>
+          <p className="text-stone-400 text-sm italic">Shop is empty.</p>
         )}
       </div>
     </div>

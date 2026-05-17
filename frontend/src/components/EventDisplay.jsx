@@ -1,29 +1,64 @@
-export default function EventDisplay({ event }) {
-  if (!event) return null;
+function effectLines(effect) {
+  const lines = [];
+  if (effect.damageAll > 0) lines.push(`All players lose ${effect.damageAll} life.`);
+  if (effect.cucumberTokens > 0) lines.push(`+${effect.cucumberTokens} 🥒 to location.`);
+  if (effect.discardCards > 0) lines.push(`Each player discards ${effect.discardCards} card(s).`);
+  if (effect.blockShop) lines.push("Shop is closed.");
+  if (effect.blockAttack) lines.push("Attacks blocked.");
+  if (effect.pawcoinPenalty > 0) lines.push(`-${effect.pawcoinPenalty} 🪙 per player.`);
+  return lines;
+}
 
-  const effects = [];
-  const { effect } = event;
-  if (effect.damageAll > 0) effects.push(`All players lose ${effect.damageAll} life`);
-  if (effect.cucumberTokens > 0) effects.push(`+${effect.cucumberTokens} 🥒`);
-  if (effect.discardCards > 0) effects.push(`Each player discards ${effect.discardCards} card(s)`);
-  if (effect.blockShop) effects.push("Shop closed");
-  if (effect.blockAttack) effects.push("Attacks blocked");
-  if (effect.pawcoinPenalty > 0) effects.push(`-${effect.pawcoinPenalty} 🪙 per player`);
+function EventCard({ event }) {
+  const lines = effectLines(event.effect);
+  return (
+    <div className="w-36 flex-shrink-0 bg-purple-50 border-2 border-purple-300 rounded-xl shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="bg-purple-700 px-2 py-1 text-center">
+        <span className="text-[9px] font-bold tracking-widest text-purple-200 uppercase">Event</span>
+      </div>
+
+      {/* Image placeholder */}
+      <div className="h-20 bg-gradient-to-b from-purple-100 to-purple-200 flex items-center justify-center text-4xl">
+        📣
+      </div>
+
+      {/* Name */}
+      <div className="px-2 pt-2 pb-1">
+        <div className="font-bold text-xs text-purple-900 leading-tight">{event.name}</div>
+      </div>
+
+      {/* Effects */}
+      {lines.length > 0 && (
+        <div className="px-2 pb-1 space-y-0.5">
+          {lines.map((line, i) => (
+            <div key={i} className="text-[10px] text-stone-700">{line}</div>
+          ))}
+        </div>
+      )}
+
+      {/* Flavor */}
+      {event.flavorText && (
+        <>
+          <div className="mx-2 border-t border-purple-200" />
+          <div className="px-2 pt-1 pb-2 text-[9px] italic text-stone-400 leading-snug">
+            "{event.flavorText}"
+          </div>
+        </>
+      )}
+      {!event.flavorText && <div className="pb-2" />}
+    </div>
+  );
+}
+
+export default function EventDisplay({ events }) {
+  if (!events || events.length === 0) return null;
 
   return (
-    <div className="bg-purple-900/40 border border-purple-600/40 rounded-xl p-4">
-      <div className="flex items-start gap-3">
-        <span className="text-2xl">📣</span>
-        <div>
-          <div className="font-bold text-purple-200 text-sm">{event.name}</div>
-          {effects.length > 0 && (
-            <div className="text-xs text-purple-300 mt-0.5">{effects.join(" · ")}</div>
-          )}
-          {event.flavorText && (
-            <div className="text-xs text-slate-500 italic mt-1">{event.flavorText}</div>
-          )}
-        </div>
-      </div>
+    <div className="flex gap-2">
+      {events.map((event) => (
+        <EventCard key={event.id} event={event} />
+      ))}
     </div>
   );
 }

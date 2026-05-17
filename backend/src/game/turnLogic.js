@@ -15,13 +15,33 @@ function drawCards(player, count) {
   }
 }
 
+function checkLocationLoss(state) {
+  if (!state.currentLocation) return;
+  if (state.currentLocation.currentCucumberTokens < state.currentLocation.maxCucumberTokens) return;
+
+  log(state, `💀 ${state.currentLocation.name} is lost!`);
+  state.lostLocations.push(state.currentLocation);
+
+  if (state.locationDeck.length > 0) {
+    state.currentLocation = state.locationDeck.shift();
+    log(state, `Moving to ${state.currentLocation.name}.`);
+  } else {
+    state.currentLocation = null;
+    state.phase = "defeat";
+    log(state, "🥒 Defeat. All locations have been lost.");
+  }
+}
+
 function checkStun(state) {
   state.players.forEach((p) => {
     if (p.lives === 0 && !p.isStunned) {
       p.isStunned = true;
       const discardCount = Math.floor(p.hand.length / 2);
       if (discardCount > 0) p.discard.push(...p.hand.splice(0, discardCount));
-      if (state.currentLocation) state.currentLocation.currentCucumberTokens += 1;
+      if (state.currentLocation) {
+        state.currentLocation.currentCucumberTokens += 1;
+        checkLocationLoss(state);
+      }
       log(state, `${p.name} was knocked out! Discarded ${discardCount} card(s), +1 🥒.`);
     }
   });
@@ -36,25 +56,20 @@ function applyEventEffect(state, event) {
   if (e.cucumberTokens > 0) {
     state.currentLocation.currentCucumberTokens += e.cucumberTokens;
     log(state, `Event: +${e.cucumberTokens} 🥒 to ${state.currentLocation.name}.`);
+    checkLocationLoss(state);
   }
-
   if (e.damageAll > 0) {
-    state.players.forEach((p) => {
-      p.lives = Math.max(0, p.lives - e.damageAll);
-    });
+    state.players.forEach((p) => { p.lives = Math.max(0, p.lives - e.damageAll); });
     log(state, `Event: All players lose ${e.damageAll} life.`);
     checkStun(state);
   }
-
   if (e.discardCards > 0) {
-    state.players.forEach((p) => {
-      const n = Math.min(e.discardCards, p.hand.length);
-      const discarded = p.hand.splice(0, n);
-      p.discard.push(...discarded);
-    });
-    log(state, `Event: Each player discards ${e.discardCards} card(s).`);
+    const entries = state.players
+      .filter((p) => p.hand.length > 0)
+      .map((p) => ({ playerId: p.playerId, count: Math.min(e.discardCards, p.hand.length) }));
+    if (entries.length > 0) state.pendingDiscard = entries;
+    log(state, `Event: Each player must discard ${e.discardCards} card(s).`);
   }
-
   if (e.blockShop) log(state, `Event: Shop is closed this round.`);
   if (e.blockAttack) log(state, `Event: Players cannot attack this round.`);
   if (e.pawcoinPenalty > 0) log(state, `Event: Each player generates ${e.pawcoinPenalty} fewer pawcoin(s) this round.`);
@@ -63,7 +78,6 @@ function applyEventEffect(state, event) {
 function applyEnemyAbility(state, enemy) {
   const e = enemy.ability?.effect;
   if (!e) return;
-
   const activePlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
 
   if (e.addCucumber > 0) {
@@ -72,6 +86,7 @@ function applyEnemyAbility(state, enemy) {
       state.currentLocation.currentCucumberTokens + e.addCucumber
     );
     log(state, `${enemy.name}: +${e.addCucumber} 🥒 to ${state.currentLocation.name}.`);
+    checkLocationLoss(state);
   }
   if (e.damageAll > 0) {
     state.players.forEach((p) => { p.lives = Math.max(0, p.lives - e.damageAll); });
@@ -85,22 +100,21 @@ function applyEnemyAbility(state, enemy) {
   }
   if (e.discardActive > 0 && activePlayer) {
     const n = Math.min(e.discardActive, activePlayer.hand.length);
-    activePlayer.discard.push(...activePlayer.hand.splice(0, n));
-    log(state, `${enemy.name}: ${activePlayer.name} discards ${n} card(s).`);
+    if (n > 0) state.pendingDiscard = [{ playerId: activePlayer.playerId, count: n }];
+    log(state, `${enemy.name}: ${activePlayer.name} must discard ${n} card(s).`);
   }
   if (e.discardAll > 0) {
-    state.players.forEach((p) => {
-      const n = Math.min(e.discardAll, p.hand.length);
-      p.discard.push(...p.hand.splice(0, n));
-    });
-    log(state, `${enemy.name}: all players discard ${e.discardAll} card(s).`);
+    const entries = state.players
+      .filter((p) => p.hand.length > 0)
+      .map((p) => ({ playerId: p.playerId, count: Math.min(e.discardAll, p.hand.length) }));
+    if (entries.length > 0) state.pendingDiscard = entries;
+    log(state, `${enemy.name}: all players must discard ${e.discardAll} card(s).`);
   }
 }
 
 function applyEnemyReward(state, enemy, activePlayer) {
   const r = enemy.reward;
   if (!r) return;
-
   if (r.pawcoins > 0) {
     activePlayer.currentPawcoins += r.pawcoins;
     log(state, `Reward: ${activePlayer.name} gains ${r.pawcoins} 🪙.`);
@@ -126,28 +140,28 @@ function applyEnemyReward(state, enemy, activePlayer) {
   }
 }
 
-function startRound(state) {
+function makePendingPhase(items, resolvedIndex) {
+  const item = items[resolvedIndex];
+  // turn_start is auto-revealed (no flip needed)
+  const currentRevealed = item?.kind === "turn_start";
+  return { items, resolvedIndex, currentRevealed };
+}
+
+function buildTurnPhase(state) {
   state.blockShop = false;
   state.blockAttack = false;
   state.pawcoinPenalty = 0;
+  state.currentEvents = [];
 
-  // Draw events — held back until revealed one by one via pendingPhase
   const eventsToDraw = state.currentLocation?.eventsToDraw || 1;
   const drawnEvents = [];
   for (let i = 0; i < eventsToDraw && state.eventDeck.length > 0; i++) {
     drawnEvents.push(state.eventDeck.shift());
   }
-  state.currentEvents = [];
 
-  // Draw new enemies to fill the board
-  while (state.enemies.length < 3 && state.enemyDeck.length > 0) {
-    const enemy = state.enemyDeck.shift();
-    state.enemies.push(enemy);
-    log(state, `New enemy appeared: ${enemy.name}!`);
-  }
-
-  // Build pending queue: events first, then enemy abilities
+  const activePlayer = state.players.find((p) => p.playerId === state.turn.currentPlayerId);
   const items = [
+    { kind: "turn_start", playerName: activePlayer?.name || "Player", roundNumber: state.turn.roundNumber },
     ...drawnEvents.map((e) => ({ kind: "event", data: e })),
     ...state.enemies
       .filter((e) => e.ability?.trigger === "start_of_round")
@@ -160,16 +174,40 @@ function startRound(state) {
       })),
   ];
 
-  if (items.length === 0) {
+  state.pendingPhase = makePendingPhase(items, 0);
+}
+
+function startRound(state) {
+  while (state.enemies.length < 3 && state.enemyDeck.length > 0) {
+    const enemy = state.enemyDeck.shift();
+    state.enemies.push(enemy);
+    log(state, `New enemy appeared: ${enemy.name}!`);
+  }
+
+  buildTurnPhase(state);
+  return state;
+}
+
+function revealPhase(state, playerId) {
+  if (state.turn.currentPlayerId !== playerId) return { state, error: "Not your turn." };
+  if (!state.pendingPhase) return { state, error: "No pending phase." };
+  if (state.pendingPhase.currentRevealed) return { state, error: "Already revealed." };
+  state.pendingPhase = { ...state.pendingPhase, currentRevealed: true };
+  return { state, error: null };
+}
+
+function advancePendingPhase(state) {
+  if (!state.pendingPhase) return;
+  const { items, resolvedIndex } = state.pendingPhase;
+  const newIndex = resolvedIndex + 1;
+  if (newIndex >= items.length) {
     state.pendingPhase = null;
-    if (state.enemies.length > 0) {
+    if (items[resolvedIndex]?.kind !== "turn_start" && state.enemies.length > 0) {
       log(state, `Enemies on the board: ${state.enemies.map((e) => e.name).join(", ")}.`);
     }
   } else {
-    state.pendingPhase = { items, resolvedIndex: 0 };
+    state.pendingPhase = makePendingPhase(items, newIndex);
   }
-
-  return state;
 }
 
 function advancePhase(state, playerId) {
@@ -178,6 +216,10 @@ function advancePhase(state, playerId) {
 
   const { items, resolvedIndex } = state.pendingPhase;
   const item = items[resolvedIndex];
+
+  if (item.kind !== "turn_start" && !state.pendingPhase.currentRevealed) {
+    return { state, error: "Reveal the card first." };
+  }
 
   if (item.kind === "event") {
     state.currentEvents.push(item.data);
@@ -188,15 +230,10 @@ function advancePhase(state, playerId) {
     if (enemy) applyEnemyAbility(state, enemy);
   }
 
-  state.pendingPhase.resolvedIndex++;
+  // If a discard was triggered, hold the phase here until discards are done
+  if (state.pendingDiscard) return { state, error: null };
 
-  if (state.pendingPhase.resolvedIndex >= items.length) {
-    state.pendingPhase = null;
-    if (state.enemies.length > 0) {
-      log(state, `Enemies on the board: ${state.enemies.map((e) => e.name).join(", ")}.`);
-    }
-  }
-
+  advancePendingPhase(state);
   return { state, error: null };
 }
 
@@ -212,27 +249,19 @@ function playCard(state, playerId, cardId) {
   player.discard.push(card);
 
   const { attack, attackType, pawcoins, special } = card.effect;
-
-  // Apply pawcoins (minus any event penalty)
   const earnedCoins = Math.max(0, pawcoins - state.pawcoinPenalty);
   player.currentPawcoins += earnedCoins;
 
-  // Apply attack
   if (attack > 0 && attackType) {
     player.currentAttack[attackType] = (player.currentAttack[attackType] || 0) + attack;
   }
-
-  // Handle compound specials for multi-attack cards (Pounce: bite_1, Laser Pointer: charm_1)
   if (special && special.startsWith("bite_")) {
-    const bonus = parseInt(special.split("_")[1]);
-    player.currentAttack.bite = (player.currentAttack.bite || 0) + bonus;
+    player.currentAttack.bite = (player.currentAttack.bite || 0) + parseInt(special.split("_")[1]);
   }
   if (special && special.startsWith("charm_")) {
-    const bonus = parseInt(special.split("_")[1]);
-    player.currentAttack.charm = (player.currentAttack.charm || 0) + bonus;
+    player.currentAttack.charm = (player.currentAttack.charm || 0) + parseInt(special.split("_")[1]);
   }
 
-  // Standard specials
   if (special === "draw_card") {
     drawCards(player, 1);
     log(state, `${player.name} played ${card.name} and drew a card.`);
@@ -263,7 +292,6 @@ function attackEnemy(state, playerId, enemyId, attackType) {
   if (!player) return { state, error: "Player not found." };
   if (state.turn.currentPlayerId !== playerId) return { state, error: "Not your turn." };
   if (state.blockAttack) return { state, error: "Attacks are blocked this round." };
-
   if ((player.currentAttack[attackType] || 0) <= 0) return { state, error: `No ${attackType} attack available.` };
 
   const enemyIdx = state.enemies.findIndex((e) => e.id === enemyId);
@@ -286,8 +314,6 @@ function attackEnemy(state, playerId, enemyId, attackType) {
     state.enemies.splice(enemyIdx, 1);
     log(state, `${enemy.name} defeated! ${enemy.reward.description}`);
     applyEnemyReward(state, enemy, player);
-
-    // Refill board
     if (state.enemyDeck.length > 0 && state.enemies.length < 3) {
       const next = state.enemyDeck.shift();
       state.enemies.push(next);
@@ -314,7 +340,6 @@ function buyCard(state, playerId, cardId) {
   state.shop.splice(shopIdx, 1);
   player.discard.push(card);
 
-  // Kitten passive: refund 1 pawcoin on buy
   if (player.character.id === "char_kitten") {
     player.currentPawcoins += 1;
     log(state, `${player.name} bought ${card.name} (+1 pawcoin refund from passive).`);
@@ -329,7 +354,7 @@ function advanceToNextPlayer(state) {
   const idx = state.players.findIndex((p) => p.playerId === state.turn.currentPlayerId);
   const nextIdx = (idx + 1) % state.players.length;
   state.turn.currentPlayerId = state.players[nextIdx].playerId;
-  return nextIdx === 0; // true = full round complete
+  return nextIdx === 0;
 }
 
 function checkWinLose(state) {
@@ -343,31 +368,15 @@ function checkWinLose(state) {
 
 function endRound(state) {
   checkStun(state);
+  checkLocationLoss(state);
 
-  // Check location loss
-  if (state.currentLocation.currentCucumberTokens >= state.currentLocation.maxCucumberTokens) {
-    log(state, `💀 ${state.currentLocation.name} is lost!`);
-    state.lostLocations.push(state.currentLocation);
-
-    if (state.locationDeck.length > 0) {
-      state.currentLocation = state.locationDeck.shift();
-      log(state, `Moving to ${state.currentLocation.name}.`);
-    } else {
-      state.currentLocation = null;
-      state.phase = "defeat";
-      log(state, "🥒 Defeat. All locations have been lost.");
-      return state;
-    }
-  }
-
+  if (state.phase === "defeat") return state;
   if (checkWinLose(state)) return state;
 
-  // Start next round
   state.turn.roundNumber += 1;
   state.turn.currentPlayerId = state.players[0].playerId;
   log(state, `--- Round ${state.turn.roundNumber} begins ---`);
   startRound(state);
-
   return state;
 }
 
@@ -376,24 +385,20 @@ function endTurn(state, playerId) {
   if (!player) return { state, error: "Player not found." };
   if (state.turn.currentPlayerId !== playerId) return { state, error: "Not your turn." };
 
-  // Discard hand, reset resources
   player.discard.push(...player.hand);
   player.hand = [];
   player.currentPawcoins = 0;
   player.currentAttack = { scratch: 0, bite: 0, ignore: 0, charm: 0 };
 
-  // Recover from stun
   if (player.isStunned) {
     player.lives = player.character.maxLives;
     player.isStunned = false;
     log(state, `${player.name} recovers from stun with full lives.`);
   }
 
-  // Street Cat passive: draw 6 instead of 5
   const drawCount = player.character.id === "char_streetcat" ? 6 : 5;
   drawCards(player, drawCount);
 
-  // Restock shop to 6 cards at end of turn
   while (state.shop.length < 6 && state.shopDeck.length > 0) {
     state.shop.push(state.shopDeck.shift());
   }
@@ -404,9 +409,42 @@ function endTurn(state, playerId) {
 
   if (roundComplete) {
     endRound(state);
+  } else {
+    buildTurnPhase(state);
   }
 
   return { state, error: null };
 }
 
-module.exports = { startRound, advancePhase, playCard, attackEnemy, buyCard, endTurn };
+function discardCards(state, playerId, cardIds) {
+  const player = state.players.find((p) => p.playerId === playerId);
+  if (!player) return { state, error: "Player not found." };
+
+  const entry = state.pendingDiscard?.find((d) => d.playerId === playerId);
+  if (!entry) return { state, error: "No discard pending for you." };
+
+  if (cardIds.length !== entry.count)
+    return { state, error: `Must discard exactly ${entry.count} card(s).` };
+
+  for (const cardId of cardIds) {
+    if (!player.hand.find((c) => c.id === cardId))
+      return { state, error: "Card not in hand." };
+  }
+
+  for (const cardId of cardIds) {
+    const idx = player.hand.findIndex((c) => c.id === cardId);
+    player.discard.push(player.hand.splice(idx, 1)[0]);
+  }
+
+  state.pendingDiscard = state.pendingDiscard.filter((d) => d.playerId !== playerId);
+  if (state.pendingDiscard.length === 0) {
+    state.pendingDiscard = null;
+    // Resume the phase that was paused waiting for discards
+    if (state.pendingPhase) advancePendingPhase(state);
+  }
+
+  log(state, `${player.name} discarded ${cardIds.length} card(s).`);
+  return { state, error: null };
+}
+
+module.exports = { startRound, revealPhase, advancePhase, playCard, attackEnemy, buyCard, endTurn, discardCards };

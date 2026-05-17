@@ -4,8 +4,9 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 
 const roomManager = require("./game/roomManager");
+const { rejoinRoom, setName } = roomManager;
 const { initGameState } = require("./game/gameState");
-const { startRound, advancePhase, playCard, attackEnemy, buyCard, endTurn } = require("./game/turnLogic");
+const { startRound, revealPhase, advancePhase, playCard, attackEnemy, buyCard, endTurn, discardCards } = require("./game/turnLogic");
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -42,15 +43,38 @@ function emitGameUpdate(code) {
 io.on("connection", (socket) => {
   console.log(`Connected: ${socket.id}`);
 
+  const { playerToken, roomCode } = socket.handshake.auth || {};
+  if (playerToken && roomCode) {
+    const rejoin = rejoinRoom(socket.id, playerToken, roomCode);
+    if (rejoin.success) {
+      socket.join(roomCode);
+      emitRoomUpdate(roomCode);
+      if (rejoin.hasGame) emitGameUpdate(roomCode);
+      console.log(`Rejoined: ${socket.id} → room ${roomCode}`);
+    } else {
+      const join = roomManager.joinRoom(socket.id, roomCode, null, playerToken);
+      if (join.success) {
+        socket.join(roomCode);
+        socket.emit("room_joined", { code: roomCode });
+        emitRoomUpdate(roomCode);
+        console.log(`Auto-joined: ${socket.id} → room ${roomCode}`);
+      } else if (join.error === "Wrong password.") {
+        socket.emit("room_requires_password", { code: roomCode });
+      } else if (join.error) {
+        socket.emit("error", { message: join.error });
+      }
+    }
+  }
+
   socket.on("create_room", ({ password } = {}) => {
-    const code = roomManager.createRoom(socket.id, password || null);
+    const code = roomManager.createRoom(socket.id, password || null, playerToken);
     socket.join(code);
     socket.emit("room_created", { code });
     emitRoomUpdate(code);
   });
 
   socket.on("join_room", ({ code, password } = {}) => {
-    const result = roomManager.joinRoom(socket.id, code, password || null);
+    const result = roomManager.joinRoom(socket.id, code, password || null, playerToken);
     if (!result.success) {
       socket.emit("error", { message: result.error });
       return;
@@ -58,6 +82,13 @@ io.on("connection", (socket) => {
     socket.join(code);
     socket.emit("room_joined", { code });
     emitRoomUpdate(code);
+  });
+
+  socket.on("set_name", ({ name } = {}) => {
+    if (!name) return;
+    setName(socket.id, name);
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (room) emitRoomUpdate(room.code);
   });
 
   socket.on("select_character", ({ characterId } = {}) => {
@@ -84,6 +115,17 @@ io.on("connection", (socket) => {
     emitGameUpdate(room.code);
   });
 
+  socket.on("reveal_phase", () => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
+    const player = room.gameState.players.find((p) => p.socketId === socket.id);
+    if (!player) return socket.emit("error", { message: "You are not in this game." });
+    const { state, error } = revealPhase(room.gameState, player.playerId);
+    room.gameState = state;
+    if (error) return socket.emit("error", { message: error });
+    emitGameUpdate(room.code);
+  });
+
   socket.on("advance_phase", () => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
@@ -97,10 +139,22 @@ io.on("connection", (socket) => {
     emitGameUpdate(room.code);
   });
 
+  socket.on("discard_cards", ({ cardIds } = {}) => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
+    const player = room.gameState.players.find((p) => p.socketId === socket.id);
+    if (!player) return socket.emit("error", { message: "You are not in this game." });
+    const { state, error } = discardCards(room.gameState, player.playerId, cardIds || []);
+    room.gameState = state;
+    if (error) return socket.emit("error", { message: error });
+    emitGameUpdate(room.code);
+  });
+
   socket.on("play_card", ({ cardId } = {}) => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
     if (room.gameState.pendingPhase) return socket.emit("error", { message: "Resolve the current phase first." });
+    if (room.gameState.pendingDiscard) return socket.emit("error", { message: "Resolve discards first." });
 
     const player = room.gameState.players.find((p) => p.socketId === socket.id);
     if (!player) return socket.emit("error", { message: "You are not in this game." });
@@ -115,6 +169,7 @@ io.on("connection", (socket) => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
     if (room.gameState.pendingPhase) return socket.emit("error", { message: "Resolve the current phase first." });
+    if (room.gameState.pendingDiscard) return socket.emit("error", { message: "Resolve discards first." });
 
     const player = room.gameState.players.find((p) => p.socketId === socket.id);
     if (!player) return socket.emit("error", { message: "You are not in this game." });
@@ -129,6 +184,7 @@ io.on("connection", (socket) => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
     if (room.gameState.pendingPhase) return socket.emit("error", { message: "Resolve the current phase first." });
+    if (room.gameState.pendingDiscard) return socket.emit("error", { message: "Resolve discards first." });
 
     const player = room.gameState.players.find((p) => p.socketId === socket.id);
     if (!player) return socket.emit("error", { message: "You are not in this game." });
@@ -143,6 +199,7 @@ io.on("connection", (socket) => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
     if (room.gameState.pendingPhase) return socket.emit("error", { message: "Resolve the current phase first." });
+    if (room.gameState.pendingDiscard) return socket.emit("error", { message: "Resolve discards first." });
 
     const player = room.gameState.players.find((p) => p.socketId === socket.id);
     if (!player) return socket.emit("error", { message: "You are not in this game." });
@@ -155,8 +212,8 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`Disconnected: ${socket.id}`);
-    const code = roomManager.leaveRoom(socket.id);
-    if (code) emitRoomUpdate(code);
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (room) emitRoomUpdate(room.code);
   });
 });
 
