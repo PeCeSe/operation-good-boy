@@ -31,6 +31,12 @@ const ATTACK_ICONS = {
   charm: "✨",
 };
 
+function renderDescription(text) {
+  return text.split("♥").map((part, i, arr) => (
+    <span key={i}>{part}{i < arr.length - 1 && <span className="text-red-400">♥</span>}</span>
+  ));
+}
+
 function EffectText({ effect }) {
   const parts = [];
   if (effect.attack > 0 && effect.attackType)
@@ -87,7 +93,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
 
       {/* Effect — flex-1 keeps all cards the same height */}
       <div className="px-2 pt-1.5 pb-1 text-xs text-stone-700 font-medium leading-snug flex-1">
-        {card.description ?? <EffectText effect={card.effect} />}
+        {card.description ? renderDescription(card.description) : <EffectText effect={card.effect} />}
       </div>
 
       {/* Divider + flavor */}
