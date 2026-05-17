@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    
+    <radialGradient id="gold-face" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#fbd674"></stop>
+      <stop offset="55%" stop-color="#e8b045"></stop>
+      <stop offset="100%" stop-color="#b87e1c"></stop>
+    </radialGradient>
+    <radialGradient id="gold-rim" cx="40%" cy="35%" r="80%">
+      <stop offset="0%" stop-color="#e8b045"></stop>
+      <stop offset="100%" stop-color="#a36a1e"></stop>
+    </radialGradient>
+  </defs>
+
+  
+  <circle cx="50" cy="50" r="48" fill="#1a1109"></circle>
+  
+  <circle cx="50" cy="50" r="46" fill="url(#gold-rim)"></circle>
+  
+  <circle cx="50" cy="50" r="34" fill="none" stroke="#1a1109" stroke-width="2"></circle>
+  
+  <circle cx="50" cy="50" r="33" fill="url(#gold-face)"></circle>
+  
+  <circle cx="50" cy="50" r="24" fill="none" stroke="#7a4a1a" stroke-width="1.5" opacity="0.45"></circle>
+
+  
+  <g fill="#5a3418" stroke="#1a1109" stroke-width="0.4" stroke-linejoin="round">
+    
+    <symbol id="paw" overflow="visible">
+      <g transform="translate(0 -40)">
+        <ellipse cx="0" cy="3" rx="3.4" ry="2.8"></ellipse>
+        <ellipse cx="-3.6" cy="-2" rx="1.5" ry="2"></ellipse>
+        <ellipse cx="-1.3" cy="-4" rx="1.3" ry="1.7"></ellipse>
+        <ellipse cx="1.3" cy="-4" rx="1.3" ry="1.7"></ellipse>
+        <ellipse cx="3.6" cy="-2" rx="1.5" ry="2"></ellipse>
+      </g>
+    </symbol>
+    <g transform="translate(50 50)">
+      <use href="#paw" transform="rotate(0)"></use>
+      <use href="#paw" transform="rotate(30)"></use>
+      <use href="#paw" transform="rotate(60)"></use>
+      <use href="#paw" transform="rotate(90)"></use>
+      <use href="#paw" transform="rotate(120)"></use>
+      <use href="#paw" transform="rotate(150)"></use>
+      <use href="#paw" transform="rotate(180)"></use>
+      <use href="#paw" transform="rotate(210)"></use>
+      <use href="#paw" transform="rotate(240)"></use>
+      <use href="#paw" transform="rotate(270)"></use>
+      <use href="#paw" transform="rotate(300)"></use>
+      <use href="#paw" transform="rotate(330)"></use>
+    </g>
+  </g>
+
+  
+  <path d="M 24 22 Q 50 12, 76 22" fill="none" stroke="#fff1d2" stroke-width="2.5" stroke-linecap="round" opacity="0.5"></path>
+</svg>
