@@ -43,7 +43,9 @@ const STARTING_DECKS = [
     charId: "char_persian",
     cards: [
       KITTEN_EYES,
-      { id: "ps_2", name: "Premium Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Only the finest." },
+      { id: "persian_pedigree", name: "Pedigree", count: 1, type: "item", image: "/cards/Pedigree.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_pedigree" }, description: "Choose: Gain 2 pawcoins, or ALL heroes gain 1 pawcoin.", flavorText: "Fourteen generations of excellence." },
+      { id: "persian_mirror", name: "Vanity Mirror", count: 1, type: "item", image: "/cards/VanityMirror.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: "discard_all_gain_coin" }, description: "Gain 1 pawcoin. If you discard this, ALL heroes gain 1 pawcoin.", flavorText: "The fairest in the land. Obviously." },
+      { id: "persian_slave", name: "Hooman Slave", count: 1, type: "ally", image: "/cards/HoomanSlave.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_ignore_or_heal2" }, description: "Choose: Gain 1 🙄 ignore or heal 2 ♥.", flavorText: "Adequate. For a hooman." },
     ],
   },
   {
