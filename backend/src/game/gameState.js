@@ -32,20 +32,24 @@ function initGameState(room) {
   const allEnemies = deepClone(ENEMIES);
   const goodBoy = allEnemies.find((e) => e.id === "enemy_001");
   const otherEnemies = shuffle(allEnemies.filter((e) => e.id !== "enemy_001"));
-  const enemyDeck = [...otherEnemies, goodBoy]; // Good Boy at the bottom
+  const enemyDeck = [...otherEnemies, goodBoy];
 
   const locationDeck = deepClone(LOCATIONS);
   const eventDeck = shuffle(deepClone(EVENTS));
   const shopDeck = shuffle(CARDS.map((c) => uniqueCard(c)));
 
-  const initialEnemies = enemyDeck.splice(0, Math.min(3, enemyDeck.length));
+  const firstLocation = locationDeck.shift();
+  firstLocation.currentCucumbers = 0;
+
+  const enemies = enemyDeck.splice(0, Math.min(3, enemyDeck.length));
+  enemies.forEach((e) => { e.currentHealth = e.maxHealth; });
+
   const shop = shopDeck.splice(0, 6);
 
   const players = room.players.map((lobbyPlayer, idx) => {
     const character = deepClone(CHARACTERS.find((c) => c.id === lobbyPlayer.characterId));
-    const deck = buildStartingDeck(character);
-    const hand = deck.splice(0, 5);
-
+    const drawPile = buildStartingDeck(character);
+    const hand = drawPile.splice(0, 5);
     return {
       socketId: lobbyPlayer.socketId,
       playerId: `player_${idx + 1}`,
@@ -54,36 +58,29 @@ function initGameState(room) {
       lives: character.maxLives,
       isStunned: false,
       hand,
-      deck,
-      discard: [],
-      currentPawcoins: 0,
-      currentAttack: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
-      isReady: false,
+      drawPile,
+      discardPile: [],
+      pawTokens: 0,
+      peekCard: null,
     };
   });
 
   return {
     roomCode: room.code,
     phase: "playing",
-    turn: {
-      currentPlayerId: players[0].playerId,
-      roundNumber: 1,
-    },
-    blockShop: false,
-    blockAttack: false,
-    pawcoinPenalty: 0,
+    currentPlayerId: players[0].playerId,
+    roundNumber: 1,
     players,
-    enemies: initialEnemies,
+    enemies,
     enemyDeck,
-    currentLocation: locationDeck.shift(),
+    currentLocation: firstLocation,
     locationDeck,
     lostLocations: [],
-    currentEvents: [],
-    eventDeck,
     shop,
     shopDeck,
-    pendingPhase: null,
-    pendingDiscard: null,
+    eventDeck,
+    activeEvents: [],
+    paymentZone: { playerId: null, tokens: 0, lastPurchase: null },
     log: [],
   };
 }

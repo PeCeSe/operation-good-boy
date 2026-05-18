@@ -6,7 +6,7 @@ const cors = require("cors");
 const roomManager = require("./game/roomManager");
 const { rejoinRoom, setName } = roomManager;
 const { initGameState } = require("./game/gameState");
-const { startRound, revealPhase, advancePhase, playCard, attackEnemy, buyCard, endTurn, discardCards } = require("./game/turnLogic");
+const actions = require("./game/actions");
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -19,10 +19,7 @@ app.get("/health", (_, res) => res.json({ ok: true }));
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-  },
+  cors: { origin: allowedOrigins, methods: ["GET", "POST"] },
 });
 
 function emitRoomUpdate(code) {
@@ -32,12 +29,26 @@ function emitRoomUpdate(code) {
 
 function emitGameUpdate(code) {
   const room = roomManager.getRoom(code);
-  if (room && room.gameState) {
+  if (room?.gameState) {
     io.to(code).emit("game_update", room.gameState);
     if (room.gameState.phase === "victory" || room.gameState.phase === "defeat") {
       io.to(code).emit("game_over", { phase: room.gameState.phase });
     }
   }
+}
+
+// Wraps an action: finds room + game, runs action fn, broadcasts update.
+function withGame(socket, actionFn) {
+  const room = roomManager.getRoomBySocket(socket.id);
+  if (!room?.gameState) return socket.emit("error", { message: "No game in progress." });
+  if (room.gameState.phase !== "playing") return;
+  actionFn(room.gameState, room);
+  emitGameUpdate(room.code);
+}
+
+// Resolve the calling player's playerId from their socket.
+function getPlayerId(gameState, socketId) {
+  return gameState.players.find((p) => p.socketId === socketId)?.playerId ?? null;
 }
 
 io.on("connection", (socket) => {
@@ -50,14 +61,12 @@ io.on("connection", (socket) => {
       socket.join(roomCode);
       emitRoomUpdate(roomCode);
       if (rejoin.hasGame) emitGameUpdate(roomCode);
-      console.log(`Rejoined: ${socket.id} → room ${roomCode}`);
     } else {
       const join = roomManager.joinRoom(socket.id, roomCode, null, playerToken);
       if (join.success) {
         socket.join(roomCode);
         socket.emit("room_joined", { code: roomCode });
         emitRoomUpdate(roomCode);
-        console.log(`Auto-joined: ${socket.id} → room ${roomCode}`);
       } else if (join.error === "Wrong password.") {
         socket.emit("room_requires_password", { code: roomCode });
       } else if (join.error) {
@@ -65,6 +74,8 @@ io.on("connection", (socket) => {
       }
     }
   }
+
+  // ── Lobby ───────────────────────────────────────────────────────────────────
 
   socket.on("create_room", ({ password } = {}) => {
     const code = roomManager.createRoom(socket.id, password || null, playerToken);
@@ -75,10 +86,7 @@ io.on("connection", (socket) => {
 
   socket.on("join_room", ({ code, password } = {}) => {
     const result = roomManager.joinRoom(socket.id, code, password || null, playerToken);
-    if (!result.success) {
-      socket.emit("error", { message: result.error });
-      return;
-    }
+    if (!result.success) return socket.emit("error", { message: result.error });
     socket.join(code);
     socket.emit("room_joined", { code });
     emitRoomUpdate(code);
@@ -108,107 +116,155 @@ io.on("connection", (socket) => {
     if (!room) return socket.emit("error", { message: "Room not found." });
     if (room.hostSocketId !== socket.id) return socket.emit("error", { message: "Only the host can start." });
     if (!roomManager.canStart(room.code)) return socket.emit("error", { message: "Not all players are ready." });
-
-    let gameState = initGameState(room);
-    gameState = startRound(gameState);
-    room.gameState = gameState;
+    room.gameState = initGameState(room);
     emitGameUpdate(room.code);
   });
 
-  socket.on("reveal_phase", () => {
-    const room = roomManager.getRoomBySocket(socket.id);
-    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
-    const player = room.gameState.players.find((p) => p.socketId === socket.id);
-    if (!player) return socket.emit("error", { message: "You are not in this game." });
-    const { state, error } = revealPhase(room.gameState, player.playerId);
-    room.gameState = state;
-    if (error) return socket.emit("error", { message: error });
-    emitGameUpdate(room.code);
+  // ── Player stats ────────────────────────────────────────────────────────────
+
+  // playerId can be self or another player (co-op — anyone can adjust anyone)
+  socket.on("set_lives", ({ playerId, lives } = {}) => {
+    withGame(socket, (gs) => actions.setLives(gs, playerId, lives));
   });
 
-  socket.on("advance_phase", () => {
-    const room = roomManager.getRoomBySocket(socket.id);
-    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
-
-    const player = room.gameState.players.find((p) => p.socketId === socket.id);
-    if (!player) return socket.emit("error", { message: "You are not in this game." });
-
-    const { state, error } = advancePhase(room.gameState, player.playerId);
-    room.gameState = state;
-    if (error) return socket.emit("error", { message: error });
-    emitGameUpdate(room.code);
+  socket.on("toggle_stun", ({ playerId } = {}) => {
+    withGame(socket, (gs) => actions.toggleStun(gs, playerId));
   });
 
-  socket.on("discard_cards", ({ cardIds } = {}) => {
-    const room = roomManager.getRoomBySocket(socket.id);
-    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
-    const player = room.gameState.players.find((p) => p.socketId === socket.id);
-    if (!player) return socket.emit("error", { message: "You are not in this game." });
-    const { state, error } = discardCards(room.gameState, player.playerId, cardIds || []);
-    room.gameState = state;
-    if (error) return socket.emit("error", { message: error });
-    emitGameUpdate(room.code);
+  socket.on("set_paw_tokens", ({ tokens } = {}) => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.setPawTokens(gs, playerId, tokens);
+    });
+  });
+
+  // ── Hand / deck ─────────────────────────────────────────────────────────────
+
+  socket.on("draw_card", () => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.drawCard(gs, playerId);
+    });
+  });
+
+  socket.on("peek_draw_top", () => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.peekDrawTop(gs, playerId);
+    });
+  });
+
+  socket.on("peek_to_hand", () => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.peekToHand(gs, playerId);
+    });
+  });
+
+  socket.on("peek_to_top", () => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.peekToTop(gs, playerId);
+    });
+  });
+
+  socket.on("peek_to_discard", () => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.peekToDiscard(gs, playerId);
+    });
   });
 
   socket.on("play_card", ({ cardId } = {}) => {
-    const room = roomManager.getRoomBySocket(socket.id);
-    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
-    if (room.gameState.pendingPhase) return socket.emit("error", { message: "Resolve the current phase first." });
-    if (room.gameState.pendingDiscard) return socket.emit("error", { message: "Resolve discards first." });
-
-    const player = room.gameState.players.find((p) => p.socketId === socket.id);
-    if (!player) return socket.emit("error", { message: "You are not in this game." });
-
-    const { state, error } = playCard(room.gameState, player.playerId, cardId);
-    room.gameState = state;
-    if (error) return socket.emit("error", { message: error });
-    emitGameUpdate(room.code);
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.playCard(gs, playerId, cardId);
+    });
   });
 
-  socket.on("attack_enemy", ({ enemyId, attackType } = {}) => {
-    const room = roomManager.getRoomBySocket(socket.id);
-    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
-    if (room.gameState.pendingPhase) return socket.emit("error", { message: "Resolve the current phase first." });
-    if (room.gameState.pendingDiscard) return socket.emit("error", { message: "Resolve discards first." });
+  socket.on("discard_card", ({ cardId } = {}) => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.discardCard(gs, playerId, cardId);
+    });
+  });
 
-    const player = room.gameState.players.find((p) => p.socketId === socket.id);
-    if (!player) return socket.emit("error", { message: "You are not in this game." });
+  socket.on("retrieve_from_discard", ({ cardId } = {}) => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.retrieveFromDiscard(gs, playerId, cardId);
+    });
+  });
 
-    const { state, error } = attackEnemy(room.gameState, player.playerId, enemyId, attackType);
-    room.gameState = state;
-    if (error) return socket.emit("error", { message: error });
-    emitGameUpdate(room.code);
+  socket.on("shuffle_discard", () => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.shuffleDiscard(gs, playerId);
+    });
+  });
+
+  // ── Shop & payment ──────────────────────────────────────────────────────────
+
+  socket.on("place_payment", ({ tokens } = {}) => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.placePayment(gs, playerId, tokens);
+    });
+  });
+
+  socket.on("clear_payment", () => {
+    withGame(socket, (gs) => actions.clearPayment(gs));
   });
 
   socket.on("buy_card", ({ cardId } = {}) => {
-    const room = roomManager.getRoomBySocket(socket.id);
-    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
-    if (room.gameState.pendingPhase) return socket.emit("error", { message: "Resolve the current phase first." });
-    if (room.gameState.pendingDiscard) return socket.emit("error", { message: "Resolve discards first." });
-
-    const player = room.gameState.players.find((p) => p.socketId === socket.id);
-    if (!player) return socket.emit("error", { message: "You are not in this game." });
-
-    const { state, error } = buyCard(room.gameState, player.playerId, cardId);
-    room.gameState = state;
-    if (error) return socket.emit("error", { message: error });
-    emitGameUpdate(room.code);
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.buyCard(gs, playerId, cardId);
+    });
   });
+
+  // ── Events ──────────────────────────────────────────────────────────────────
+
+  socket.on("draw_events", () => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.drawEvents(gs, playerId);
+    });
+  });
+
+  socket.on("dismiss_events", () => {
+    withGame(socket, (gs) => actions.dismissEvents(gs));
+  });
+
+  // ── Enemies ─────────────────────────────────────────────────────────────────
+
+  socket.on("set_enemy_hp", ({ enemyId, hp } = {}) => {
+    withGame(socket, (gs) => actions.setEnemyHp(gs, enemyId, hp));
+  });
+
+  socket.on("defeat_enemy", ({ enemyId } = {}) => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      actions.defeatEnemy(gs, playerId, enemyId);
+    });
+  });
+
+  // ── Location ────────────────────────────────────────────────────────────────
+
+  socket.on("set_cucumbers", ({ count } = {}) => {
+    withGame(socket, (gs) => actions.setCucumbers(gs, count));
+  });
+
+  // ── Turn ────────────────────────────────────────────────────────────────────
 
   socket.on("end_turn", () => {
-    const room = roomManager.getRoomBySocket(socket.id);
-    if (!room || !room.gameState) return socket.emit("error", { message: "No game in progress." });
-    if (room.gameState.pendingPhase) return socket.emit("error", { message: "Resolve the current phase first." });
-    if (room.gameState.pendingDiscard) return socket.emit("error", { message: "Resolve discards first." });
-
-    const player = room.gameState.players.find((p) => p.socketId === socket.id);
-    if (!player) return socket.emit("error", { message: "You are not in this game." });
-
-    const { state, error } = endTurn(room.gameState, player.playerId);
-    room.gameState = state;
-    if (error) return socket.emit("error", { message: error });
-    emitGameUpdate(room.code);
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId) actions.endTurn(gs, playerId);
+    });
   });
+
+  // ── Disconnect ──────────────────────────────────────────────────────────────
 
   socket.on("disconnect", () => {
     console.log(`Disconnected: ${socket.id}`);
