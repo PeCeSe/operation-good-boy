@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import CHARACTERS from "../data/characters";
 import EnemyComponent from "../components/EnemyComponent";
 import PlayerBoard from "../components/PlayerBoard";
@@ -6,6 +8,17 @@ import ShopRow from "../components/ShopRow";
 import LocationBar from "../components/LocationBar";
 import GameLog from "../components/GameLog";
 import EventOverlay from "../components/EventOverlay";
+import TokenPool, { ATTACK_CONFIG } from "../components/TokenPool";
+import socket from "../socket";
+
+function DragChip({ attackType }) {
+  const cfg = ATTACK_CONFIG[attackType] ?? ATTACK_CONFIG.scratch;
+  return (
+    <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-lg shadow-xl ${cfg.bg} ${cfg.border}`}>
+      {cfg.icon}
+    </div>
+  );
+}
 
 function OtherPlayerPanel({ player, isCurrentTurn }) {
   const charData = CHARACTERS.find((c) => c.id === player.character?.id);
@@ -36,7 +49,7 @@ function OtherPlayerPanel({ player, isCurrentTurn }) {
           )}
         </div>
       </div>
-      <div className="px-2 pb-2 flex items-center gap-2">
+      <div className="px-2 pb-2 flex items-center gap-2 flex-wrap">
         <div className="flex gap-0.5 flex-wrap flex-1">
           {Array.from({ length: maxLives }).map((_, i) => (
             <span key={i} className={`text-sm leading-none ${i < (player.lives ?? 0) ? "text-red-400" : "text-stone-200"}`}>
@@ -47,6 +60,18 @@ function OtherPlayerPanel({ player, isCurrentTurn }) {
         <span className="text-xs text-amber-600 font-semibold shrink-0">
           🪙 {player.pawTokens ?? 0}
         </span>
+        {(player.attackTokens ?? []).length > 0 && (
+          <div className="flex gap-0.5">
+            {player.attackTokens.map((t) => {
+              const cfg = ATTACK_CONFIG[t.type] ?? ATTACK_CONFIG.scratch;
+              return (
+                <span key={t.id} className={`w-5 h-5 rounded-full border flex items-center justify-center text-[10px] ${cfg.bg} ${cfg.border}`}>
+                  {cfg.icon}
+                </span>
+              );
+            })}
+          </div>
+        )}
         <span className="text-xs text-stone-400 shrink-0">
           🃏 {player.hand?.length ?? 0}
         </span>
@@ -57,6 +82,11 @@ function OtherPlayerPanel({ player, isCurrentTurn }) {
 
 export default function Game({ gameState, mySocketId }) {
   const navigate = useNavigate();
+  const [activeDrag, setActiveDrag] = useState(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
+  );
 
   const {
     phase,
@@ -76,6 +106,26 @@ export default function Game({ gameState, mySocketId }) {
   const me = players.find((p) => p.socketId === mySocketId);
   const isMyTurn = me?.playerId === currentPlayerId;
   const currentPlayerName = players.find((p) => p.playerId === currentPlayerId)?.name;
+
+  function handleDragStart({ active }) {
+    setActiveDrag(active.data.current ?? null);
+  }
+
+  function handleDragEnd({ active, over }) {
+    setActiveDrag(null);
+    if (!over) return;
+
+    const data = active.data.current ?? {};
+
+    if (data.draggableType === "pool_token" && over.id === "staging") {
+      socket.emit("add_attack_token", { type: data.attackType });
+    } else if (data.draggableType === "staging_token") {
+      const overId = String(over.id);
+      if (overId !== "staging") {
+        socket.emit("move_token_to_enemy", { enemyId: overId, tokenId: data.tokenId });
+      }
+    }
+  }
 
   if (phase === "victory") {
     return (
@@ -113,86 +163,101 @@ export default function Game({ gameState, mySocketId }) {
   const otherPlayers = players.filter((p) => p.socketId !== mySocketId);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col gap-4">
-      {/* Header bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="text-xl">🐾</span>
-          <span className="font-bold text-amber-600">Operation: Good Boy</span>
-          <span className="text-stone-400 text-sm">Round {roundNumber}</span>
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col gap-4">
+        {/* Header bar */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">🐾</span>
+            <span className="font-bold text-amber-600">Operation: Good Boy</span>
+            <span className="text-stone-400 text-sm">Round {roundNumber}</span>
+          </div>
+          <div className="text-sm text-stone-500">
+            {isMyTurn ? (
+              <span className="text-amber-600 font-semibold animate-pulse">Your turn!</span>
+            ) : (
+              <span>{currentPlayerName}'s turn</span>
+            )}
+          </div>
         </div>
-        <div className="text-sm text-stone-500">
-          {isMyTurn ? (
-            <span className="text-amber-600 font-semibold animate-pulse">Your turn!</span>
-          ) : (
-            <span>{currentPlayerName}'s turn</span>
-          )}
-        </div>
-      </div>
 
-      {/* Board row: location left, enemies right */}
-      <div className="flex gap-3 items-start flex-wrap">
-        <LocationBar
-          currentLocation={currentLocation}
-          lostLocations={lostLocations ?? []}
-          totalLocations={3}
-        />
-        <div className="flex-1">
-          {enemies.length === 0 ? (
-            <p className="text-stone-400 text-sm italic mt-2">No enemies on the board. 🎉</p>
-          ) : (
-            <div className="flex gap-3 flex-wrap">
-              {enemies.map((enemy) => (
-                <EnemyComponent key={enemy.id} enemy={enemy} />
-              ))}
-            </div>
-          )}
+        {/* Board row: location left, enemies right */}
+        <div className="flex gap-3 items-start flex-wrap">
+          <LocationBar
+            currentLocation={currentLocation}
+            lostLocations={lostLocations ?? []}
+            totalLocations={3}
+          />
+          <div className="flex-1">
+            {enemies.length === 0 ? (
+              <p className="text-stone-400 text-sm italic mt-2">No enemies on the board. 🎉</p>
+            ) : (
+              <div className="flex gap-3 flex-wrap">
+                {enemies.map((enemy) => (
+                  <EnemyComponent key={enemy.id} enemy={enemy} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Other players compact panels */}
-      {otherPlayers.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {otherPlayers.map((p) => (
-            <OtherPlayerPanel
-              key={p.playerId}
-              player={p}
-              isCurrentTurn={p.playerId === currentPlayerId}
-            />
-          ))}
-        </div>
-      )}
+        {/* Token pool — shared attack supply */}
+        <TokenPool />
 
-      {/* My player board */}
-      {me && (
-        <PlayerBoard
-          player={me}
-          isMe={true}
-          isCurrentTurn={isMyTurn}
+        {/* Other players compact panels */}
+        {otherPlayers.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {otherPlayers.map((p) => (
+              <OtherPlayerPanel
+                key={p.playerId}
+                player={p}
+                isCurrentTurn={p.playerId === currentPlayerId}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* My player board */}
+        {me && (
+          <PlayerBoard
+            player={me}
+            isMe={true}
+            isCurrentTurn={isMyTurn}
+            paymentZone={paymentZone}
+          />
+        )}
+
+        {/* Shop */}
+        <ShopRow
+          shop={shop}
+          shopDeck={shopDeck}
           paymentZone={paymentZone}
+          isMyTurn={isMyTurn}
+          myPlayerId={me?.playerId}
         />
-      )}
 
-      {/* Shop */}
-      <ShopRow
-        shop={shop}
-        shopDeck={shopDeck}
-        paymentZone={paymentZone}
-        isMyTurn={isMyTurn}
-        myPlayerId={me?.playerId}
-      />
+        {/* Game log */}
+        <GameLog log={log} />
 
-      {/* Game log */}
-      <GameLog log={log} />
+        {/* Event overlay */}
+        {activeEvents && activeEvents.length > 0 && (
+          <EventOverlay
+            events={activeEvents}
+            isCurrentPlayer={isMyTurn}
+            currentPlayerName={currentPlayerName}
+          />
+        )}
+      </div>
 
-      {/* Event overlay */}
-      {activeEvents && activeEvents.length > 0 && (
-        <EventOverlay
-          events={activeEvents}
-          isCurrentPlayer={isMyTurn}
-          currentPlayerName={currentPlayerName}
-        />
-      )}
-    </div>
+      {/* Drag overlay — follows cursor */}
+      <DragOverlay dropAnimation={null}>
+        {activeDrag?.draggableType === "pool_token" && (
+          <DragChip attackType={activeDrag.attackType} />
+        )}
+        {activeDrag?.draggableType === "staging_token" && (
+          <DragChip attackType={activeDrag.attackType} />
+        )}
+      </DragOverlay>
+    </DndContext>
   );
 }
