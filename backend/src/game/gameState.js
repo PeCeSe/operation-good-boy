@@ -81,6 +81,7 @@ function initGameState(room) {
     shopDeck,
     eventDeck,
     activeEvents: [],
+    eventDiscard: [],
     paymentZone: { playerId: null, tokens: 0, lastPurchase: null },
     log: [],
   };

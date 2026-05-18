@@ -7,7 +7,7 @@ import PlayerBoard from "../components/PlayerBoard";
 import ShopRow from "../components/ShopRow";
 import LocationBar from "../components/LocationBar";
 import GameLog from "../components/GameLog";
-import EventOverlay from "../components/EventOverlay";
+import EventDeck from "../components/EventDeck";
 import TokenPool, { ATTACK_CONFIG } from "../components/TokenPool";
 import socket from "../socket";
 
@@ -98,7 +98,9 @@ export default function Game({ gameState, mySocketId }) {
     lostLocations,
     shop,
     shopDeck,
+    eventDeck,
     activeEvents,
+    eventDiscard,
     paymentZone,
     log,
   } = gameState;
@@ -124,6 +126,8 @@ export default function Game({ gameState, mySocketId }) {
       if (overId !== "staging") {
         socket.emit("move_token_to_enemy", { enemyId: overId, tokenId: data.tokenId });
       }
+    } else if (data.draggableType === "event_card" && over.id === "event_discard") {
+      socket.emit("discard_event", { eventId: data.eventId });
     }
   }
 
@@ -201,6 +205,13 @@ export default function Game({ gameState, mySocketId }) {
           </div>
         </div>
 
+        {/* Event deck */}
+        <EventDeck
+          eventDeck={eventDeck ?? []}
+          activeEvents={activeEvents ?? []}
+          eventDiscard={eventDiscard ?? []}
+        />
+
         {/* Token pool — shared attack supply */}
         <TokenPool />
 
@@ -238,24 +249,17 @@ export default function Game({ gameState, mySocketId }) {
 
         {/* Game log */}
         <GameLog log={log} />
-
-        {/* Event overlay */}
-        {activeEvents && activeEvents.length > 0 && (
-          <EventOverlay
-            events={activeEvents}
-            isCurrentPlayer={isMyTurn}
-            currentPlayerName={currentPlayerName}
-          />
-        )}
       </div>
 
       {/* Drag overlay — follows cursor */}
       <DragOverlay dropAnimation={null}>
-        {activeDrag?.draggableType === "pool_token" && (
+        {(activeDrag?.draggableType === "pool_token" || activeDrag?.draggableType === "staging_token") && (
           <DragChip attackType={activeDrag.attackType} />
         )}
-        {activeDrag?.draggableType === "staging_token" && (
-          <DragChip attackType={activeDrag.attackType} />
+        {activeDrag?.draggableType === "event_card" && (
+          <div className="w-36 h-8 bg-violet-800 rounded-lg flex items-center justify-center shadow-xl">
+            <span className="text-white text-xs font-bold">🎴 Event</span>
+          </div>
         )}
       </DragOverlay>
     </DndContext>

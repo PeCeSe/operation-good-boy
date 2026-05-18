@@ -225,15 +225,17 @@ io.on("connection", (socket) => {
 
   // ── Events ──────────────────────────────────────────────────────────────────
 
-  socket.on("draw_events", () => {
+  socket.on("draw_event", () => {
     withGame(socket, (gs) => {
       const playerId = getPlayerId(gs, socket.id);
-      if (playerId) actions.drawEvents(gs, playerId);
+      if (playerId) actions.drawOneEvent(gs, playerId);
     });
   });
 
-  socket.on("dismiss_events", () => {
-    withGame(socket, (gs) => actions.dismissEvents(gs));
+  socket.on("discard_event", ({ eventId } = {}) => {
+    withGame(socket, (gs) => {
+      if (eventId) actions.discardEvent(gs, eventId);
+    });
   });
 
   // ── Enemies ─────────────────────────────────────────────────────────────────
