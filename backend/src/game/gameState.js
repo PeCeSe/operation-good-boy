@@ -42,7 +42,7 @@ function initGameState(room) {
   firstLocation.currentCucumbers = 0;
 
   const enemies = enemyDeck.splice(0, Math.min(3, enemyDeck.length));
-  enemies.forEach((e) => { e.currentHealth = e.maxHealth; });
+  enemies.forEach((e) => { e.damageTokens = []; });
 
   const shop = shopDeck.splice(0, 6);
 
@@ -61,6 +61,7 @@ function initGameState(room) {
       drawPile,
       discardPile: [],
       pawTokens: 0,
+      attackTokens: [],
       peekCard: null,
     };
   });

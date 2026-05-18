@@ -1,14 +1,39 @@
 import { useState } from "react";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import CHARACTERS from "../data/characters";
 import PawCoin from "./PawCoin";
 import HealthSlider from "./HealthSlider";
 import PileControls from "./PileControls";
 import CardComponent from "./CardComponent";
+import { ATTACK_CONFIG } from "./TokenPool";
 import socket from "../socket";
+
+function StagingToken({ token }) {
+  const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.scratch;
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: token.id,
+    data: { draggableType: "staging_token", tokenId: token.id, attackType: token.type },
+  });
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-base select-none transition-all ${cfg.bg} ${cfg.border} ${
+        isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110 shadow-sm"
+      }`}
+      title={`${cfg.label} — drag to enemy`}
+    >
+      {cfg.icon}
+    </div>
+  );
+}
 
 export default function PlayerBoard({ player, isMe, isCurrentTurn, onSetLives, paymentZone }) {
   const [showCharacter, setShowCharacter] = useState(false);
   const [selectedCardId, setSelectedCardId] = useState(null);
+
+  const { setNodeRef: setStagingRef, isOver: isStagingOver } = useDroppable({ id: "staging" });
 
   if (!player) return null;
 
@@ -22,6 +47,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, onSetLives, p
     drawPile,
     discardPile,
     pawTokens,
+    attackTokens,
     peekCard,
   } = player;
 
@@ -166,6 +192,47 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, onSetLives, p
             <PawCoin className="w-5 h-5" />
             <span className="text-sm text-amber-700 font-semibold">{pawTokens ?? 0}</span>
             <span className="text-xs text-stone-400">pawcoins</span>
+          </div>
+        )}
+
+        <div className="w-px h-12 bg-stone-200 flex-shrink-0 self-center" />
+
+        {/* Attack staging area */}
+        {isMe && (
+          <div className="flex flex-col gap-1">
+            <div className="text-[10px] text-stone-400 uppercase tracking-wide font-bold">Attacks</div>
+            <div
+              ref={setStagingRef}
+              className={`flex flex-wrap gap-1.5 min-h-[2.5rem] min-w-[4rem] rounded-lg px-2 py-1 border-2 border-dashed transition-colors ${
+                isStagingOver
+                  ? "border-amber-400 bg-amber-50"
+                  : "border-stone-200 bg-stone-50"
+              }`}
+            >
+              {(attackTokens ?? []).map((token) => (
+                <StagingToken key={token.id} token={token} />
+              ))}
+              {(attackTokens ?? []).length === 0 && (
+                <span className={`text-[9px] italic self-center transition-colors ${isStagingOver ? "text-amber-400" : "text-stone-300"}`}>
+                  {isStagingOver ? "Drop!" : "Empty"}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        {!isMe && (attackTokens ?? []).length > 0 && (
+          <div className="flex flex-col gap-1">
+            <div className="text-[10px] text-stone-400 uppercase tracking-wide font-bold">Attacks</div>
+            <div className="flex flex-wrap gap-1">
+              {(attackTokens ?? []).map((token) => {
+                const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.scratch;
+                return (
+                  <div key={token.id} className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-sm ${cfg.bg} ${cfg.border}`}>
+                    {cfg.icon}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 

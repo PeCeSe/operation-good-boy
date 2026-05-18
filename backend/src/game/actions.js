@@ -1,5 +1,7 @@
 const { shuffle } = require("./gameState");
 
+let _tokenId = 1;
+
 function log(state, msg) {
   state.log = [...state.log.slice(-99), msg];
 }
@@ -51,6 +53,41 @@ function setPawTokens(state, playerId, tokens) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
   p.pawTokens = Math.max(0, tokens);
+}
+
+// ── Attack tokens ─────────────────────────────────────────────────────────────
+
+const VALID_ATTACK_TYPES = new Set(["scratch", "bite", "charm", "ignore"]);
+
+function addAttackToken(state, playerId, type) {
+  if (!VALID_ATTACK_TYPES.has(type)) return;
+  const p = state.players.find((p) => p.playerId === playerId);
+  if (!p) return;
+  p.attackTokens.push({ id: `tok_${_tokenId++}`, type });
+}
+
+function moveTokenToEnemy(state, enemyId, tokenId) {
+  let token = null;
+  let owner = null;
+  for (const p of state.players) {
+    const idx = p.attackTokens.findIndex((t) => t.id === tokenId);
+    if (idx !== -1) {
+      [token] = p.attackTokens.splice(idx, 1);
+      owner = p;
+      break;
+    }
+  }
+  if (!token) return;
+  const enemy = state.enemies.find((e) => e.id === enemyId);
+  if (!enemy) { owner.attackTokens.push(token); return; }
+  enemy.damageTokens.push(token);
+  log(state, `${owner.name} places a ${token.type} token on ${enemy.name}.`);
+}
+
+function removeDamageToken(state, enemyId, tokenId) {
+  const enemy = state.enemies.find((e) => e.id === enemyId);
+  if (!enemy) return;
+  enemy.damageTokens = enemy.damageTokens.filter((t) => t.id !== tokenId);
 }
 
 // ── Hand / deck management ────────────────────────────────────────────────────
@@ -183,12 +220,6 @@ function dismissEvents(state) {
 
 // ── Enemies ───────────────────────────────────────────────────────────────────
 
-function setEnemyHp(state, enemyId, hp) {
-  const enemy = state.enemies.find((e) => e.id === enemyId);
-  if (!enemy) return;
-  enemy.currentHealth = Math.max(0, hp);
-}
-
 function defeatEnemy(state, playerId, enemyId) {
   const p = state.players.find((p) => p.playerId === playerId);
   const idx = state.enemies.findIndex((e) => e.id === enemyId);
@@ -198,7 +229,7 @@ function defeatEnemy(state, playerId, enemyId) {
 
   if (state.enemyDeck.length > 0 && state.enemies.length < 3) {
     const next = state.enemyDeck.shift();
-    next.currentHealth = next.maxHealth;
+    next.damageTokens = [];
     state.enemies.push(next);
     log(state, `${next.name} enters the fray!`);
   }
@@ -219,6 +250,10 @@ function setCucumbers(state, count) {
 function endTurn(state, playerId) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
+
+  // Clear staging tokens and paw tokens
+  p.attackTokens = [];
+  p.pawTokens = 0;
 
   // Discard hand, draw new hand
   p.discardPile.push(...p.hand);
@@ -250,11 +285,12 @@ function endTurn(state, playerId) {
 
 module.exports = {
   setLives, toggleStun, setPawTokens,
+  addAttackToken, moveTokenToEnemy, removeDamageToken,
   drawCard, peekDrawTop, peekToHand, peekToTop, peekToDiscard,
   playCard, discardCard, retrieveFromDiscard, shuffleDiscard,
   placePayment, clearPayment, buyCard,
   drawEvents, dismissEvents,
-  setEnemyHp, defeatEnemy,
+  defeatEnemy,
   setCucumbers,
   endTurn,
 };

@@ -238,8 +238,19 @@ io.on("connection", (socket) => {
 
   // ── Enemies ─────────────────────────────────────────────────────────────────
 
-  socket.on("set_enemy_hp", ({ enemyId, hp } = {}) => {
-    withGame(socket, (gs) => actions.setEnemyHp(gs, enemyId, hp));
+  socket.on("add_attack_token", ({ type } = {}) => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId && type) actions.addAttackToken(gs, playerId, type);
+    });
+  });
+
+  socket.on("move_token_to_enemy", ({ enemyId, tokenId } = {}) => {
+    withGame(socket, (gs) => actions.moveTokenToEnemy(gs, enemyId, tokenId));
+  });
+
+  socket.on("remove_from_enemy", ({ enemyId, tokenId } = {}) => {
+    withGame(socket, (gs) => actions.removeDamageToken(gs, enemyId, tokenId));
   });
 
   socket.on("defeat_enemy", ({ enemyId } = {}) => {
