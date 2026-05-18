@@ -1,3 +1,5 @@
+import PawCoin from "./PawCoin";
+
 function effectLines(effect) {
   const lines = [];
   if (effect.damageAll > 0) lines.push(`All players lose ${effect.damageAll} life.`);
@@ -5,7 +7,7 @@ function effectLines(effect) {
   if (effect.discardCards > 0) lines.push(`Each player discards ${effect.discardCards} card(s).`);
   if (effect.blockShop) lines.push("Shop is closed.");
   if (effect.blockAttack) lines.push("Attacks blocked.");
-  if (effect.pawcoinPenalty > 0) lines.push(`-${effect.pawcoinPenalty} 🪙 per player.`);
+  if (effect.pawcoinPenalty > 0) lines.push(<>-{effect.pawcoinPenalty} <PawCoin /> per player.</>);
   return lines;
 }
 

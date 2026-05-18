@@ -4,6 +4,14 @@ This file is for Claude to understand the project context, decisions made, and w
 
 ---
 
+## Git Workflow
+
+Push directly to `main`. No feature branches needed until the game is in a playable state.
+
+Frontend auto-deploys to Vercel on every push to `main` — that's the only test environment in use right now. No local dev environment.
+
+---
+
 ## What This Is
 
 A co-op browser-based deck-builder for 2–4 players. Players are cats working together to defeat Good Boy (the final enemy) before the neighborhood is overrun with cucumbers. Built with React + Vite (frontend) and Node.js + Socket.IO (backend).

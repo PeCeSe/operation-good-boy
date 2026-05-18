@@ -1,64 +1,87 @@
 import { useState } from "react";
-import PlayerHand from "./PlayerHand";
 import CHARACTERS from "../data/characters";
+import PawCoin from "./PawCoin";
+import HealthSlider from "./HealthSlider";
+import PileControls from "./PileControls";
+import CardComponent from "./CardComponent";
+import socket from "../socket";
 
-const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
-const TOKEN_COLORS = {
-  scratch: "bg-orange-200 border-orange-400 text-orange-700",
-  bite:    "bg-red-200 border-red-400 text-red-700",
-  ignore:  "bg-blue-200 border-blue-400 text-blue-700",
-  charm:   "bg-purple-200 border-purple-400 text-purple-700",
-};
-
-
-function PileBadge({ count, label }) {
-  return (
-    <div className="flex flex-col items-center gap-0.5">
-      <div className="w-10 h-10 rounded border-2 border-amber-700 bg-amber-800 flex items-center justify-center font-bold text-sm text-white">
-        {count}
-      </div>
-      <span className="text-[10px] text-stone-400 uppercase tracking-wide leading-none">{label}</span>
-    </div>
-  );
-}
-
-function Lives({ lives, max }) {
-  return (
-    <div className="flex gap-0.5 flex-wrap justify-end">
-      {Array.from({ length: max }).map((_, i) => (
-        <span key={i} className={`text-lg leading-none ${i < lives ? "text-red-400" : "text-stone-200"}`}>
-          ♥
-        </span>
-      ))}
-    </div>
-  );
-}
-
-export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackStart, onDragAttackEnd }) {
+export default function PlayerBoard({ player, isMe, isCurrentTurn, onSetLives, paymentZone }) {
   const [showCharacter, setShowCharacter] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState(null);
+
   if (!player) return null;
 
-  const { name, character, lives, isStunned, hand, deck, discard, currentPawcoins, currentAttack } = player;
-  const charData = CHARACTERS.find((c) => c.id === character.id);
+  const {
+    playerId,
+    name,
+    character,
+    lives,
+    isStunned,
+    hand,
+    drawPile,
+    discardPile,
+    pawTokens,
+    peekCard,
+  } = player;
+
+  const maxLives = character?.maxLives ?? 9;
+  const charData = CHARACTERS.find((c) => c.id === character?.id);
+
+  const handleSetLives = (newLives) => {
+    socket.emit("set_lives", { playerId, lives: newLives });
+    onSetLives?.(playerId, newLives);
+  };
+
+  const handleGainToken = () => {
+    socket.emit("set_paw_tokens", { tokens: (pawTokens ?? 0) + 1 });
+  };
+
+  const handleMoveTokenToPayment = () => {
+    if ((pawTokens ?? 0) <= 0) return;
+    socket.emit("set_paw_tokens", { tokens: (pawTokens ?? 0) - 1 });
+    socket.emit("place_payment", { tokens: (paymentZone?.tokens ?? 0) + 1 });
+  };
+
+  const handlePlayCard = (cardId) => {
+    socket.emit("play_card", { cardId });
+    setSelectedCardId(null);
+  };
+
+  const handleDiscardCard = (cardId) => {
+    socket.emit("discard_card", { cardId });
+    setSelectedCardId(null);
+  };
+
+  const handleEndTurn = () => {
+    socket.emit("end_turn");
+  };
+
+  const displayTokens = Math.min(pawTokens ?? 0, 12);
+  const extraTokens = (pawTokens ?? 0) - 12;
 
   return (
-    <div className={`rounded-xl border-2 shadow-md overflow-hidden transition-all ${isMyTurn ? "border-amber-400" : "border-stone-200"}`}>
-      {/* Header: name + lives + chevron */}
-      <div className={`flex items-center justify-between px-4 py-2 ${isMyTurn ? "bg-amber-50" : "bg-stone-50"}`}>
-        <div className="flex items-center gap-2">
+    <div className={`rounded-xl border-2 shadow-md overflow-hidden transition-all ${isCurrentTurn ? "border-amber-400" : "border-stone-200"}`}>
+      {/* Header */}
+      <div className={`flex items-center justify-between px-4 py-2 ${isCurrentTurn ? "bg-amber-50" : "bg-stone-50"}`}>
+        <div className="flex items-center gap-2 flex-wrap">
           {charData?.headshot
-            ? <img src={isStunned && charData.stunned ? charData.stunned : charData.headshot} alt={name} className="w-9 h-9 object-contain shrink-0" />
-            : <span className="text-xl">{character.emoji}</span>
+            ? <img
+                src={isStunned && charData.stunned ? charData.stunned : charData.headshot}
+                alt={name}
+                className="w-9 h-9 object-contain shrink-0"
+              />
+            : <span className="text-xl">{character?.emoji}</span>
           }
           <span className="font-bold text-stone-800">{name}</span>
-          <span className="text-stone-400 text-xs">(you)</span>
+          {isMe && <span className="text-stone-400 text-xs">(you)</span>}
           {isStunned && (
             <span className="text-xs text-red-500 font-bold bg-red-50 border border-red-200 rounded px-1.5 py-0.5">
               STUNNED
             </span>
           )}
-          {isMyTurn && (
-            <span className="text-xs text-amber-600 font-semibold animate-pulse">Your turn!</span>
+          {isCurrentTurn && (
+            <span className="text-xs text-amber-600 font-semibold animate-pulse">YOUR TURN</span>
           )}
           <button
             onClick={() => setShowCharacter((v) => !v)}
@@ -68,12 +91,17 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
             <span className="text-xs">{showCharacter ? "▲" : "▼"}</span>
           </button>
         </div>
-        <Lives lives={lives} max={character.maxLives} />
+        <HealthSlider
+          lives={lives ?? 0}
+          maxLives={maxLives}
+          onChange={handleSetLives}
+          disabled={false}
+        />
       </div>
 
       {/* Collapsible character section */}
       {showCharacter && (
-        <div className={`border-t border-stone-100 ${isMyTurn ? "bg-amber-50/60" : "bg-stone-50/60"}`}>
+        <div className={`border-t border-stone-100 ${isCurrentTurn ? "bg-amber-50/60" : "bg-stone-50/60"}`}>
           {charData?.image && (
             <div
               className="relative w-full h-48 overflow-hidden"
@@ -88,68 +116,75 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
           )}
           <div className="px-4 py-3 space-y-2">
             {charData?.trait && <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 italic">{charData.trait}</div>}
-            {character.passiveAbility?.description && (
+            {charData?.passive && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
                 <div className="text-[9px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Passive</div>
-                <div className="text-xs text-stone-700 font-semibold">⚡ {character.passiveAbility.description}</div>
+                <div className="text-xs text-stone-700 font-semibold">⚡ {charData.passive}</div>
               </div>
             )}
-            <div className="text-xs text-stone-400">Max lives: {character.maxLives}</div>
+            <div className="text-xs text-stone-400">Max lives: {maxLives}</div>
           </div>
         </div>
       )}
 
-      {/* Resources + piles + End Turn */}
-      <div className="bg-white border-t border-b border-stone-200 px-4 py-3 flex items-center gap-3 flex-wrap">
-        {/* Pawcoins */}
-        <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
-          <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center font-bold text-base transition-all ${currentPawcoins > 0 ? "border-amber-300 bg-amber-50 text-amber-700" : "border-stone-200 bg-stone-50 text-stone-300"}`}>
-            {currentPawcoins}
-          </div>
-          <span className="text-sm leading-none">🪙</span>
-        </div>
-
-        {/* Attack tokens — individual draggable chips */}
-        {Object.entries(currentAttack).some(([, n]) => n > 0) ? (
-          <div className="flex flex-wrap gap-1 items-center">
-            {Object.entries(currentAttack).flatMap(([type, amount]) =>
-              Array.from({ length: amount }).map((_, i) => (
-                <div
-                  key={`${type}-${i}`}
-                  draggable={isMyTurn}
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData("text/plain", type);
-                    e.dataTransfer.effectAllowed = "move";
-                    // Defer state update — calling it synchronously triggers a
-                    // re-render during dragstart which destroys the element and
-                    // cancels the drag before the browser can establish it.
-                    setTimeout(() => onDragAttackStart?.(type), 0);
-                  }}
-                  onDragEnd={() => onDragAttackEnd?.()}
-                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm select-none transition-transform
-                    ${TOKEN_COLORS[type]}
-                    ${isMyTurn ? "cursor-grab active:cursor-grabbing hover:scale-110" : ""}`}
-                >
-                  {ATTACK_ICONS[type]}
-                </div>
-              ))
-            )}
+      {/* Resources row */}
+      <div className="bg-white border-t border-b border-stone-200 px-4 py-3 flex items-start gap-4 flex-wrap">
+        {/* Pawcoin wallet */}
+        {isMe ? (
+          <div className="flex flex-col gap-1.5">
+            <div className="text-[10px] text-stone-400 uppercase tracking-wide font-bold">Pawcoins</div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Gain button */}
+              <button
+                onClick={handleGainToken}
+                className="w-8 h-8 rounded-full bg-amber-400 hover:bg-amber-300 text-white font-bold text-lg flex items-center justify-center transition-colors shadow"
+                title="Gain 1 pawcoin"
+              >
+                +
+              </button>
+              {/* Individual coins — each click moves 1 to payment zone */}
+              <div className="flex flex-wrap gap-1 max-w-xs">
+                {Array.from({ length: displayTokens }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={handleMoveTokenToPayment}
+                    className="w-6 h-6 rounded-full hover:scale-110 transition-transform"
+                    title="Move 1 coin to payment zone"
+                  >
+                    <PawCoin className="w-6 h-6" />
+                  </button>
+                ))}
+                {extraTokens > 0 && (
+                  <span className="text-xs text-stone-400 self-center">+{extraTokens} more</span>
+                )}
+              </div>
+              <span className="text-sm text-amber-700 font-semibold ml-1">{pawTokens ?? 0}</span>
+            </div>
           </div>
         ) : (
-          <span className="text-xs text-stone-300 italic">No attacks</span>
+          <div className="flex items-center gap-1.5">
+            <PawCoin className="w-5 h-5" />
+            <span className="text-sm text-amber-700 font-semibold">{pawTokens ?? 0}</span>
+            <span className="text-xs text-stone-400">pawcoins</span>
+          </div>
         )}
 
-        <div className="w-px h-10 bg-stone-200 flex-shrink-0" />
+        <div className="w-px h-12 bg-stone-200 flex-shrink-0 self-center" />
 
-        {/* Draw + Discard piles */}
-        <PileBadge count={deck.length} label="Draw" />
-        <PileBadge count={discard.length} label="Discard" />
+        {/* Piles */}
+        <PileControls
+          drawPile={drawPile ?? []}
+          discardPile={discardPile ?? []}
+          peekCard={peekCard}
+          isMe={isMe}
+          playerId={playerId}
+        />
 
         {/* End Turn */}
-        {isMyTurn && (
+        {isMe && (
           <button
-            onClick={onEndTurn}
-            className="ml-auto bg-amber-500 hover:bg-amber-400 text-white font-bold px-5 py-2 rounded-lg transition-colors"
+            onClick={handleEndTurn}
+            className="ml-auto self-center bg-amber-500 hover:bg-amber-400 text-white font-bold px-5 py-2 rounded-lg transition-colors"
           >
             End Turn →
           </button>
@@ -158,7 +193,64 @@ export default function PlayerBoard({ player, isMyTurn, onEndTurn, onDragAttackS
 
       {/* Hand area */}
       <div className="bg-stone-50 px-4 py-3">
-        <PlayerHand hand={hand} isMyTurn={isMyTurn} />
+        {isMe ? (
+          <>
+            <div className="text-[10px] text-stone-400 uppercase tracking-wide font-bold mb-2">
+              Hand ({hand?.length ?? 0} cards)
+            </div>
+            {hand?.length === 0 ? (
+              <p className="text-stone-300 text-sm italic">No cards in hand.</p>
+            ) : (
+              <div className="flex gap-2 flex-wrap">
+                {hand.map((card) => (
+                  <div key={card.id} className="flex flex-col items-center gap-1">
+                    <div
+                      className={`transition-transform ${selectedCardId === card.id ? "-translate-y-3" : ""}`}
+                      onClick={() => setSelectedCardId(selectedCardId === card.id ? null : card.id)}
+                    >
+                      <CardComponent
+                        card={card}
+                        isPlayable={true}
+                        onClick={() => setSelectedCardId(selectedCardId === card.id ? null : card.id)}
+                      />
+                    </div>
+                    {selectedCardId === card.id && (
+                      <div className="flex gap-1.5 mt-0.5">
+                        <button
+                          onClick={() => handlePlayCard(card.id)}
+                          className="text-[10px] bg-amber-500 hover:bg-amber-400 text-white font-bold rounded px-2 py-1 transition-colors"
+                        >
+                          ▶ Play
+                        </button>
+                        <button
+                          onClick={() => handleDiscardCard(card.id)}
+                          className="text-[10px] bg-red-100 hover:bg-red-200 text-red-600 font-bold rounded px-2 py-1 transition-colors"
+                        >
+                          ✕ Discard
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex items-center gap-2">
+            <div className="text-[10px] text-stone-400 uppercase tracking-wide font-bold">Hand</div>
+            <div className="flex gap-1">
+              {Array.from({ length: Math.min(hand?.length ?? 0, 8) }).map((_, i) => (
+                <div key={i} className="w-8 h-11 bg-amber-800 border-2 border-amber-900 rounded flex items-center justify-center text-amber-600 text-xs">
+                  🐾
+                </div>
+              ))}
+              {(hand?.length ?? 0) > 8 && (
+                <span className="text-xs text-stone-400 self-center">+{hand.length - 8}</span>
+              )}
+            </div>
+            <span className="text-xs text-stone-400">{hand?.length ?? 0} cards</span>
+          </div>
+        )}
       </div>
     </div>
   );

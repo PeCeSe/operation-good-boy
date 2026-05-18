@@ -1,9 +1,10 @@
 import { useState } from "react";
+import PawCoin from "./PawCoin";
 
 const TYPE_CONFIG = {
-  move:  { border: "border-green-800",  bg: "bg-green-100",  emoji: "🐾" },
-  item:  { border: "border-amber-900",  bg: "bg-amber-100",  emoji: "📦" },
-  ally:  { border: "border-indigo-900", bg: "bg-indigo-100", emoji: "🤝" },
+  move:  { border: "border-[#B06560]", bg: "bg-[#F5D5D3]", emoji: "🐾" },
+  item:  { border: "border-[#A0712E]", bg: "bg-[#F5E5C0]", emoji: "📦" },
+  ally:  { border: "border-[#4A7080]", bg: "bg-[#D6E8EF]", emoji: "🤝" },
 };
 
 function MiniCard({ card, selected, onClick, dragging, onDragStart, onDragEnd }) {
@@ -29,7 +30,7 @@ function MiniCard({ card, selected, onClick, dragging, onDragStart, onDragEnd })
         {cfg.emoji}
       </div>
       <div className="px-2 py-1.5 text-[9px] text-stone-500 leading-tight line-clamp-2">
-        {card.effect?.pawcoins > 0 && `+${card.effect.pawcoins}🪙 `}
+        {card.effect?.pawcoins > 0 && <>+{card.effect.pawcoins}<PawCoin className="inline w-3 h-3 align-middle" /> </>}
         {card.effect?.attack > 0 && `+${card.effect.attack} ${card.effect.attackType} `}
         {card.effect?.special === "draw_card" && "Draw 1"}
         {card.effect?.special === "heal" && "Heal 1"}

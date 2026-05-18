@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from "react";
+import PawCoin from "./PawCoin";
 
-function describeEventEffect(effect) {
-  if (!effect) return "Something happens.";
+function DescribeEventEffect({ effect }) {
+  if (!effect) return <>Something happens.</>;
   const parts = [];
   if (effect.damageAll > 0) parts.push(`All players lose ${effect.damageAll} life.`);
   if (effect.cucumberTokens > 0) parts.push(`Add ${effect.cucumberTokens} 🥒 to the location.`);
   if (effect.discardCards > 0) parts.push(`Each player discards ${effect.discardCards} card(s).`);
   if (effect.blockShop) parts.push("Shop is closed this round.");
   if (effect.blockAttack) parts.push("Players cannot attack this round.");
-  if (effect.pawcoinPenalty > 0) parts.push(`Players generate ${effect.pawcoinPenalty} fewer 🪙 this round.`);
-  return parts.length > 0 ? parts.join(" ") : "No effect.";
+  if (effect.pawcoinPenalty > 0) parts.push(<>Players generate {effect.pawcoinPenalty} fewer <PawCoin /> this round.</>);
+  if (parts.length === 0) return <>No effect.</>;
+  return <>{parts.map((p, i) => <span key={i}>{i > 0 && " "}{p}</span>)}</>;
 }
 
 function CardBack({ onFlip, isMyTurn, animClass }) {
@@ -72,7 +74,7 @@ function EventCard({ event }) {
         {event.flavorText && <p className="text-xs italic text-stone-400">"{event.flavorText}"</p>}
         <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-3 py-2">
           <div className="text-[9px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Effect</div>
-          <p className="text-sm text-indigo-900 font-semibold">{describeEventEffect(event.effect)}</p>
+          <p className="text-sm text-indigo-900 font-semibold"><DescribeEventEffect effect={event.effect} /></p>
         </div>
       </div>
     </div>

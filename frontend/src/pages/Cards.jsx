@@ -1,58 +1,67 @@
 import { Link } from "react-router-dom";
 import CHARACTERS from "../data/characters";
 import CardComponent from "../components/CardComponent";
+import LocationBar from "../components/LocationBar";
+import EventDisplay from "../components/EventDisplay";
+import EnemyComponent from "../components/EnemyComponent";
 
 // ── Raw game data (mirrored from backend/src/data/) ──────────────────────────
 
 const LOCATIONS = [
-  { name: "The Garden", maxCucumbers: 8, eventsToDraw: 1, flavorText: "Good Boy's territory. Allegedly." },
-  { name: "The Street Corner", maxCucumbers: 8, eventsToDraw: 2, flavorText: "Neutral ground. For now." },
-  { name: "The Sunny Windowsill", maxCucumbers: 8, eventsToDraw: 3, flavorText: "The last good spot." },
+  { id: "loc_1", name: "The Garden", maxCucumberTokens: 8, currentCucumberTokens: 0, eventsToDraw: 1, flavorText: "Good Boy's territory. Allegedly." },
+  { id: "loc_2", name: "The Street Corner", maxCucumberTokens: 8, currentCucumberTokens: 0, eventsToDraw: 2, flavorText: "Neutral ground. For now." },
+  { id: "loc_3", name: "The Sunny Windowsill", maxCucumberTokens: 8, currentCucumberTokens: 0, eventsToDraw: 3, flavorText: "The last good spot." },
 ];
 
 const EVENTS = [
-  { name: "The Postman Rang the Doorbell", effect: { cucumberTokens: 1 }, flavorText: "Chaos. Pure chaos." },
-  { name: "The Vacuum Cleaner Turned On", effect: { damageAll: 1 }, flavorText: "Everyone scatter." },
-  { name: "Bath Time", effect: { discardCards: 1 }, flavorText: "The indignity." },
-  { name: "Vet Appointment", effect: { damageAll: 2 }, flavorText: "They said it wouldn't hurt." },
-  { name: "Kids Are Visiting", effect: { cucumberTokens: 1, discardCards: 2 }, flavorText: "They just grab. No warning." },
-  { name: "It's Raining", effect: { blockShop: true }, flavorText: "We're all stuck inside. Shop's closed." },
-  { name: "Dog Walk Past The Window", effect: { cucumberTokens: 2 }, flavorText: "He looked right at us." },
-  { name: "Monday Morning", effect: { damageAll: 1, pawcoinPenalty: 1 }, flavorText: "Nobody wanted this." },
+  { id: "ev_1", name: "The Postman Rang the Doorbell", effect: { cucumberTokens: 1 }, flavorText: "Chaos. Pure chaos." },
+  { id: "ev_2", name: "The Vacuum Cleaner Turned On", effect: { damageAll: 1 }, flavorText: "Everyone scatter." },
+  { id: "ev_3", name: "Bath Time", effect: { discardCards: 1 }, flavorText: "The indignity." },
+  { id: "ev_4", name: "Vet Appointment", effect: { damageAll: 2 }, flavorText: "They said it wouldn't hurt." },
+  { id: "ev_5", name: "Kids Are Visiting", effect: { cucumberTokens: 1, discardCards: 2 }, flavorText: "They just grab. No warning." },
+  { id: "ev_6", name: "It's Raining", effect: { blockShop: true }, flavorText: "We're all stuck inside. Shop's closed." },
+  { id: "ev_7", name: "Dog Walk Past The Window", effect: { cucumberTokens: 2 }, flavorText: "He looked right at us." },
+  { id: "ev_8", name: "Monday Morning", effect: { damageAll: 1, pawcoinPenalty: 1 }, flavorText: "Nobody wanted this." },
 ];
 
-// Good Boy last (he's always the final boss)
+// EnemyComponent expects ability/reward as { description } objects, and maxHealth instead of hp
 const ENEMIES = [
-  { name: "Angry Postman", emoji: "📬", hp: 6, attack: 2, weakTo: ["charm"], resistantTo: ["scratch"], cucOnSurvive: 1, ability: "Active player discards 1 card.", reward: "Remove 1 🥒.", flavorText: "He takes this very personally." },
-  { name: "Neighbour's Baby", emoji: "👶", hp: 4, attack: 1, weakTo: ["charm"], resistantTo: ["ignore"], cucOnSurvive: 1, ability: "All players lose 1 life.", reward: "All players gain 1 life.", flavorText: "It just screams. Constantly." },
-  { name: "Squirrel Gang", emoji: "🐿️", hp: 8, attack: 2, weakTo: ["scratch"], resistantTo: ["ignore"], cucOnSurvive: 1, ability: "Add 1 🥒 to the location.", reward: "All players draw 1 card.", flavorText: "There are more of them every time." },
-  { name: "Sprinkler System", emoji: "💦", hp: 5, attack: 2, weakTo: ["bite"], resistantTo: ["charm"], cucOnSurvive: 1, ability: "Active player loses 1 life.", reward: "Remove 1 🥒.", flavorText: "It has no feelings. It cannot be reasoned with." },
-  { name: "Grumpy Old Man", emoji: "👴", hp: 7, attack: 2, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 1, ability: "Active player loses 2 lives.", reward: "All players gain 1 life. Remove 1 🥒.", flavorText: "Get off his lawn." },
-  { name: "Vacuum Cleaner", emoji: "🤖", hp: 6, attack: 3, weakTo: ["bite"], resistantTo: ["scratch"], cucOnSurvive: 1, ability: "All players discard 1 card.", reward: "All players draw 2 cards.", flavorText: "A machine with no purpose but suffering." },
-  { name: "Rival Cat", emoji: "😾", hp: 8, attack: 3, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: "Add 2 🥒 to the location.", reward: "Active player draws 2 cards.", flavorText: "The audacity." },
-  { name: "Good Boy", emoji: "🐕", hp: 20, attack: 4, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: "Add 1 🥒 to the location.", reward: "Remove 2 🥒. All players gain 1 life.", flavorText: "The humans think he's harmless. He is not.", isBoss: true },
+  { id: "en_1", name: "Angry Postman", emoji: "📬", maxHealth: 6, attack: 2, weakTo: ["charm"], resistantTo: ["scratch"], cucOnSurvive: 1, ability: { description: "Active player discards 1 card." }, reward: { description: "Remove 1 🥒." }, flavorText: "He takes this very personally." },
+  { id: "en_2", name: "Neighbour's Baby", emoji: "👶", maxHealth: 4, attack: 1, weakTo: ["charm"], resistantTo: ["ignore"], cucOnSurvive: 1, ability: { description: "All players lose 1 life." }, reward: { description: "All players gain 1 life." }, flavorText: "It just screams. Constantly." },
+  { id: "en_3", name: "Squirrel Gang", emoji: "🐿️", maxHealth: 8, attack: 2, weakTo: ["scratch"], resistantTo: ["ignore"], cucOnSurvive: 1, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "All players draw 1 card." }, flavorText: "There are more of them every time." },
+  { id: "en_4", name: "Sprinkler System", emoji: "💦", maxHealth: 5, attack: 2, weakTo: ["bite"], resistantTo: ["charm"], cucOnSurvive: 1, ability: { description: "Active player loses 1 life." }, reward: { description: "Remove 1 🥒." }, flavorText: "It has no feelings. It cannot be reasoned with." },
+  { id: "en_5", name: "Grumpy Old Man", emoji: "👴", maxHealth: 7, attack: 2, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 1, ability: { description: "Active player loses 2 lives." }, reward: { description: "All players gain 1 life. Remove 1 🥒." }, flavorText: "Get off his lawn." },
+  { id: "en_6", name: "Vacuum Cleaner", emoji: "🤖", maxHealth: 6, attack: 3, weakTo: ["bite"], resistantTo: ["scratch"], cucOnSurvive: 1, ability: { description: "All players discard 1 card." }, reward: { description: "All players draw 2 cards." }, flavorText: "A machine with no purpose but suffering." },
+  { id: "en_7", name: "Rival Cat", emoji: "😾", maxHealth: 8, attack: 3, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: { description: "Add 2 🥒 to the location." }, reward: { description: "Active player draws 2 cards." }, flavorText: "The audacity." },
+  { id: "en_8", name: "Good Boy", emoji: "🐕", maxHealth: 20, attack: 4, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "Remove 2 🥒. All players gain 1 life." }, flavorText: "The humans think he's harmless. He is not.", isBoss: true },
 ];
+
+const KITTEN_EYES = { id: "kitten_eyes", name: "Kitten Eyes", count: 7, type: "move", image: "/cards/KittenEyes.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Resistance is futile." };
 
 const STARTING_DECKS = [
   {
     charId: "char_persian",
     cards: [
-      { name: "Delicate Swipe", count: 7, type: "move", effect: "+1 scratch" },
-      { name: "Premium Kibble", count: 3, type: "item", effect: "+1 🪙" },
+      KITTEN_EYES,
+      { id: "persian_pedigree", name: "Pedigree", count: 1, type: "item", image: "/cards/Pedigree.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_pedigree" }, description: "Choose: Gain 2 pawcoins, or ALL heroes gain 1 pawcoin.", flavorText: "Fourteen generations of excellence." },
+      { id: "persian_mirror", name: "Vanity Mirror", count: 1, type: "item", image: "/cards/VanityMirror.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: "discard_all_gain_coin" }, description: "Gain 1 pawcoin. If you discard this, ALL heroes gain 1 pawcoin.", flavorText: "The fairest in the land. Obviously." },
+      { id: "persian_slave", name: "Hooman Slave", count: 1, type: "ally", image: "/cards/HoomanSlave.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_ignore_or_heal2" }, description: "Choose: Gain 1 🙄 ignore or heal 2 ♥.", flavorText: "Adequate. For a hooman." },
     ],
   },
   {
     charId: "char_streetcat",
     cards: [
-      { name: "Street Claw", count: 7, type: "move", effect: "+1 scratch" },
-      { name: "Scavenged Kibble", count: 3, type: "item", effect: "+1 🪙" },
+      KITTEN_EYES,
+      { id: "sc_tuna", name: "Old Can of Tuna", count: 1, type: "item", image: "/cards/OldCanOfTuna.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_scratch_or_bite_cond_coin" }, description: "Gain 1 🐾 scratch or 1 🦷 bite. Defeating an enemy this turn also gains 1 pawcoin.", flavorText: "Still good. Probably." },
+      { id: "sc_hide", name: "The Good Hiding Spot", count: 1, type: "item", image: "/cards/GoodHidingSpot.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: "passive_protection" }, description: "Gain 1 pawcoin. While in hand: lose max 1 life per event or attack.", flavorText: "Stealth mode activated." },
+      { id: "sc_roxy", name: "Roxy", count: 1, type: "ally", image: "/cards/Roxy.png", effect: { attack: 0, attackType: null, pawcoins: 0, special: "choice_scratch_bite_or_heal2" }, description: "Choose: Gain 1 🐾 scratch, 1 🦷 bite, or 2 ♥.", flavorText: "She stops traffic. Literally." },
     ],
   },
   {
     charId: "char_kitten",
     cards: [
-      { name: "Tiny Swipe", count: 7, type: "move", effect: "+1 scratch" },
-      { name: "Kibble", count: 3, type: "item", effect: "+1 🪙" },
+      KITTEN_EYES,
+      { id: "ki_2", name: "Kibble", count: 3, type: "item", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "It's all about the kibble." },
     ],
   },
 ];
@@ -85,30 +94,10 @@ const SHOP_CARDS = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const TYPE_COLORS = {
-  move: "bg-blue-100 text-blue-700",
-  item: "bg-purple-100 text-purple-700",
-  ally: "bg-green-100 text-green-700",
-};
-
-function formatEventEffect(e) {
-  const parts = [];
-  if (e.cucumberTokens > 0) parts.push(`+${e.cucumberTokens} 🥒`);
-  if (e.damageAll > 0) parts.push(`All lose ${e.damageAll} life`);
-  if (e.discardCards > 0) parts.push(`Discard ${e.discardCards} card${e.discardCards > 1 ? "s" : ""}`);
-  if (e.blockShop) parts.push("Shop blocked");
-  if (e.pawcoinPenalty > 0) parts.push(`-${e.pawcoinPenalty} 🪙`);
-  return parts.join(" · ") || "No effect";
-}
-
 function SectionHeader({ children }) {
   return (
     <h2 className="text-xl font-bold text-stone-800 border-b-2 border-amber-400 pb-2 mb-4">{children}</h2>
   );
-}
-
-function Pill({ children, className }) {
-  return <span className={`text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded ${className}`}>{children}</span>;
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -119,7 +108,7 @@ export default function Cards() {
   const allyCards = SHOP_CARDS.filter((c) => c.type === "ally");
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-10">
+    <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col gap-10">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-amber-600">Game Reference</h1>
         <Link to="/" className="text-sm text-stone-500 hover:text-stone-700 transition-colors">← Home</Link>
@@ -128,19 +117,14 @@ export default function Cards() {
       {/* Locations */}
       <section>
         <SectionHeader>Locations</SectionHeader>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-4">
           {LOCATIONS.map((loc, i) => (
-            <div key={loc.name} className="bg-white border border-stone-200 rounded-xl p-4 flex items-start gap-4 shadow-sm">
-              <div className="text-2xl shrink-0">{["🌿", "🏙️", "🪟"][i]}</div>
-              <div className="flex-1 min-w-0">
-                <div className="font-bold text-stone-800">{loc.name}</div>
-                <div className="text-xs text-stone-500 mt-0.5 italic">{loc.flavorText}</div>
-              </div>
-              <div className="shrink-0 text-right space-y-1">
-                <div className="text-sm font-semibold text-stone-700">🥒 max {loc.maxCucumbers}</div>
-                <div className="text-xs text-stone-500">{loc.eventsToDraw} event{loc.eventsToDraw > 1 ? "s" : ""} per turn</div>
-              </div>
-            </div>
+            <LocationBar
+              key={loc.id}
+              currentLocation={loc}
+              lostLocations={[]}
+              totalLocations={LOCATIONS.length}
+            />
           ))}
         </div>
       </section>
@@ -148,47 +132,21 @@ export default function Cards() {
       {/* Events */}
       <section>
         <SectionHeader>Stupid Hooman Events</SectionHeader>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {EVENTS.map((ev) => (
-            <div key={ev.name} className="bg-white border border-stone-200 rounded-xl p-4 shadow-sm flex flex-col gap-2">
-              <div className="font-semibold text-stone-800 text-sm">{ev.name}</div>
-              <div className="text-xs font-bold text-red-600">{formatEventEffect(ev.effect)}</div>
-              <div className="text-[11px] text-stone-400 italic mt-auto">{ev.flavorText}</div>
-            </div>
-          ))}
+        <div className="flex flex-wrap gap-3">
+          <EventDisplay events={EVENTS} />
         </div>
       </section>
 
       {/* Enemies */}
       <section>
         <SectionHeader>Enemies</SectionHeader>
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-4">
           {ENEMIES.map((enemy) => (
-            <div
-              key={enemy.name}
-              className={`bg-white border rounded-xl p-4 shadow-sm ${enemy.isBoss ? "border-amber-400 ring-1 ring-amber-200" : "border-stone-200"}`}
-            >
-              <div className="flex items-start gap-3">
-                <div className="text-3xl shrink-0">{enemy.emoji}</div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-stone-800">{enemy.name}</span>
-                    {enemy.isBoss && <Pill className="bg-amber-100 text-amber-700">Final Boss</Pill>}
-                  </div>
-                  <div className="text-[11px] text-stone-400 italic mt-0.5">{enemy.flavorText}</div>
-                  <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-xs text-stone-600">
-                    <div><span className="font-semibold">HP:</span> {enemy.hp}</div>
-                    <div><span className="font-semibold">Survives:</span> +{enemy.cucOnSurvive} 🥒</div>
-                    <div><span className="font-semibold text-green-600">Weak:</span> {enemy.weakTo.join(", ")}</div>
-                    <div><span className="font-semibold text-red-500">Resist:</span> {enemy.resistantTo.join(", ")}</div>
-                  </div>
-                  <div className="mt-2 space-y-1 text-xs">
-                    <div className="text-stone-600"><span className="font-semibold text-red-500">Ability:</span> {enemy.ability}</div>
-                    <div className="text-stone-600"><span className="font-semibold text-green-600">Defeat reward:</span> {enemy.reward}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <EnemyComponent
+              key={enemy.id}
+              enemy={enemy}
+              isMyTurn={false}
+            />
           ))}
         </div>
       </section>
@@ -196,28 +154,27 @@ export default function Cards() {
       {/* Starting decks */}
       <section>
         <SectionHeader>Starting Decks</SectionHeader>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-6">
           {STARTING_DECKS.map(({ charId, cards }) => {
             const char = CHARACTERS.find((c) => c.id === charId);
             return (
-              <div key={charId} className="bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
-                <div className="flex items-center gap-3 p-3 bg-stone-50 border-b border-stone-200">
+              <div key={charId}>
+                <div className="flex items-center gap-3 mb-3">
                   {char?.headshot && (
-                    <img src={char.headshot} alt={char.name} className="w-10 h-10 object-contain shrink-0" />
+                    <img src={char.headshot} alt={char.name} className="w-8 h-8 object-contain" />
                   )}
                   <div>
-                    <div className="font-bold text-sm text-stone-800">{char?.name}</div>
-                    <div className="text-[10px] text-stone-400 uppercase tracking-wide">{char?.subtitle}</div>
+                    <span className="font-bold text-sm text-stone-800">{char?.name}</span>
+                    <span className="text-[10px] text-stone-400 uppercase tracking-wide ml-2">{char?.subtitle}</span>
                   </div>
                 </div>
-                <div className="p-3 space-y-2">
+                <div className="flex flex-wrap gap-3">
                   {cards.map((card) => (
-                    <div key={card.name} className="flex items-center justify-between gap-2">
-                      <div>
-                        <div className="text-xs font-semibold text-stone-700">{card.count}× {card.name}</div>
-                        <div className="text-[10px] text-stone-500">{card.effect}</div>
+                    <div key={card.id} className="relative flex">
+                      <CardComponent card={card} isPlayable={true} />
+                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
+                        ×{card.count}
                       </div>
-                      <Pill className={TYPE_COLORS[card.type]}>{card.type}</Pill>
                     </div>
                   ))}
                 </div>
@@ -231,15 +188,15 @@ export default function Cards() {
       <section>
         <SectionHeader>Shop Cards</SectionHeader>
         {[
-          { label: "Move", cards: moveCards, color: "text-green-700" },
-          { label: "Item", cards: itemCards, color: "text-amber-800" },
-          { label: "Ally", cards: allyCards, color: "text-indigo-700" },
+          { label: "Move", cards: moveCards, color: "text-[#B06560]" },
+          { label: "Item", cards: itemCards, color: "text-[#A0712E]" },
+          { label: "Ally", cards: allyCards, color: "text-[#4A7080]" },
         ].map(({ label, cards, color }) => (
           <div key={label} className="mb-8">
             <h3 className={`font-bold text-sm uppercase tracking-widest mb-3 ${color}`}>{label}</h3>
             <div className="flex flex-wrap gap-3">
               {cards.map((card) => (
-                <CardComponent key={card.id} card={card} showCost={true} isPlayable={false} />
+                <CardComponent key={card.id} card={card} showCost={true} isPlayable={true} />
               ))}
             </div>
           </div>
