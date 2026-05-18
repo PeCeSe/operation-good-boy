@@ -1,4 +1,4 @@
-import { useState } from "react";
+import socket from "../socket";
 
 const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
 const TOKEN_BG     = { scratch: "bg-orange-200", bite: "bg-red-200",    ignore: "bg-blue-200",   charm: "bg-purple-200" };
@@ -10,14 +10,6 @@ const TOKEN_COLORS = {
   ignore:  "bg-blue-200 border-blue-400 text-blue-700",
   charm:   "bg-purple-200 border-purple-400 text-purple-700",
 };
-
-function calcEffective(placed, weakTo, resistantTo) {
-  return Object.entries(placed).reduce((sum, [type, n]) => {
-    if (weakTo.includes(type)) return sum + n * 2;
-    if (resistantTo.includes(type)) return sum + Math.floor(n / 2);
-    return sum + n;
-  }, 0);
-}
 
 function Token({ type, modifier }) {
   const base = `rounded-full border-2 flex items-center justify-center text-xs ${TOKEN_COLORS[type]}`;
@@ -43,32 +35,6 @@ function Token({ type, modifier }) {
   return <span className={`w-6 h-6 ${base} flex-shrink-0`}>{ATTACK_ICONS[type]}</span>;
 }
 
-function AttackTokens({ placedAttacks, maxHealth, weakTo = [], resistantTo = [] }) {
-  const placed = placedAttacks || {};
-  const hasAny = Object.values(placed).some((v) => v > 0);
-  const effectiveDamage = calcEffective(placed, weakTo, resistantTo);
-
-  return (
-    <div className="px-2 py-2 bg-stone-50 border-t border-stone-200 min-h-[3rem]">
-      {hasAny ? (
-        <>
-          <div className="flex flex-wrap gap-1 mb-1 items-center">
-            {Object.entries(placed).flatMap(([type, count]) => {
-              const modifier = weakTo.includes(type) ? "weak" : resistantTo.includes(type) ? "resist" : "normal";
-              return Array.from({ length: count }).map((_, i) => (
-                <Token key={`${type}-${i}`} type={type} modifier={modifier} />
-              ));
-            })}
-          </div>
-          <div className="text-[10px] text-stone-400">{effectiveDamage} / {maxHealth} damage</div>
-        </>
-      ) : (
-        <div className="text-[10px] text-stone-300 italic">No attacks placed yet</div>
-      )}
-    </div>
-  );
-}
-
 function TypePill({ label, type }) {
   const colors =
     type === "weak"
@@ -82,47 +48,51 @@ function TypePill({ label, type }) {
   );
 }
 
-export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, isMyTurn, draggingAttackType }) {
-  const [dragOver, setDragOver] = useState(false);
-  const placed = enemy.placedAttacks || {};
-  const isDropTarget = isMyTurn && !!draggingAttackType;
+export default function EnemyComponent({ enemy }) {
+  const currentHealth = enemy.currentHealth ?? enemy.maxHealth;
 
-  const handleDragOver = (e) => {
-    if (!isDropTarget) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    setDragOver(true);
+  const handleHpUp = (e) => {
+    e.stopPropagation();
+    socket.emit("set_enemy_hp", { enemyId: enemy.id, hp: currentHealth + 1 });
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    const type = e.dataTransfer.getData("text/plain");
-    if (type) onAttack(enemy.id, type);
+  const handleHpDown = (e) => {
+    e.stopPropagation();
+    socket.emit("set_enemy_hp", { enemyId: enemy.id, hp: Math.max(0, currentHealth - 1) });
+  };
+
+  const handleDefeat = (e) => {
+    e.stopPropagation();
+    socket.emit("defeat_enemy", { enemyId: enemy.id });
   };
 
   return (
-    <div
-      className={`w-44 flex-shrink-0 bg-stone-100 rounded-xl shadow-md overflow-hidden flex flex-col transition-all border-2 ${
-        dragOver
-          ? "border-amber-400 shadow-lg scale-105"
-          : isDropTarget
-          ? "border-amber-300 border-dashed"
-          : "border-stone-700"
-      }`}
-      onDragOver={handleDragOver}
-      onDragLeave={() => setDragOver(false)}
-      onDrop={handleDrop}
-    >
+    <div className="w-44 flex-shrink-0 bg-stone-100 rounded-xl shadow-md overflow-hidden flex flex-col border-2 border-stone-700">
       {/* Header */}
       <div className="bg-stone-800 px-2 py-1.5 flex items-center justify-between gap-1">
         <div className="min-w-0">
           <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase">Enemy</div>
           <div className="text-white font-bold text-xs leading-tight">{enemy.name}</div>
         </div>
-        <div className="flex-shrink-0 text-right">
-          <div className="text-white font-bold text-lg leading-none">{enemy.maxHealth}</div>
-          <div className="text-stone-400 text-[9px]">HP</div>
+        <div className="flex-shrink-0 flex items-center gap-1">
+          <button
+            onClick={handleHpDown}
+            className="w-5 h-5 rounded bg-stone-600 hover:bg-stone-500 text-white text-xs font-bold flex items-center justify-center transition-colors"
+            title="Decrease HP"
+          >
+            −
+          </button>
+          <div className="text-right">
+            <div className="text-white font-bold text-lg leading-none">{currentHealth}</div>
+            <div className="text-stone-400 text-[9px]">/{enemy.maxHealth}</div>
+          </div>
+          <button
+            onClick={handleHpUp}
+            className="w-5 h-5 rounded bg-stone-600 hover:bg-stone-500 text-white text-xs font-bold flex items-center justify-center transition-colors"
+            title="Increase HP"
+          >
+            +
+          </button>
         </div>
       </div>
 
@@ -158,15 +128,13 @@ export default function EnemyComponent({ enemy, onAttack, availableAttackTypes, 
         </div>
       )}
 
-      {/* Placed attack tokens */}
-      <AttackTokens placedAttacks={enemy.placedAttacks} maxHealth={enemy.maxHealth} weakTo={enemy.weakTo} resistantTo={enemy.resistantTo} />
-
-      {/* Drop hint */}
-      {isDropTarget && (
-        <div className="px-2 py-1.5 bg-amber-50 border-t border-amber-200 text-center text-[10px] text-amber-500 font-semibold">
-          Drop attack here
-        </div>
-      )}
+      {/* Defeat button */}
+      <button
+        onClick={handleDefeat}
+        className="mx-2 mb-2 mt-2 bg-red-600 hover:bg-red-500 text-white font-bold text-xs py-1.5 rounded-lg transition-colors"
+      >
+        Defeat ✓
+      </button>
     </div>
   );
 }

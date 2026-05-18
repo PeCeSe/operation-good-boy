@@ -1,9 +1,21 @@
+import socket from "../socket";
+
 export default function LocationBar({ currentLocation, lostLocations, totalLocations = 3 }) {
   if (!currentLocation) return null;
 
   const locationNumber = lostLocations.length + 1;
-  const { currentCucumberTokens, maxCucumberTokens, eventsToDraw } = currentLocation;
-  const isAlmostFull = currentCucumberTokens / maxCucumberTokens >= 0.75;
+  const { currentCucumbers, maxCucumberTokens, eventsToDraw } = currentLocation;
+  const isAlmostFull = currentCucumbers / maxCucumberTokens >= 0.75;
+
+  const handleSlotClick = (i) => {
+    if (i < currentCucumbers) {
+      // clicking a filled slot removes 1
+      socket.emit("set_cucumbers", { count: currentCucumbers - 1 });
+    } else {
+      // clicking an empty slot adds 1
+      socket.emit("set_cucumbers", { count: currentCucumbers + 1 });
+    }
+  };
 
   return (
     <div className="w-52 flex-shrink-0 bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden">
@@ -31,15 +43,16 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
           {Array.from({ length: maxCucumberTokens }).map((_, i) => (
             <div
               key={i}
-              className={`h-7 rounded border-2 flex items-center justify-center text-sm transition-all ${
-                i < currentCucumberTokens
+              onClick={() => handleSlotClick(i)}
+              className={`h-7 rounded border-2 flex items-center justify-center text-sm transition-all cursor-pointer hover:opacity-80 ${
+                i < currentCucumbers
                   ? isAlmostFull
                     ? "border-red-300 bg-red-50"
                     : "border-green-300 bg-green-50"
-                  : "border-stone-200 bg-stone-50"
+                  : "border-stone-200 bg-stone-50 hover:border-green-200"
               }`}
             >
-              {i < currentCucumberTokens ? "🥒" : ""}
+              {i < currentCucumbers ? "🥒" : ""}
             </div>
           ))}
         </div>
