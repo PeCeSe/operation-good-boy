@@ -18,7 +18,7 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
   };
 
   return (
-    <div className="w-52 flex-shrink-0 bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden">
+    <div className="flex-shrink-0 bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden" style={{ width: 213 }}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-stone-100 border-b border-stone-200">
         <span className="text-xs font-bold text-stone-500 uppercase tracking-widest">
@@ -30,7 +30,7 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
       </div>
 
       {/* Image placeholder */}
-      <div className="h-32 bg-gradient-to-b from-stone-100 to-stone-200 flex flex-col items-center justify-center gap-1 px-3">
+      <div className="h-36 bg-gradient-to-b from-stone-100 to-stone-200 flex flex-col items-center justify-center gap-1 px-3">
         <div className="text-base font-bold text-stone-700 text-center leading-tight">{currentLocation.name}</div>
         {currentLocation.flavorText && (
           <div className="text-[10px] text-stone-400 italic text-center">"{currentLocation.flavorText}"</div>

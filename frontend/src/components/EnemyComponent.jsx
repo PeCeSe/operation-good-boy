@@ -43,7 +43,7 @@ export default function EnemyComponent({ enemy, isOver = false, showControls = t
         <div className="text-white font-bold text-sm leading-tight">{enemy.name}</div>
       </div>
 
-      <div className="h-40 bg-gradient-to-b from-stone-200 to-stone-300 flex items-center justify-center text-7xl">
+      <div className="h-32 bg-gradient-to-b from-stone-200 to-stone-300 flex items-center justify-center text-6xl">
         {enemy.emoji || "👾"}
       </div>
 

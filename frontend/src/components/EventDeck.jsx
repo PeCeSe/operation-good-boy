@@ -27,28 +27,29 @@ function ActiveEventCard({ event }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`w-36 flex-shrink-0 bg-violet-50 border-2 border-violet-300 rounded-xl overflow-hidden flex flex-col select-none transition-opacity cursor-grab active:cursor-grabbing ${
+      className={`flex-shrink-0 bg-violet-50 border-2 border-violet-300 rounded-xl overflow-hidden flex flex-col select-none transition-opacity cursor-grab active:cursor-grabbing ${
         isDragging ? "opacity-30" : "shadow-sm hover:shadow-md"
       }`}
+      style={{ width: 213, height: 213 }}
     >
-      <div className="bg-violet-800 px-2 py-1">
-        <div className="text-[8px] uppercase tracking-widest text-violet-300 font-bold">Event</div>
-        <div className="text-white font-bold text-[10px] leading-tight">{event.name}</div>
+      <div className="bg-violet-800 px-2 py-1.5">
+        <div className="text-[9px] uppercase tracking-widest text-violet-300 font-bold">Event</div>
+        <div className="text-white font-bold text-xs leading-tight">{event.name}</div>
       </div>
-      <div className="px-2 py-1.5 flex-1">
+      <div className="px-2 py-2 flex-1">
         {lines.map((line, i) => (
-          <div key={i} className="text-[10px] text-violet-800 font-semibold leading-snug">{line}</div>
+          <div key={i} className="text-xs text-violet-800 font-semibold leading-snug">{line}</div>
         ))}
         {lines.length === 0 && (
-          <div className="text-[10px] text-violet-400 italic">No effect</div>
+          <div className="text-xs text-violet-400 italic">No effect</div>
         )}
       </div>
       {event.flavorText && (
-        <div className="px-2 pb-1.5 text-[9px] italic text-violet-400 leading-snug">
+        <div className="px-2 pb-2 text-[10px] italic text-violet-400 leading-snug">
           "{event.flavorText}"
         </div>
       )}
-      <div className="bg-violet-100 px-2 py-0.5 text-[8px] text-violet-400 text-center">
+      <div className="bg-violet-100 px-2 py-1 text-[9px] text-violet-400 text-center">
         drag to discard →
       </div>
     </div>
@@ -61,7 +62,7 @@ function DiscardZone({ count }) {
   return (
     <div
       ref={setNodeRef}
-      className={`w-16 h-28 flex-shrink-0 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-all ${
+      className={`w-20 h-20 flex-shrink-0 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-all ${
         isOver
           ? "border-violet-500 bg-violet-100 scale-105"
           : "border-stone-200 bg-stone-50"
@@ -91,7 +92,7 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
       {/* Draw pile */}
       <div
         onClick={handleDraw}
-        className={`w-16 h-28 flex-shrink-0 rounded-xl border-2 flex flex-col items-center justify-center gap-1 transition-all ${
+        className={`w-20 h-20 flex-shrink-0 rounded-xl border-2 flex flex-col items-center justify-center gap-1 transition-all ${
           deckCount > 0
             ? "border-violet-400 bg-violet-50 cursor-pointer hover:bg-violet-100 hover:shadow-md active:scale-95"
             : "border-stone-200 bg-stone-50 cursor-default"

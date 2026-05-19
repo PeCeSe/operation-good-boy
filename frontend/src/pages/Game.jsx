@@ -38,10 +38,10 @@ function EnemyDeckPile({ count }) {
 
 function EmptyEnemySlot() {
   return (
-    <div className="flex flex-col gap-2" style={{ width: 240 }}>
+    <div className="flex flex-col gap-2" style={{ width: 213 }}>
       <div
         className="bg-stone-300/30 rounded-xl border-2 border-dashed border-stone-400/40 flex items-center justify-center"
-        style={{ height: 310 }}
+        style={{ height: 286 }}
       >
         <span className="text-stone-400/50 text-sm select-none">—</span>
       </div>
@@ -301,7 +301,7 @@ export default function Game({ gameState, mySocketId }) {
           </div>
 
           {/* ── Shop cards (2-column grid) ── */}
-          <div style={{ position: "absolute", top: 240, left: 910, zIndex: 1, width: 420 }}>
+          <div style={{ position: "absolute", top: 240, left: 910, zIndex: 1, width: 376 }}>
             <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-3">
               Shop
             </div>
