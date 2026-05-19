@@ -205,10 +205,11 @@ export default function Game({ gameState, mySocketId }) {
           overflow: "auto",
           scrollbarWidth: "none",
           paddingBottom: 340,
+          display: "flex",
         }}
       >
-        {/* Scroll-space wrapper — gives the scrollbar the right size */}
-        <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative", flexShrink: 0 }}>
+        {/* Scroll-space wrapper — margin:auto centers when board < viewport, normal scroll when larger */}
+        <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative", flexShrink: 0, margin: "auto" }}>
         {/* Board surface — scaled */}
         <div
           style={{
