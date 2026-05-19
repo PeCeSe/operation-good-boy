@@ -18,7 +18,7 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
   };
 
   return (
-    <div className="flex-shrink-0 bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden" style={{ width: 286 }}>
+    <div className="flex-shrink-0 bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden flex flex-col" style={{ width: 286, height: 213 }}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-stone-100 border-b border-stone-200">
         <span className="text-xs font-bold text-stone-500 uppercase tracking-widest">
@@ -29,22 +29,22 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
         </span>
       </div>
 
-      {/* Image placeholder */}
-      <div className="h-36 bg-gradient-to-b from-stone-100 to-stone-200 flex flex-col items-center justify-center gap-1 px-3">
+      {/* Name / flavor */}
+      <div className="flex-1 bg-gradient-to-b from-stone-100 to-stone-200 flex flex-col items-center justify-center gap-0.5 px-3 min-h-0">
         <div className="text-base font-bold text-stone-700 text-center leading-tight">{currentLocation.name}</div>
         {currentLocation.flavorText && (
-          <div className="text-[10px] text-stone-400 italic text-center">"{currentLocation.flavorText}"</div>
+          <div className="text-[10px] text-stone-400 italic text-center line-clamp-2">"{currentLocation.flavorText}"</div>
         )}
       </div>
 
       {/* Cucumber slots */}
-      <div className="px-3 py-2.5">
+      <div className="px-3 py-2 shrink-0">
         <div className="grid grid-cols-4 gap-1">
           {Array.from({ length: maxCucumberTokens }).map((_, i) => (
             <div
               key={i}
               onClick={() => handleSlotClick(i)}
-              className={`h-7 rounded border-2 flex items-center justify-center text-sm transition-all cursor-pointer hover:opacity-80 ${
+              className={`h-6 rounded border-2 flex items-center justify-center text-xs transition-all cursor-pointer hover:opacity-80 ${
                 i < currentCucumbers
                   ? isAlmostFull
                     ? "border-red-300 bg-red-50"
@@ -60,7 +60,7 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
 
       {/* Lost locations */}
       {lostLocations.length > 0 && (
-        <div className="px-3 pb-2 flex gap-1.5 flex-wrap">
+        <div className="px-3 pb-1.5 flex gap-1.5 flex-wrap shrink-0">
           {lostLocations.map((loc) => (
             <span key={loc.id} className="text-[10px] text-stone-400 line-through">
               {loc.name}
