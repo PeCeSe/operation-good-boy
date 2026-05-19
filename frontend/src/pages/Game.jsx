@@ -71,13 +71,6 @@ export default function Game({ gameState, mySocketId }) {
 
   const clampZoom = (z) => Math.max(0.25, Math.min(2, z));
 
-  const handleFitToScreen = useCallback(() => {
-    const HUD_H = 340;
-    const availW = window.innerWidth;
-    const availH = window.innerHeight - HUD_H;
-    setZoom(clampZoom(Math.min(availW / BOARD_W, availH / BOARD_H)));
-  }, []);
-
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
