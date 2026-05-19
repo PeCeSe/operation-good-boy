@@ -69,9 +69,10 @@ export default function EnemyComponent({ enemy, isOver = false, showControls = t
             ? <img src={enemy.image} alt={enemy.name} className="w-full h-full object-cover" />
             : <span className="text-5xl">{enemy.emoji || "👾"}</span>
           }
-          {/* HP badge */}
-          <div className="absolute bottom-2 right-2 w-9 h-9 rounded-full bg-red-700 border-2 border-red-900 flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-sm leading-none">{enemy.maxHealth}</span>
+          {/* HP heart badge */}
+          <div className="absolute bottom-2 right-2 flex items-center justify-center w-9 h-9 shadow-lg">
+            <span className="absolute text-red-500 text-[2.2rem] leading-none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}>♥</span>
+            <span className="relative text-white font-bold text-sm leading-none z-10" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>{enemy.maxHealth}</span>
           </div>
           {/* Defeat button */}
           {showControls && (
