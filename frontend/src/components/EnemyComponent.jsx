@@ -70,7 +70,7 @@ export default function EnemyComponent({ enemy, isOver = false, showControls = t
             : <span className="text-5xl">{enemy.emoji || "👾"}</span>
           }
           {/* HP heart badge */}
-          <div className="absolute bottom-2 right-2 flex items-center justify-center w-9 h-9 shadow-lg">
+          <div className="absolute bottom-2 right-2 flex items-center justify-center w-9 h-9">
             <span className="absolute text-red-500 text-[2.2rem] leading-none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.6))" }}>♥</span>
             <span className="relative text-white font-bold text-sm leading-none z-10" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}>{enemy.maxHealth}</span>
           </div>
