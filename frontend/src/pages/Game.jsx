@@ -352,14 +352,6 @@ export default function Game({ gameState, mySocketId }) {
         </div>{/* end scroll-space wrapper */}
       </div>
 
-      {/* ── Zoom controls ── */}
-      <div className="fixed z-50 flex items-center gap-1 bg-stone-900/80 backdrop-blur-sm rounded-lg px-2 py-1 shadow-lg" style={{ bottom: 348, right: 16 }}>
-        <button onClick={() => setZoom((z) => clampZoom(z - 0.1))} className="text-white w-6 h-6 flex items-center justify-center hover:bg-stone-700 rounded font-bold text-base">−</button>
-        <button onClick={handleFitToScreen} className="text-stone-300 text-[10px] px-1.5 py-0.5 hover:bg-stone-700 rounded">fit</button>
-        <span className="text-stone-400 text-[10px] w-8 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
-        <button onClick={() => setZoom((z) => clampZoom(z + 0.1))} className="text-white w-6 h-6 flex items-center justify-center hover:bg-stone-700 rounded font-bold text-base">+</button>
-      </div>
-
       {/* ── Fixed player HUD ── */}
       <PlayerHUD
         me={me}
