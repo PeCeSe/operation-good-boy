@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import LocationBar from "../components/LocationBar";
@@ -67,6 +67,28 @@ export default function Game({ gameState, mySocketId }) {
   const containerRef = useRef(null);
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
   const [activeDrag, setActiveDrag] = useState(null);
+  const [zoom, setZoom] = useState(1);
+
+  const clampZoom = (z) => Math.max(0.25, Math.min(2, z));
+
+  const handleFitToScreen = useCallback(() => {
+    const HUD_H = 340;
+    const availW = window.innerWidth;
+    const availH = window.innerHeight - HUD_H;
+    setZoom(clampZoom(Math.min(availW / BOARD_W, availH / BOARD_H)));
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onWheel = (e) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      setZoom((z) => clampZoom(z + (e.deltaY < 0 ? 0.05 : -0.05)));
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
@@ -185,12 +207,18 @@ export default function Game({ gameState, mySocketId }) {
           paddingBottom: 340,
         }}
       >
-        {/* Board surface */}
+        {/* Scroll-space wrapper — gives the scrollbar the right size */}
+        <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative", flexShrink: 0 }}>
+        {/* Board surface — scaled */}
         <div
           style={{
             width: BOARD_W,
             height: BOARD_H,
-            position: "relative",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            transform: `scale(${zoom})`,
+            transformOrigin: "top left",
             background: "linear-gradient(160deg, #d6bc96 0%, #c4a872 50%, #c8aa78 100%)",
             boxShadow: "inset 0 0 80px rgba(0,0,0,0.15)",
           }}
@@ -320,6 +348,15 @@ export default function Game({ gameState, mySocketId }) {
             <GameLog log={log} />
           </div>
         </div>
+        </div>{/* end scroll-space wrapper */}
+      </div>
+
+      {/* ── Zoom controls ── */}
+      <div className="fixed z-50 flex items-center gap-1 bg-stone-900/80 backdrop-blur-sm rounded-lg px-2 py-1 shadow-lg" style={{ bottom: 348, right: 16 }}>
+        <button onClick={() => setZoom((z) => clampZoom(z - 0.1))} className="text-white w-6 h-6 flex items-center justify-center hover:bg-stone-700 rounded font-bold text-base">−</button>
+        <button onClick={handleFitToScreen} className="text-stone-300 text-[10px] px-1.5 py-0.5 hover:bg-stone-700 rounded">fit</button>
+        <span className="text-stone-400 text-[10px] w-8 text-center tabular-nums">{Math.round(zoom * 100)}%</span>
+        <button onClick={() => setZoom((z) => clampZoom(z + 0.1))} className="text-white w-6 h-6 flex items-center justify-center hover:bg-stone-700 rounded font-bold text-base">+</button>
       </div>
 
       {/* ── Fixed player HUD ── */}
