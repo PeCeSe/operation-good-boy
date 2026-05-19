@@ -18,7 +18,7 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
   };
 
   return (
-    <div className="flex-shrink-0 bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden" style={{ width: 213 }}>
+    <div className="flex-shrink-0 bg-white border border-stone-200 rounded-xl shadow-sm overflow-hidden" style={{ width: 286 }}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-stone-100 border-b border-stone-200">
         <span className="text-xs font-bold text-stone-500 uppercase tracking-widest">

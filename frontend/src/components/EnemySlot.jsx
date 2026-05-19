@@ -25,7 +25,7 @@ export default function EnemySlot({ enemy }) {
   const damageTokens = enemy.damageTokens ?? [];
 
   return (
-    <div ref={setNodeRef} className="flex flex-col gap-2" style={{ width: 213 }}>
+    <div ref={setNodeRef} className="flex flex-col gap-2" style={{ width: 286 }}>
       <EnemyComponent enemy={enemy} isOver={isOver} />
 
       {/* Token drop area below enemy card */}

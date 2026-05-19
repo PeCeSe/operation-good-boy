@@ -38,10 +38,10 @@ function EnemyDeckPile({ count }) {
 
 function EmptyEnemySlot() {
   return (
-    <div className="flex flex-col gap-2" style={{ width: 213 }}>
+    <div className="flex flex-col gap-2" style={{ width: 286 }}>
       <div
         className="bg-stone-300/30 rounded-xl border-2 border-dashed border-stone-400/40 flex items-center justify-center"
-        style={{ height: 286 }}
+        style={{ height: 213 }}
       >
         <span className="text-stone-400/50 text-sm select-none">—</span>
       </div>
@@ -232,7 +232,7 @@ export default function Game({ gameState, mySocketId }) {
           </div>
 
           {/* ── Events (right of location) ── */}
-          <div style={{ position: "absolute", top: 60, left: 280, zIndex: 1 }}>
+          <div style={{ position: "absolute", top: 60, left: 360, zIndex: 1 }}>
             <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-2">
               Events
             </div>
@@ -244,7 +244,7 @@ export default function Game({ gameState, mySocketId }) {
           </div>
 
           {/* ── Enemy deck (below location) ── */}
-          <div style={{ position: "absolute", top: 330, left: 40, zIndex: 1 }}>
+          <div style={{ position: "absolute", top: 310, left: 40, zIndex: 1 }}>
             <EnemyDeckPile count={enemyDeck?.length ?? 0} />
           </div>
 
@@ -252,10 +252,10 @@ export default function Game({ gameState, mySocketId }) {
           <div
             style={{
               position: "absolute",
-              top: 510,
+              top: 430,
               left: 40,
               display: "flex",
-              gap: 24,
+              gap: 16,
               zIndex: 1,
             }}
           >
@@ -278,7 +278,7 @@ export default function Game({ gameState, mySocketId }) {
             style={{
               position: "absolute",
               top: 30,
-              left: 880,
+              left: 980,
               width: 2,
               height: BOARD_H - 60,
               background: "rgba(101, 67, 10, 0.35)",
@@ -291,17 +291,17 @@ export default function Game({ gameState, mySocketId }) {
           ══════════════════════════════════ */}
 
           {/* ── Shop deck pile ── */}
-          <div style={{ position: "absolute", top: 60, left: 910, zIndex: 1 }}>
+          <div style={{ position: "absolute", top: 60, left: 1010, zIndex: 1 }}>
             <ShopDeckPile count={shopDeck?.length ?? 0} />
           </div>
 
           {/* ── Payment zone ── */}
-          <div style={{ position: "absolute", top: 60, left: 1060, zIndex: 1, width: 320 }}>
+          <div style={{ position: "absolute", top: 60, left: 1130, zIndex: 1, width: 300 }}>
             <PaymentZonePanel paymentZone={paymentZone} />
           </div>
 
           {/* ── Shop cards (2-column grid) ── */}
-          <div style={{ position: "absolute", top: 240, left: 910, zIndex: 1, width: 376 }}>
+          <div style={{ position: "absolute", top: 240, left: 1010, zIndex: 1, width: 376 }}>
             <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-3">
               Shop
             </div>
@@ -316,7 +316,7 @@ export default function Game({ gameState, mySocketId }) {
           </div>
 
           {/* ── Game log (bottom-right) ── */}
-          <div style={{ position: "absolute", bottom: 30, left: 1390, width: 280, zIndex: 1 }}>
+          <div style={{ position: "absolute", bottom: 30, left: 1410, width: 270, zIndex: 1 }}>
             <GameLog log={log} />
           </div>
         </div>
@@ -338,8 +338,8 @@ export default function Game({ gameState, mySocketId }) {
           <DragChip attackType={activeDrag.attackType} />
         )}
         {activeDrag?.draggableType === "event_card" && (
-          <div className="w-36 h-8 bg-violet-800 rounded-lg flex items-center justify-center shadow-xl pointer-events-none">
-            <span className="text-white text-xs font-bold">🎴 Event</span>
+          <div className="w-16 h-16 bg-violet-800 rounded-lg flex items-center justify-center shadow-xl pointer-events-none">
+            <span className="text-white text-xl">🎴</span>
           </div>
         )}
       </DragOverlay>
