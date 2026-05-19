@@ -27,30 +27,38 @@ function ActiveEventCard({ event }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`flex-shrink-0 bg-violet-50 border-2 border-violet-300 rounded-xl overflow-hidden flex flex-col select-none transition-opacity cursor-grab active:cursor-grabbing ${
-        isDragging ? "opacity-30" : "shadow-sm hover:shadow-md"
+      className={`flex-shrink-0 bg-stone-900 border-2 border-stone-600 rounded-xl overflow-hidden flex flex-col select-none transition-opacity cursor-grab active:cursor-grabbing ${
+        isDragging ? "opacity-30" : "shadow-md hover:shadow-lg"
       }`}
       style={{ width: 213, height: 213 }}
     >
-      <div className="bg-violet-800 px-2 py-1.5">
-        <div className="text-[9px] uppercase tracking-widest text-violet-300 font-bold">Event</div>
-        <div className="text-white font-bold text-xs leading-tight">{event.name}</div>
+      {/* Header */}
+      <div className="px-3 py-1.5 flex items-center gap-2 shrink-0 bg-stone-900">
+        <div className="w-6 h-6 rounded-full bg-stone-700 border border-stone-500 flex items-center justify-center text-xs shrink-0">😾</div>
+        <div className="text-[10px] font-bold tracking-widest text-amber-400 uppercase">Stupid Hooman</div>
       </div>
-      <div className="px-2 py-2 flex-1">
-        {lines.map((line, i) => (
-          <div key={i} className="text-xs text-violet-800 font-semibold leading-snug">{line}</div>
-        ))}
-        {lines.length === 0 && (
-          <div className="text-xs text-violet-400 italic">No effect</div>
-        )}
+
+      {/* Illustration */}
+      <div className="relative flex-1 min-h-0 bg-gradient-to-b from-stone-700 to-stone-800 flex items-center justify-center overflow-hidden">
+        {event.image
+          ? <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
+          : <span className="text-5xl opacity-40">🐾</span>
+        }
       </div>
-      {event.flavorText && (
-        <div className="px-2 pb-2 text-[10px] italic text-violet-400 leading-snug">
-          "{event.flavorText}"
+
+      {/* Bottom text block */}
+      <div className="shrink-0 bg-stone-100" style={{ minHeight: 72 }}>
+        <div className="flex items-center gap-1.5 px-3 pt-1.5">
+          <div className="h-px flex-1 bg-stone-400" />
+          <span className="text-[8px] font-bold tracking-widest text-stone-500 uppercase">Event</span>
+          <div className="h-px flex-1 bg-stone-400" />
         </div>
-      )}
-      <div className="bg-violet-100 px-2 py-1 text-[9px] text-violet-400 text-center">
-        drag to discard →
+        <div className="px-3 pb-2 pt-0.5">
+          <div className="font-bold text-xs text-stone-800 leading-tight">{event.name}</div>
+          <div className="text-[10px] text-stone-600 leading-snug mt-0.5 line-clamp-2">
+            {lines.join(" · ") || (event.flavorText ? `"${event.flavorText}"` : "No effect")}
+          </div>
+        </div>
       </div>
     </div>
   );

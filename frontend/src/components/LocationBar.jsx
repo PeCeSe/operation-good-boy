@@ -82,9 +82,7 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
               onClick={() => handleSlotClick(i)}
               className={`w-5 h-5 rounded-full border-2 transition-all hover:scale-110 ${
                 i < currentCucumbers
-                  ? isAlmostFull
-                    ? "bg-red-400 border-red-300"
-                    : "bg-green-400 border-green-300"
+                  ? "bg-green-400 border-green-300"
                   : "bg-stone-600 border-stone-500 hover:border-green-400"
               }`}
             />
