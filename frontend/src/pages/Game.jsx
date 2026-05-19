@@ -10,8 +10,8 @@ import TokenPool, { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import socket from "../socket";
 
-const BOARD_W = 1420;
-const BOARD_H = 940;
+const BOARD_W = 1600;
+const BOARD_H = 1300;
 
 function DragChip({ attackType }) {
   const cfg = ATTACK_CONFIG[attackType] ?? ATTACK_CONFIG.scratch;
