@@ -58,7 +58,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       onClick={onClick}
       disabled={!isPlayable || isPlaying}
       title={card.flavorText}
-      style={{ width: 176, height: 249 }}
+      style={{ width: 176, height: 258 }}
       className={`
         flex-shrink-0 flex flex-col rounded-xl border-2 overflow-hidden shadow-md
         bg-amber-50 text-left select-none
@@ -80,7 +80,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* Illustration */}
-      <div className={`mx-1.5 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${cfg.image} ${card.image ? "" : "text-4xl"}`} style={{ height: 100 }}>
+      <div className={`mx-1.5 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${cfg.image} ${card.image ? "" : "text-4xl"}`} style={{ aspectRatio: "3/2" }}>
         {card.image
           ? <img src={card.image} alt={card.name} className="w-full h-full object-contain" />
           : cfg.emoji
