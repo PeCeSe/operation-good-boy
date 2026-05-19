@@ -31,8 +31,8 @@ export default function App() {
 
     socket.on("connect", () => setMySocketId(socket.id));
 
-    socket.on("room_created", ({ code }) => navigateRef.current(`/room/${code}`));
-    socket.on("room_joined", ({ code }) => { setNeedsPassword(false); navigateRef.current(`/room/${code}`); });
+    socket.on("room_created", ({ code }) => { setGameState(null); navigateRef.current(`/room/${code}`); });
+    socket.on("room_joined", ({ code }) => { setGameState(null); setNeedsPassword(false); navigateRef.current(`/room/${code}`); });
     socket.on("room_requires_password", () => setNeedsPassword(true));
 
     socket.on("room_update", (lobby) => {
