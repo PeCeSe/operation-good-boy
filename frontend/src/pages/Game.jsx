@@ -10,7 +10,7 @@ import TokenPool, { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import socket from "../socket";
 
-const BOARD_W = 1600;
+const BOARD_W = 1700;
 const BOARD_H = 1300;
 
 function DragChip({ attackType }) {
@@ -38,10 +38,10 @@ function EnemyDeckPile({ count }) {
 
 function EmptyEnemySlot() {
   return (
-    <div className="flex flex-col gap-2" style={{ width: 210 }}>
+    <div className="flex flex-col gap-2" style={{ width: 240 }}>
       <div
         className="bg-stone-300/30 rounded-xl border-2 border-dashed border-stone-400/40 flex items-center justify-center"
-        style={{ height: 260 }}
+        style={{ height: 310 }}
       >
         <span className="text-stone-400/50 text-sm select-none">—</span>
       </div>
@@ -301,7 +301,7 @@ export default function Game({ gameState, mySocketId }) {
           </div>
 
           {/* ── Shop cards (2-column grid) ── */}
-          <div style={{ position: "absolute", top: 240, left: 910, zIndex: 1, width: 360 }}>
+          <div style={{ position: "absolute", top: 240, left: 910, zIndex: 1, width: 420 }}>
             <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-3">
               Shop
             </div>
@@ -316,7 +316,7 @@ export default function Game({ gameState, mySocketId }) {
           </div>
 
           {/* ── Game log (bottom-right) ── */}
-          <div style={{ position: "absolute", bottom: 30, right: 30, width: 280, zIndex: 1 }}>
+          <div style={{ position: "absolute", bottom: 30, left: 1390, width: 280, zIndex: 1 }}>
             <GameLog log={log} />
           </div>
         </div>

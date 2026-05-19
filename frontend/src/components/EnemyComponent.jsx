@@ -43,29 +43,29 @@ export default function EnemyComponent({ enemy, isOver = false, showControls = t
         <div className="text-white font-bold text-sm leading-tight">{enemy.name}</div>
       </div>
 
-      <div className="h-24 bg-gradient-to-b from-stone-200 to-stone-300 flex items-center justify-center text-5xl">
+      <div className="h-40 bg-gradient-to-b from-stone-200 to-stone-300 flex items-center justify-center text-7xl">
         {enemy.emoji || "👾"}
       </div>
 
-      <div className="px-2 pt-1.5 pb-1 flex-1">
+      <div className="px-3 pt-2 pb-1 flex-1">
         {enemy.ability && (
-          <div className="text-[10px] text-stone-700 leading-snug">{enemy.ability.description}</div>
+          <div className="text-xs text-stone-700 leading-snug">{enemy.ability.description}</div>
         )}
         {enemy.flavorText && (
-          <div className="mt-1 text-[9px] italic text-stone-400 leading-snug">
+          <div className="mt-1.5 text-[10px] italic text-stone-400 leading-snug">
             "{enemy.flavorText}"
           </div>
         )}
       </div>
 
       <div className="mx-2 border-t-2 border-stone-600 mt-1" />
-      <div className="px-2 py-1.5 bg-stone-200">
+      <div className="px-3 py-2 bg-stone-200">
         <div className="text-[9px] font-bold tracking-widest text-stone-500 uppercase mb-0.5">Reward</div>
-        <div className="text-[10px] text-stone-700 leading-snug">{enemy.reward?.description}</div>
+        <div className="text-xs text-stone-700 leading-snug">{enemy.reward?.description}</div>
       </div>
 
       {((enemy.weakTo?.length > 0) || (enemy.resistantTo?.length > 0)) && (
-        <div className="px-2 py-1.5 bg-white border-t border-stone-200 flex flex-wrap gap-1">
+        <div className="px-3 py-2 bg-white border-t border-stone-200 flex flex-wrap gap-1">
           {enemy.weakTo?.map((t) => <TypePill key={`w-${t}`} label={t} type="weak" />)}
           {enemy.resistantTo?.map((t) => <TypePill key={`r-${t}`} label={t} type="resist" />)}
         </div>
