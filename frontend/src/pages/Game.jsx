@@ -386,7 +386,7 @@ export default function Game({ gameState, mySocketId }) {
 
 // ── Inline sub-components ─────────────────────────────────────────────────────
 
-import { useState as usePaymentState, useEffect } from "react";
+import { useState as usePaymentState } from "react";
 import CardComponent from "../components/CardComponent";
 import PawCoin from "../components/PawCoin";
 
