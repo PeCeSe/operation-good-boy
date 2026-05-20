@@ -203,10 +203,6 @@ function buyCard(state, playerId, cardId) {
   const paid = state.paymentZone.tokens;
   state.paymentZone = { playerId: null, tokens: 0, lastPurchase: { cardName: card.name, paid } };
   log(state, `${p.name} bought ${card.name} (paid ${paid} 🪙).`);
-
-  while (state.shop.length < 6 && state.shopDeck.length > 0) {
-    state.shop.push(state.shopDeck.shift());
-  }
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
