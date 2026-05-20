@@ -30,7 +30,7 @@ function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position }) {
+function DraggableHandCard({ card, position, isTop, onBringToFront }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -38,25 +38,24 @@ function DraggableHandCard({ card, position }) {
 
   return (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
+      onPointerDown={() => onBringToFront(card.id)}
       style={{
         position: "absolute",
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
-        zIndex: isDragging ? 100 : 2,
+        zIndex: isDragging ? 100 : isTop ? 10 : 2,
         opacity: isDragging ? 0.4 : 1,
         touchAction: "none",
-        cursor: isDragging ? "grabbing" : "grab",
       }}
     >
-      <CardComponent card={card} isPlayable={true} />
+      <div ref={setNodeRef} {...listeners} {...attributes} style={{ cursor: isDragging ? "grabbing" : "grab" }}>
+        <CardComponent card={card} isPlayable={true} />
+      </div>
     </div>
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, isMe }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, topCardId, onBringToFront, isMe }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -122,6 +121,8 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, i
             key={card.id}
             card={card}
             position={cardPositions[card.id] ?? { x: 0, y: 0 }}
+            isTop={card.id === topCardId}
+            onBringToFront={onBringToFront}
           />
         ))}
       </div>
@@ -219,6 +220,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, i
 
 function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   const [cardPositions, setCardPositions] = useState({});
+  const [topCardId, setTopCardId] = useState(null);
 
   const handKey = (hand || []).map((c) => c.id).join(",");
   useEffect(() => {
@@ -248,6 +250,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
     } else if (over?.id === "inner_discard_pile") {
       socket.emit("discard_card", { cardId });
     } else {
+      setTopCardId(cardId);
       setCardPositions((prev) => ({
         ...prev,
         [cardId]: {
@@ -266,6 +269,8 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
         discardPile={discardPile}
         peekCard={peekCard}
         cardPositions={cardPositions}
+        topCardId={topCardId}
+        onBringToFront={setTopCardId}
         isMe={isMe}
       />
     </DndContext>
