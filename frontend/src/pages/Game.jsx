@@ -366,10 +366,20 @@ export default function Game({ gameState, mySocketId }) {
               Shop
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {(shop ?? []).map((card) => (
-                <ShopCard key={card.id} card={card} />
-              ))}
-              {(shop ?? []).length === 0 && (
+              {(shop ?? []).map((card, i) =>
+                card ? (
+                  <ShopCard key={card.id} card={card} />
+                ) : (
+                  <div
+                    key={`empty-${i}`}
+                    className="rounded-xl border-2 border-dashed border-stone-300 bg-stone-100/40 flex items-center justify-center text-stone-300 text-sm select-none"
+                    style={{ width: 176, height: 258 }}
+                  >
+                    Sold
+                  </div>
+                )
+              )}
+              {(shop ?? []).filter(Boolean).length === 0 && (
                 <p className="text-stone-400 text-sm italic col-span-2">Shop is empty.</p>
               )}
             </div>
