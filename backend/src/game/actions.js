@@ -195,9 +195,10 @@ function clearPayment(state) {
 function buyCard(state, playerId, cardId) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
-  const idx = state.shop.findIndex((c) => c.id === cardId);
+  const idx = state.shop.findIndex((c) => c && c.id === cardId);
   if (idx === -1) return;
-  const card = state.shop.splice(idx, 1)[0];
+  const card = state.shop[idx];
+  state.shop[idx] = null;
   p.discardPile.push(card);
 
   const paid = state.paymentZone.tokens;
@@ -272,7 +273,8 @@ function endTurn(state, playerId) {
     p.hand.push(p.drawPile.shift());
   }
 
-  // Refill shop
+  // Refill shop: compact nulls then fill to 6
+  state.shop = state.shop.filter(Boolean);
   while (state.shop.length < 6 && state.shopDeck.length > 0) {
     state.shop.push(state.shopDeck.shift());
   }

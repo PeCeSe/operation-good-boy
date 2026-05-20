@@ -69,16 +69,26 @@ export default function ShopRow({ shop, shopDeck, paymentZone, isMyTurn, myPlaye
 
       {/* Shop cards */}
       <div className="flex gap-2 flex-wrap">
-        {shop?.map((card) => (
-          <CardComponent
-            key={card.id}
-            card={card}
-            showCost
-            isPlayable={true}
-            onClick={() => handleBuy(card.id)}
-          />
-        ))}
-        {(!shop || shop.length === 0) && (
+        {shop?.map((card, i) =>
+          card ? (
+            <CardComponent
+              key={card.id}
+              card={card}
+              showCost
+              isPlayable={true}
+              onClick={() => handleBuy(card.id)}
+            />
+          ) : (
+            <div
+              key={`empty-${i}`}
+              className="rounded-xl border-2 border-dashed border-stone-300 bg-stone-100/60 flex items-center justify-center text-stone-300 text-sm select-none"
+              style={{ width: 176, height: 258 }}
+            >
+              Sold
+            </div>
+          )
+        )}
+        {(!shop || shop.filter(Boolean).length === 0) && (
           <p className="text-stone-400 text-sm italic">Shop is empty.</p>
         )}
       </div>
