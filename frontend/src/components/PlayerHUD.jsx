@@ -100,7 +100,7 @@ export default function PlayerHUD({
 
       {/* Player board */}
       {isOpen && me && (
-        <div className="overflow-y-auto" style={{ maxHeight: 300 }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 480 }}>
           <PlayerBoard
             player={me}
             isMe={true}

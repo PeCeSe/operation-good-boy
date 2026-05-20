@@ -235,7 +235,7 @@ export default function Game({ gameState, mySocketId }) {
           bottom: 0,
           overflow: "auto",
           scrollbarWidth: "none",
-          paddingBottom: 340,
+          paddingBottom: 560,
           display: "flex",
         }}
       >

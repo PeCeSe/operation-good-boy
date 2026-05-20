@@ -168,6 +168,16 @@ function shuffleDiscard(state, playerId) {
   log(state, `${p.name} shuffled their discard pile into their draw pile.`);
 }
 
+function returnCardToDeck(state, playerId, cardId) {
+  const p = state.players.find((p) => p.playerId === playerId);
+  if (!p) return;
+  const idx = p.hand.findIndex((c) => c.id === cardId);
+  if (idx === -1) return;
+  const [card] = p.hand.splice(idx, 1);
+  p.drawPile.unshift(card);
+  log(state, `${p.name} returned a card to the top of their draw pile.`);
+}
+
 // ── Shop & payment ────────────────────────────────────────────────────────────
 
 function placePayment(state, playerId, tokens) {
@@ -285,7 +295,7 @@ module.exports = {
   setLives, toggleStun, setPawTokens,
   addAttackToken, moveTokenToEnemy, removeDamageToken,
   drawCard, peekDrawTop, peekToHand, peekToTop, peekToDiscard,
-  playCard, discardCard, retrieveFromDiscard, shuffleDiscard,
+  playCard, discardCard, retrieveFromDiscard, shuffleDiscard, returnCardToDeck,
   placePayment, clearPayment, buyCard,
   drawOneEvent, discardEvent,
   defeatEnemy,

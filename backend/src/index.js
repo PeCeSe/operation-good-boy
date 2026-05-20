@@ -203,6 +203,13 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("return_card_to_deck", ({ cardId } = {}) => {
+    withGame(socket, (gs) => {
+      const playerId = getPlayerId(gs, socket.id);
+      if (playerId && cardId) actions.returnCardToDeck(gs, playerId, cardId);
+    });
+  });
+
   // ── Shop & payment ──────────────────────────────────────────────────────────
 
   socket.on("place_payment", ({ tokens } = {}) => {
