@@ -68,19 +68,56 @@ export default function Game({ gameState, mySocketId }) {
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
   const [activeDrag, setActiveDrag] = useState(null);
   const [zoom, setZoom] = useState(1);
+  const zoomRef = useRef(zoom);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
 
   const clampZoom = (z) => Math.max(0.25, Math.min(2, z));
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+
+    // Desktop: ctrl+scroll
     const onWheel = (e) => {
       if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
       setZoom((z) => clampZoom(z + (e.deltaY < 0 ? 0.05 : -0.05)));
     };
+
+    // Mobile: pinch-to-zoom
+    const pinch = { active: false, dist: 0, zoom: 1 };
+    const getDist = (t) => {
+      const dx = t[0].clientX - t[1].clientX;
+      const dy = t[0].clientY - t[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+    const onTouchStart = (e) => {
+      if (e.touches.length === 2) {
+        pinch.active = true;
+        pinch.dist = getDist(e.touches);
+        pinch.zoom = zoomRef.current;
+      } else {
+        pinch.active = false;
+      }
+    };
+    const onTouchMove = (e) => {
+      if (e.touches.length === 2 && pinch.active) {
+        e.preventDefault();
+        setZoom(clampZoom(pinch.zoom * (getDist(e.touches) / pinch.dist)));
+      }
+    };
+    const onTouchEnd = () => { pinch.active = false; };
+
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
   }, []);
 
   const sensors = useSensors(
