@@ -72,7 +72,8 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, i
   };
 
   return (
-    <div className="flex gap-3 px-4 py-3 bg-stone-50 border-t border-stone-200">
+    <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+    <div className="flex gap-3 px-4 py-3 bg-stone-50 border-t border-stone-200" style={{ minWidth: 680 }}>
       {/* ── Draw Pile ── */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
         <div className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Draw</div>
@@ -224,6 +225,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, i
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }
