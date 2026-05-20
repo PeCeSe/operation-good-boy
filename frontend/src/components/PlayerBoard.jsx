@@ -73,7 +73,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, i
 
   return (
     <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-    <div className="flex gap-3 px-4 py-3 bg-stone-50 border-t border-stone-200" style={{ minWidth: 680 }}>
+    <div className="flex gap-3 px-4 py-3 bg-stone-50 border-t border-stone-200" style={{ minWidth: 900 }}>
       {/* ── Draw Pile ── */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
         <div className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Draw</div>
@@ -97,26 +97,13 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, i
             )}
           </button>
         </div>
-        {isMe && (
-          <div className="flex flex-col items-center gap-1">
-            {drawCount === 0 && discardCount > 0 && (
-              <button
-                onClick={() => socket.emit("shuffle_discard")}
-                className="text-[10px] bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-700 rounded-lg px-2 py-1 transition-colors"
-              >
-                Shuffle ↺
-              </button>
-            )}
-            {drawCount > 0 && (
-              <button
-                onClick={() => socket.emit("peek_draw_top")}
-                disabled={!!peekCard}
-                className="text-[10px] bg-stone-100 hover:bg-stone-200 border border-stone-200 text-stone-500 rounded-lg px-2 py-1 disabled:opacity-40 transition-colors"
-              >
-                Peek 👁
-              </button>
-            )}
-          </div>
+        {isMe && drawCount === 0 && discardCount > 0 && (
+          <button
+            onClick={() => socket.emit("shuffle_discard")}
+            className="text-[10px] bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-700 rounded-lg px-2 py-1 transition-colors"
+          >
+            Shuffle ↺
+          </button>
         )}
         {!isMe && (
           <span className="text-[10px] text-stone-400">{drawCount} cards</span>
@@ -124,7 +111,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, i
       </div>
 
       {/* ── Hand Canvas ── */}
-      <div className="flex-1 relative" style={{ minHeight: 258 }}>
+      <div className="flex-1 relative" style={{ minHeight: 320 }}>
         {isMe && hand?.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-stone-300 text-sm italic select-none pointer-events-none">
             No cards in hand
