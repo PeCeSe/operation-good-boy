@@ -14,39 +14,25 @@ function effectLines(effect) {
   return lines;
 }
 
-function ActiveEventCard({ event }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `event_${event.id}`,
-    data: { draggableType: "event_card", eventId: event.id },
-  });
-
+export function EventCardDisplay({ event, isDragging = false }) {
   const lines = effectLines(event.effect);
-
   return (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      className={`flex-shrink-0 bg-stone-900 border-2 border-stone-600 rounded-xl overflow-hidden flex flex-col select-none transition-opacity cursor-grab active:cursor-grabbing ${
-        isDragging ? "opacity-30" : "shadow-md hover:shadow-lg"
+      className={`flex-shrink-0 bg-stone-900 border-2 border-stone-600 rounded-xl overflow-hidden flex flex-col select-none transition-opacity ${
+        isDragging ? "opacity-30" : "shadow-md"
       }`}
-      style={{ width: 213, height: 213, touchAction: "none" }}
+      style={{ width: 213, height: 213 }}
     >
-      {/* Header */}
       <div className="px-3 py-1.5 flex items-center gap-2 shrink-0 bg-stone-900">
         <div className="w-6 h-6 rounded-full bg-stone-700 border border-stone-500 flex items-center justify-center text-xs shrink-0">😾</div>
         <div className="text-[10px] font-bold tracking-widest text-amber-400 uppercase">Stupid Hooman</div>
       </div>
-
-      {/* Illustration */}
       <div className="relative flex-1 min-h-0 bg-gradient-to-b from-stone-700 to-stone-800 flex items-center justify-center overflow-hidden">
         {event.image
           ? <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
           : <span className="text-5xl opacity-40">🐾</span>
         }
       </div>
-
-      {/* Bottom text block */}
       <div className="shrink-0 bg-stone-100" style={{ minHeight: 72 }}>
         <div className="flex items-center gap-1.5 px-3 pt-1.5">
           <div className="h-px flex-1 bg-stone-400" />
@@ -60,6 +46,25 @@ function ActiveEventCard({ event }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ActiveEventCard({ event }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `event_${event.id}`,
+    data: { draggableType: "event_card", eventId: event.id },
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className="cursor-grab active:cursor-grabbing"
+      style={{ touchAction: "none" }}
+    >
+      <EventCardDisplay event={event} isDragging={isDragging} />
     </div>
   );
 }

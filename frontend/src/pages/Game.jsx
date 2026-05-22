@@ -4,7 +4,7 @@ import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSens
 import LocationBar from "../components/LocationBar";
 import EnemySlot from "../components/EnemySlot";
 import ShopRow from "../components/ShopRow";
-import EventDeck from "../components/EventDeck";
+import EventDeck, { EventCardDisplay } from "../components/EventDeck";
 import GameLog from "../components/GameLog";
 import TokenPool, { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
@@ -408,11 +408,14 @@ export default function Game({ gameState, mySocketId }) {
           activeDrag?.draggableType === "staging_token") && (
           <DragChip attackType={activeDrag.attackType} />
         )}
-        {activeDrag?.draggableType === "event_card" && (
-          <div className="w-16 h-16 bg-violet-800 rounded-lg flex items-center justify-center shadow-xl pointer-events-none">
-            <span className="text-white text-xl">🎴</span>
-          </div>
-        )}
+        {activeDrag?.draggableType === "event_card" && (() => {
+          const event = (activeEvents ?? []).find((e) => e.id === activeDrag.eventId);
+          return event ? <EventCardDisplay event={event} /> : (
+            <div className="w-16 h-16 bg-violet-800 rounded-lg flex items-center justify-center shadow-xl pointer-events-none">
+              <span className="text-white text-xl">🎴</span>
+            </div>
+          );
+        })()}
       </DragOverlay>
     </DndContext>
   );
