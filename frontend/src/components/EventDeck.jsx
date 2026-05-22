@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import socket from "../socket";
 
@@ -71,40 +72,61 @@ function ActiveEventCard({ event }) {
 
 function DiscardZone({ count, eventDiscard }) {
   const { setNodeRef, isOver } = useDroppable({ id: "event_discard" });
+  const [showBrowse, setShowBrowse] = useState(false);
   const topEvent = eventDiscard?.[count - 1] ?? null;
 
   return (
-    <div
-      ref={setNodeRef}
-      className={`relative flex-shrink-0 rounded-xl transition-all ${isOver ? "ring-2 ring-violet-400 ring-offset-1" : ""}`}
-      style={{ width: 213, height: 213 }}
-    >
-      {/* Stack illusion */}
-      {count > 2 && <div className="absolute rounded-xl border-2 border-stone-300 bg-stone-200" style={{ width: 213, height: 213, top: 6, left: 6 }} />}
-      {count > 1 && <div className="absolute rounded-xl border-2 border-stone-300 bg-stone-200" style={{ width: 213, height: 213, top: 3, left: 3 }} />}
-      <div className="absolute top-0 left-0" style={{ zIndex: 2 }}>
-        {topEvent ? (
-          <EventCardDisplay event={topEvent} />
-        ) : (
-          <div
-            className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
-              isOver ? "border-violet-400 bg-violet-50" : "border-stone-300 bg-stone-50"
-            }`}
-            style={{ width: 213, height: 213 }}
-          >
-            <span className="text-3xl opacity-30">🎴</span>
-            <span className={`text-[9px] font-bold uppercase tracking-wide ${isOver ? "text-violet-500" : "text-stone-400"}`}>
-              {isOver ? "Drop!" : "Discard"}
-            </span>
+    <>
+      <div
+        ref={setNodeRef}
+        onClick={() => count > 0 && setShowBrowse(true)}
+        className={`relative flex-shrink-0 rounded-xl transition-all ${isOver ? "ring-2 ring-violet-400 ring-offset-1" : ""} ${count > 0 ? "cursor-pointer hover:opacity-90" : "cursor-default"}`}
+        style={{ width: 213, height: 213 }}
+      >
+        {count > 2 && <div className="absolute rounded-xl border-2 border-stone-300 bg-stone-200" style={{ width: 213, height: 213, top: 6, left: 6 }} />}
+        {count > 1 && <div className="absolute rounded-xl border-2 border-stone-300 bg-stone-200" style={{ width: 213, height: 213, top: 3, left: 3 }} />}
+        <div className="absolute top-0 left-0" style={{ zIndex: 2 }}>
+          {topEvent ? (
+            <EventCardDisplay event={topEvent} />
+          ) : (
+            <div
+              className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
+                isOver ? "border-violet-400 bg-violet-50" : "border-stone-300 bg-stone-50"
+              }`}
+              style={{ width: 213, height: 213 }}
+            >
+              <span className="text-3xl opacity-30">🎴</span>
+              <span className={`text-[9px] font-bold uppercase tracking-wide ${isOver ? "text-violet-500" : "text-stone-400"}`}>
+                {isOver ? "Drop!" : "Discard"}
+              </span>
+            </div>
+          )}
+        </div>
+        {count > 0 && (
+          <div className="absolute top-2 right-2 bg-stone-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
+            {count}
           </div>
         )}
       </div>
-      {count > 0 && (
-        <div className="absolute top-2 right-2 bg-stone-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
-          {count}
+
+      {showBrowse && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60" onClick={() => setShowBrowse(false)}>
+          <div className="bg-white rounded-xl p-4 shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-bold text-stone-700">Event Discard ({count} cards)</div>
+              <button onClick={() => setShowBrowse(false)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">✕</button>
+            </div>
+            <div className="overflow-y-auto flex-1">
+              <div className="flex flex-wrap gap-2">
+                {[...eventDiscard].reverse().map((event) => (
+                  <EventCardDisplay key={event.id} event={event} />
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
