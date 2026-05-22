@@ -69,24 +69,40 @@ function ActiveEventCard({ event }) {
   );
 }
 
-function DiscardZone({ count }) {
+function DiscardZone({ count, eventDiscard }) {
   const { setNodeRef, isOver } = useDroppable({ id: "event_discard" });
+  const topEvent = eventDiscard?.[count - 1] ?? null;
 
   return (
     <div
       ref={setNodeRef}
-      className={`w-20 h-20 flex-shrink-0 rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-all ${
-        isOver
-          ? "border-violet-500 bg-violet-100 scale-105"
-          : "border-stone-200 bg-stone-50"
-      }`}
+      className={`relative flex-shrink-0 rounded-xl transition-all ${isOver ? "ring-2 ring-violet-400 ring-offset-1" : ""}`}
+      style={{ width: 213, height: 213 }}
     >
-      <div className="text-lg">{count > 0 ? "🎴" : "🂠"}</div>
-      <div className={`text-[9px] font-bold text-center leading-tight ${isOver ? "text-violet-500" : "text-stone-400"}`}>
-        {isOver ? "Drop!" : "Discard"}
+      {/* Stack illusion */}
+      {count > 2 && <div className="absolute rounded-xl border-2 border-stone-300 bg-stone-200" style={{ width: 213, height: 213, top: 6, left: 6 }} />}
+      {count > 1 && <div className="absolute rounded-xl border-2 border-stone-300 bg-stone-200" style={{ width: 213, height: 213, top: 3, left: 3 }} />}
+      <div className="absolute top-0 left-0" style={{ zIndex: 2 }}>
+        {topEvent ? (
+          <EventCardDisplay event={topEvent} />
+        ) : (
+          <div
+            className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
+              isOver ? "border-violet-400 bg-violet-50" : "border-stone-300 bg-stone-50"
+            }`}
+            style={{ width: 213, height: 213 }}
+          >
+            <span className="text-3xl opacity-30">🎴</span>
+            <span className={`text-[9px] font-bold uppercase tracking-wide ${isOver ? "text-violet-500" : "text-stone-400"}`}>
+              {isOver ? "Drop!" : "Discard"}
+            </span>
+          </div>
+        )}
       </div>
       {count > 0 && (
-        <div className="text-[9px] text-stone-400">{count}</div>
+        <div className="absolute top-2 right-2 bg-stone-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
+          {count}
+        </div>
       )}
     </div>
   );
@@ -103,27 +119,24 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
   return (
     <div className="flex items-start gap-2 flex-wrap">
       {/* Draw pile */}
-      <div
+      <button
         onClick={handleDraw}
-        className={`w-20 h-20 flex-shrink-0 rounded-xl border-2 flex flex-col items-center justify-center gap-1 transition-all ${
+        disabled={deckCount === 0}
+        className={`relative flex-shrink-0 rounded-xl border-2 flex items-center justify-center select-none transition-all ${
           deckCount > 0
-            ? "border-violet-400 bg-violet-50 cursor-pointer hover:bg-violet-100 hover:shadow-md active:scale-95"
-            : "border-stone-200 bg-stone-50 cursor-default"
+            ? "border-violet-400 bg-violet-800 hover:bg-violet-700 cursor-pointer active:scale-95"
+            : "border-stone-300 bg-stone-200 cursor-default opacity-60"
         }`}
+        style={{ width: 213, height: 213 }}
+        title={deckCount > 0 ? "Draw an event" : "Event deck empty"}
       >
-        {deckCount > 0 ? (
-          <>
-            <div className="text-xl">🎴</div>
-            <div className="text-[9px] text-violet-600 font-bold uppercase tracking-wide">Events</div>
-            <div className="text-sm font-bold text-violet-700">{deckCount}</div>
-          </>
-        ) : (
-          <>
-            <div className="text-xl opacity-30">🎴</div>
-            <div className="text-[9px] text-stone-300 text-center">Empty</div>
-          </>
+        <span className="text-6xl opacity-70">🎴</span>
+        {deckCount > 0 && (
+          <span className="absolute top-2 right-2 bg-stone-900 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
+            {deckCount}
+          </span>
         )}
-      </div>
+      </button>
 
       {/* Face-up active events */}
       {(activeEvents ?? []).map((event) => (
@@ -131,7 +144,7 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
       ))}
 
       {/* Discard pile drop zone */}
-      <DiscardZone count={discardCount} />
+      <DiscardZone count={discardCount} eventDiscard={eventDiscard} />
     </div>
   );
 }
