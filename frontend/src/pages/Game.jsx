@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable } from "@dnd-kit/core";
+import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable } from "@dnd-kit/core";
 import LocationBar from "../components/LocationBar";
 import EnemySlot from "../components/EnemySlot";
 import { EnemyCardDisplay } from "../components/EnemyComponent";
@@ -26,19 +26,28 @@ function DragChip({ attackType }) {
 }
 
 function EnemyDrawPile({ count, canDraw }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: "enemy_deck_draw",
+    data: { draggableType: "enemy_deck_draw" },
+    disabled: !canDraw,
+  });
+
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold">Villain Deck</div>
       <button
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
         onClick={() => canDraw && socket.emit("draw_enemy")}
         disabled={!canDraw}
         className={`relative rounded-xl border-2 flex items-center justify-center select-none transition-all ${
           canDraw
             ? "border-stone-900 bg-stone-700 hover:bg-stone-600 cursor-pointer active:scale-95"
             : "border-stone-400 bg-stone-300 cursor-default opacity-60"
-        }`}
-        style={{ width: 286, height: 213 }}
-        title={canDraw ? "Draw a villain" : count === 0 ? "Deck empty" : "All slots full"}
+        } ${isDragging ? "opacity-40" : ""}`}
+        style={{ width: 286, height: 213, touchAction: "none" }}
+        title={canDraw ? "Click or drag to draw a villain" : count === 0 ? "Deck empty" : "All slots full"}
       >
         <span className="text-6xl">👾</span>
         {count > 0 && (
@@ -239,8 +248,16 @@ export default function Game({ gameState, mySocketId }) {
 
   function handleDragEnd({ active, over }) {
     setActiveDrag(null);
-    if (!over) return;
     const data = active.data.current ?? {};
+    if (data.draggableType === "enemy_deck_draw") {
+      socket.emit("draw_enemy");
+      return;
+    }
+    if (data.draggableType === "event_deck_draw") {
+      socket.emit("draw_event");
+      return;
+    }
+    if (!over) return;
     if (data.draggableType === "pool_token" && over.id === "staging") {
       socket.emit("add_attack_token", { type: data.attackType });
     } else if (data.draggableType === "staging_token" && over.id !== "staging") {
@@ -472,6 +489,22 @@ export default function Game({ gameState, mySocketId }) {
           const enemy = (enemies ?? []).find((e) => e.id === activeDrag.enemyId);
           return enemy ? <EnemyCardDisplay enemy={enemy} /> : null;
         })()}
+        {activeDrag?.draggableType === "enemy_deck_draw" && (
+          <div
+            className="rounded-xl border-2 border-stone-900 bg-stone-700 flex items-center justify-center shadow-2xl pointer-events-none"
+            style={{ width: 286, height: 213 }}
+          >
+            <span className="text-6xl opacity-60">👾</span>
+          </div>
+        )}
+        {activeDrag?.draggableType === "event_deck_draw" && (
+          <div
+            className="rounded-xl border-2 border-violet-400 bg-violet-800 flex items-center justify-center shadow-2xl pointer-events-none"
+            style={{ width: 213, height: 213 }}
+          >
+            <span className="text-6xl opacity-60">🎴</span>
+          </div>
+        )}
       </DragOverlay>
     </DndContext>
   );

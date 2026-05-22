@@ -150,6 +150,12 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
   const deckCount = eventDeck?.length ?? 0;
   const discardCount = eventDiscard?.length ?? 0;
 
+  const { attributes, listeners, setNodeRef: setDeckRef, isDragging: isDeckDragging } = useDraggable({
+    id: "event_deck_draw",
+    data: { draggableType: "event_deck_draw" },
+    disabled: deckCount === 0,
+  });
+
   const handleDraw = () => {
     if (deckCount > 0) socket.emit("draw_event");
   };
@@ -158,15 +164,18 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
     <div className="flex items-start gap-2 flex-wrap">
       {/* Draw pile */}
       <button
+        ref={setDeckRef}
+        {...listeners}
+        {...attributes}
         onClick={handleDraw}
         disabled={deckCount === 0}
         className={`relative flex-shrink-0 rounded-xl border-2 flex items-center justify-center select-none transition-all ${
           deckCount > 0
             ? "border-violet-400 bg-violet-800 hover:bg-violet-700 cursor-pointer active:scale-95"
             : "border-stone-300 bg-stone-200 cursor-default opacity-60"
-        }`}
-        style={{ width: 213, height: 213 }}
-        title={deckCount > 0 ? "Draw an event" : "Event deck empty"}
+        } ${isDeckDragging ? "opacity-40" : ""}`}
+        style={{ width: 213, height: 213, touchAction: "none" }}
+        title={deckCount > 0 ? "Click or drag to draw an event" : "Event deck empty"}
       >
         <span className="text-6xl opacity-70">🎴</span>
         {deckCount > 0 && (
