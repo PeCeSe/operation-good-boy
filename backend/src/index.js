@@ -245,6 +245,10 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("shuffle_event_discard", () => {
+    withGame(socket, (gs) => actions.shuffleEventDiscard(gs));
+  });
+
   // ── Enemies ─────────────────────────────────────────────────────────────────
 
   socket.on("add_attack_token", ({ type } = {}) => {

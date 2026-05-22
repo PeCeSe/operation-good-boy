@@ -115,7 +115,16 @@ function DiscardZone({ count, eventDiscard }) {
           <div className="bg-white rounded-xl p-4 shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm font-bold text-stone-700">Event Discard ({count} cards)</div>
-              <button onClick={() => setShowBrowse(false)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">✕</button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => { socket.emit("shuffle_event_discard"); setShowBrowse(false); }}
+                  className="text-xs bg-blue-100 hover:bg-blue-200 border border-blue-300 text-blue-700 font-semibold rounded-lg px-3 py-1.5 transition-colors"
+                  title="Shuffle discard pile back to bottom of event deck"
+                >
+                  Shuffle back ↺
+                </button>
+                <button onClick={() => setShowBrowse(false)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">✕</button>
+              </div>
             </div>
             <div className="overflow-y-auto flex-1">
               <div className="flex flex-wrap gap-3">

@@ -223,6 +223,14 @@ function discardEvent(state, eventId) {
   state.eventDiscard.push(event);
 }
 
+function shuffleEventDiscard(state) {
+  if (state.eventDiscard.length === 0) return;
+  const shuffled = shuffle(state.eventDiscard);
+  state.eventDeck = [...state.eventDeck, ...shuffled];
+  state.eventDiscard = [];
+  log(state, `Event discard shuffled back into the event deck.`);
+}
+
 // ── Enemies ───────────────────────────────────────────────────────────────────
 
 function drawEnemy(state) {
@@ -297,7 +305,7 @@ module.exports = {
   drawCard, peekDrawTop, peekToHand, peekToTop, peekToDiscard,
   playCard, discardCard, retrieveFromDiscard, shuffleDiscard, returnCardToDeck,
   placePayment, clearPayment, buyCard,
-  drawOneEvent, discardEvent,
+  drawOneEvent, discardEvent, shuffleEventDiscard,
   drawEnemy, defeatEnemy,
   setCucumbers,
   endTurn,
