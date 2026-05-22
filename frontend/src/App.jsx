@@ -49,7 +49,19 @@ export default function App() {
 
     socket.on("error", ({ message }) => setError(message));
 
-    return () => socket.disconnect();
+    // On mobile, browsers kill the WebSocket when the tab is backgrounded.
+    // Force a reconnect when the tab becomes visible again.
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "visible" && !socket.connected) {
+        socket.connect();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      socket.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   }, []);
 
   const clearError = () => setError(null);
