@@ -30,7 +30,7 @@ function ActiveEventCard({ event }) {
       className={`flex-shrink-0 bg-stone-900 border-2 border-stone-600 rounded-xl overflow-hidden flex flex-col select-none transition-opacity cursor-grab active:cursor-grabbing ${
         isDragging ? "opacity-30" : "shadow-md hover:shadow-lg"
       }`}
-      style={{ width: 213, height: 213 }}
+      style={{ width: 213, height: 213, touchAction: "none" }}
     >
       {/* Header */}
       <div className="px-3 py-1.5 flex items-center gap-2 shrink-0 bg-stone-900">
