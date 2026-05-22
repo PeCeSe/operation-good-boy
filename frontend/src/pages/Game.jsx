@@ -399,7 +399,7 @@ export default function Game({ gameState, mySocketId }) {
           <div style={{ position: "absolute", top: 310, left: 40, zIndex: 1, display: "flex", gap: 24 }}>
             <EnemyDrawPile
               count={enemyDeck?.length ?? 0}
-              canDraw={(enemyDeck?.length ?? 0) > 0 && (enemies?.length ?? 0) < 3}
+              canDraw={(enemyDeck?.length ?? 0) > 0 && (enemies?.filter(Boolean).length ?? 0) < 3}
             />
             <EnemyDiscardPile enemyDiscard={enemyDiscard ?? []} />
           </div>
