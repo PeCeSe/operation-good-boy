@@ -78,6 +78,11 @@ io.on("connection", (socket) => {
   // ── Lobby ───────────────────────────────────────────────────────────────────
 
   socket.on("create_room", ({ password } = {}) => {
+    const leftCode = roomManager.leaveRoom(socket.id);
+    if (leftCode) {
+      socket.leave(leftCode);
+      emitRoomUpdate(leftCode);
+    }
     const code = roomManager.createRoom(socket.id, password || null, playerToken);
     socket.join(code);
     socket.emit("room_created", { code });
@@ -85,6 +90,14 @@ io.on("connection", (socket) => {
   });
 
   socket.on("join_room", ({ code, password } = {}) => {
+    const currentRoom = roomManager.getRoomBySocket(socket.id);
+    if (currentRoom && currentRoom.code !== code) {
+      const leftCode = roomManager.leaveRoom(socket.id);
+      if (leftCode) {
+        socket.leave(leftCode);
+        emitRoomUpdate(leftCode);
+      }
+    }
     const result = roomManager.joinRoom(socket.id, code, password || null, playerToken);
     if (!result.success) return socket.emit("error", { message: result.error });
     socket.join(code);
@@ -297,7 +310,16 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Disconnected: ${socket.id}`);
     const room = roomManager.getRoomBySocket(socket.id);
-    if (room) emitRoomUpdate(room.code);
+    if (!room) return;
+    if (!room.gameState) {
+      // Lobby: remove immediately so they don't ghost
+      const code = room.code;
+      roomManager.leaveRoom(socket.id);
+      if (roomManager.getRoom(code)) emitRoomUpdate(code);
+    } else {
+      // In-game: keep player entry for reconnect
+      emitRoomUpdate(room.code);
+    }
   });
 });
 
