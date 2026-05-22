@@ -429,7 +429,7 @@ export default function Game({ gameState, mySocketId }) {
             style={{
               position: "absolute",
               top: 30,
-              left: 980,
+              left: 1060,
               width: 2,
               height: BOARD_H - 60,
               background: "rgba(101, 67, 10, 0.35)",
@@ -442,17 +442,17 @@ export default function Game({ gameState, mySocketId }) {
           ══════════════════════════════════ */}
 
           {/* ── Shop deck pile ── */}
-          <div style={{ position: "absolute", top: 60, left: 1010, zIndex: 1 }}>
+          <div style={{ position: "absolute", top: 60, left: 1090, zIndex: 1 }}>
             <ShopDeckPile count={shopDeck?.length ?? 0} />
           </div>
 
           {/* ── Payment zone ── */}
-          <div style={{ position: "absolute", top: 60, left: 1130, zIndex: 1, width: 300 }}>
+          <div style={{ position: "absolute", top: 60, left: 1210, zIndex: 1, width: 300 }}>
             <PaymentZonePanel paymentZone={paymentZone} />
           </div>
 
           {/* ── Shop cards (2-column grid) ── */}
-          <div style={{ position: "absolute", top: 240, left: 1010, zIndex: 1, width: 376 }}>
+          <div style={{ position: "absolute", top: 240, left: 1090, zIndex: 1, width: 376 }}>
             <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-3">
               Shop
             </div>
