@@ -98,9 +98,9 @@ export default function PlayerHUD({
         </button>
       </div>
 
-      {/* Player board */}
-      {isOpen && me && (
-        <div className="overflow-y-auto" style={{ maxHeight: 480 }}>
+      {/* Player board — always mounted so card positions survive toggle */}
+      {me && (
+        <div className="overflow-y-auto" style={{ maxHeight: 480, display: isOpen ? undefined : "none" }}>
           <PlayerBoard
             player={me}
             isMe={true}
