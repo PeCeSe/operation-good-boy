@@ -118,9 +118,14 @@ function DiscardZone({ count, eventDiscard }) {
               <button onClick={() => setShowBrowse(false)} className="text-stone-400 hover:text-stone-600 text-lg leading-none">✕</button>
             </div>
             <div className="overflow-y-auto flex-1">
-              <div className="flex flex-wrap gap-2">
-                {[...eventDiscard].reverse().map((event) => (
-                  <EventCardDisplay key={event.id} event={event} />
+              <div className="flex flex-wrap gap-3">
+                {[...eventDiscard].reverse().map((event, i) => (
+                  <div key={event.id} className="relative">
+                    <EventCardDisplay event={event} />
+                    <div className="absolute top-2 left-2 bg-stone-900/80 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
+                      {count - i}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
