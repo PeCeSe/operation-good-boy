@@ -9,7 +9,7 @@ function log(state, msg) {
 // ── Auto-detection ────────────────────────────────────────────────────────────
 
 function checkWin(state) {
-  if (state.enemies.length === 0 && state.enemyDeck.length === 0) {
+  if (state.enemies.every((e) => !e) && state.enemyDeck.length === 0) {
     state.phase = "victory";
     log(state, "🎉 Victory! Good Boy has been defeated.");
   }
@@ -78,14 +78,14 @@ function moveTokenToEnemy(state, enemyId, tokenId) {
     }
   }
   if (!token) return;
-  const enemy = state.enemies.find((e) => e.id === enemyId);
+  const enemy = state.enemies.find((e) => e && e.id === enemyId);
   if (!enemy) { owner.attackTokens.push(token); return; }
   enemy.damageTokens.push(token);
   log(state, `${owner.name} places a ${token.type} token on ${enemy.name}.`);
 }
 
 function removeDamageToken(state, enemyId, tokenId) {
-  const enemy = state.enemies.find((e) => e.id === enemyId);
+  const enemy = state.enemies.find((e) => e && e.id === enemyId);
   if (!enemy) return;
   enemy.damageTokens = enemy.damageTokens.filter((t) => t.id !== tokenId);
 }
@@ -233,19 +233,30 @@ function shuffleEventDiscard(state) {
 
 // ── Enemies ───────────────────────────────────────────────────────────────────
 
-function drawEnemy(state) {
+function drawEnemy(state, slotIndex) {
   if (state.enemyDeck.length === 0) return;
-  if (state.enemies.length >= 3) return;
+  const occupiedCount = state.enemies.filter(Boolean).length;
+  if (occupiedCount >= 3) return;
+
+  let targetSlot;
+  if (slotIndex !== undefined && slotIndex >= 0 && slotIndex < 3 && !state.enemies[slotIndex]) {
+    targetSlot = slotIndex;
+  } else {
+    targetSlot = state.enemies.findIndex((e) => !e);
+    if (targetSlot === -1) return;
+  }
+
   const enemy = state.enemyDeck.shift();
-  state.enemies.push(enemy);
+  state.enemies[targetSlot] = enemy;
   log(state, `${enemy.name} enters the fray!`);
 }
 
 function defeatEnemy(state, playerId, enemyId) {
   const p = state.players.find((p) => p.playerId === playerId);
-  const idx = state.enemies.findIndex((e) => e.id === enemyId);
+  const idx = state.enemies.findIndex((e) => e && e.id === enemyId);
   if (idx === -1) return;
-  const enemy = state.enemies.splice(idx, 1)[0];
+  const enemy = state.enemies[idx];
+  state.enemies[idx] = null;
   state.enemyDiscard = state.enemyDiscard ?? [];
   state.enemyDiscard.push(enemy);
   log(state, `${enemy.name} defeated! (by ${p?.name ?? "unknown"})`);

@@ -103,14 +103,25 @@ function EnemyDiscardPile({ enemyDiscard }) {
   );
 }
 
-function EmptyEnemySlot() {
+function EmptyEnemySlot({ slotIndex, isDeckBeingDragged }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `enemy_slot_${slotIndex}` });
+  const highlight = isDeckBeingDragged || isOver;
   return (
     <div className="flex flex-col gap-2" style={{ width: 286 }}>
       <div
-        className="bg-stone-300/30 rounded-xl border-2 border-dashed border-stone-400/40 flex items-center justify-center"
+        ref={setNodeRef}
+        className={`rounded-xl border-2 border-dashed flex items-center justify-center transition-all ${
+          isOver
+            ? "border-violet-400 bg-violet-100/50 ring-2 ring-violet-400"
+            : highlight
+            ? "border-stone-500 bg-stone-300/40"
+            : "border-stone-400/40 bg-stone-300/30"
+        }`}
         style={{ height: 213 }}
       >
-        <span className="text-stone-400/50 text-sm select-none">—</span>
+        <span className={`text-sm select-none transition-colors ${isOver ? "text-violet-500 font-semibold" : "text-stone-400/50"}`}>
+          {isOver ? "Drop here!" : "—"}
+        </span>
       </div>
       <div className="h-16 rounded-xl border-2 border-dashed border-stone-300/40 bg-stone-200/20" />
     </div>
@@ -250,7 +261,10 @@ export default function Game({ gameState, mySocketId }) {
     setActiveDrag(null);
     const data = active.data.current ?? {};
     if (data.draggableType === "enemy_deck_draw") {
-      socket.emit("draw_enemy");
+      if (over?.id?.toString().startsWith("enemy_slot_")) {
+        const slotIndex = parseInt(over.id.toString().replace("enemy_slot_", ""), 10);
+        socket.emit("draw_enemy", { slotIndex });
+      }
       return;
     }
     if (data.draggableType === "event_deck_draw") {
@@ -396,7 +410,11 @@ export default function Game({ gameState, mySocketId }) {
               enemies[i] ? (
                 <EnemySlot key={enemies[i].id} enemy={enemies[i]} />
               ) : (
-                <EmptyEnemySlot key={i} />
+                <EmptyEnemySlot
+                  key={i}
+                  slotIndex={i}
+                  isDeckBeingDragged={activeDrag?.draggableType === "enemy_deck_draw"}
+                />
               )
             )}
           </div>

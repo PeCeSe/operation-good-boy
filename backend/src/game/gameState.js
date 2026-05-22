@@ -70,7 +70,7 @@ function initGameState(room) {
     currentPlayerId: players[0].playerId,
     roundNumber: 1,
     players,
-    enemies: [],
+    enemies: [null, null, null],
     enemyDeck,
     enemyDiscard: [],
     currentLocation: firstLocation,
