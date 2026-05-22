@@ -310,16 +310,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Disconnected: ${socket.id}`);
     const room = roomManager.getRoomBySocket(socket.id);
-    if (!room) return;
-    if (!room.gameState) {
-      // Lobby: remove immediately so they don't ghost
-      const code = room.code;
-      roomManager.leaveRoom(socket.id);
-      if (roomManager.getRoom(code)) emitRoomUpdate(code);
-    } else {
-      // In-game: keep player entry for reconnect
-      emitRoomUpdate(room.code);
-    }
+    if (room) emitRoomUpdate(room.code);
   });
 });
 
