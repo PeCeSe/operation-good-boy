@@ -138,10 +138,17 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
         )}
       </button>
 
-      {/* Face-up active events */}
-      {(activeEvents ?? []).map((event) => (
-        <ActiveEventCard key={event.id} event={event} />
-      ))}
+      {/* Active event slot — always present, empty or occupied */}
+      {activeEvents?.[0] ? (
+        <ActiveEventCard key={activeEvents[0].id} event={activeEvents[0]} />
+      ) : (
+        <div
+          className="flex-shrink-0 rounded-xl border-2 border-dashed border-stone-300 bg-stone-50 flex items-center justify-center text-stone-300 text-xs select-none"
+          style={{ width: 213, height: 213 }}
+        >
+          Active event
+        </div>
+      )}
 
       {/* Discard pile drop zone */}
       <DiscardZone count={discardCount} eventDiscard={eventDiscard} />

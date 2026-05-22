@@ -210,7 +210,7 @@ function buyCard(state, playerId, cardId) {
 
 function drawOneEvent(state, playerId) {
   const p = state.players.find((p) => p.playerId === playerId);
-  if (!p || state.eventDeck.length === 0) return;
+  if (!p || state.eventDeck.length === 0 || state.activeEvents.length >= 1) return;
   const event = state.eventDeck.shift();
   state.activeEvents.push(event);
   log(state, `${p.name} drew event: ${event.name}.`);
