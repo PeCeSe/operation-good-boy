@@ -17,10 +17,10 @@ function TypePill({ label, type }) {
 export function EnemyCardDisplay({ enemy, isOver = false }) {
   return (
     <div
-      className={`relative w-full bg-stone-50 rounded-xl shadow-md overflow-hidden flex flex-col border-2 transition-all ${
+      className={`relative bg-stone-50 rounded-xl shadow-md overflow-hidden flex flex-col border-2 transition-all ${
         isOver ? "border-amber-400" : "border-stone-600"
       }`}
-      style={{ height: 213 }}
+      style={{ width: 286, height: 213 }}
     >
       <div className="bg-stone-800 px-3 py-1.5 flex items-start justify-between gap-2 shrink-0">
         <div className="min-w-0">
