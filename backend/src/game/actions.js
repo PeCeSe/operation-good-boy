@@ -225,20 +225,22 @@ function discardEvent(state, eventId) {
 
 // ── Enemies ───────────────────────────────────────────────────────────────────
 
+function drawEnemy(state) {
+  if (state.enemyDeck.length === 0) return;
+  if (state.enemies.length >= 3) return;
+  const enemy = state.enemyDeck.shift();
+  state.enemies.push(enemy);
+  log(state, `${enemy.name} enters the fray!`);
+}
+
 function defeatEnemy(state, playerId, enemyId) {
   const p = state.players.find((p) => p.playerId === playerId);
   const idx = state.enemies.findIndex((e) => e.id === enemyId);
   if (idx === -1) return;
   const enemy = state.enemies.splice(idx, 1)[0];
+  state.enemyDiscard = state.enemyDiscard ?? [];
+  state.enemyDiscard.push(enemy);
   log(state, `${enemy.name} defeated! (by ${p?.name ?? "unknown"})`);
-
-  if (state.enemyDeck.length > 0 && state.enemies.length < 3) {
-    const next = state.enemyDeck.shift();
-    next.damageTokens = [];
-    state.enemies.push(next);
-    log(state, `${next.name} enters the fray!`);
-  }
-
   checkWin(state);
 }
 
@@ -296,7 +298,7 @@ module.exports = {
   playCard, discardCard, retrieveFromDiscard, shuffleDiscard, returnCardToDeck,
   placePayment, clearPayment, buyCard,
   drawOneEvent, discardEvent,
-  defeatEnemy,
+  drawEnemy, defeatEnemy,
   setCucumbers,
   endTurn,
 };

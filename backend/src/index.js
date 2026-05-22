@@ -262,6 +262,10 @@ io.on("connection", (socket) => {
     withGame(socket, (gs) => actions.removeDamageToken(gs, enemyId, tokenId));
   });
 
+  socket.on("draw_enemy", () => {
+    withGame(socket, (gs) => actions.drawEnemy(gs));
+  });
+
   socket.on("defeat_enemy", ({ enemyId } = {}) => {
     withGame(socket, (gs) => {
       const playerId = getPlayerId(gs, socket.id);

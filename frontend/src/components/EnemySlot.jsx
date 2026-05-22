@@ -1,5 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
-import EnemyComponent from "./EnemyComponent";
+import EnemyComponent, { EnemyCardDisplay } from "./EnemyComponent";
 import { ATTACK_CONFIG } from "./TokenPool";
 import socket from "../socket";
 

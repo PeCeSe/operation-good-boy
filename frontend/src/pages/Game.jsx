@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable } from "@dnd-kit/core";
 import LocationBar from "../components/LocationBar";
 import EnemySlot from "../components/EnemySlot";
+import { EnemyCardDisplay } from "../components/EnemyComponent";
 import ShopRow from "../components/ShopRow";
 import EventDeck, { EventCardDisplay } from "../components/EventDeck";
 import GameLog from "../components/GameLog";
@@ -24,14 +25,71 @@ function DragChip({ attackType }) {
   );
 }
 
-function EnemyDeckPile({ count }) {
+function EnemyDrawPile({ count, canDraw }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="w-24 h-32 bg-stone-700 rounded-xl border-2 border-stone-900 flex flex-col items-center justify-center shadow-lg gap-1">
-        <span className="text-4xl">👾</span>
-        <span className="text-stone-300 font-bold text-sm">{count}</span>
+      <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold">Villain Deck</div>
+      <button
+        onClick={() => canDraw && socket.emit("draw_enemy")}
+        disabled={!canDraw}
+        className={`relative rounded-xl border-2 flex items-center justify-center select-none transition-all ${
+          canDraw
+            ? "border-stone-900 bg-stone-700 hover:bg-stone-600 cursor-pointer active:scale-95"
+            : "border-stone-400 bg-stone-300 cursor-default opacity-60"
+        }`}
+        style={{ width: 286, height: 213 }}
+        title={canDraw ? "Draw a villain" : count === 0 ? "Deck empty" : "All slots full"}
+      >
+        <span className="text-6xl">👾</span>
+        {count > 0 && (
+          <span className="absolute top-2 right-2 bg-stone-900 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
+            {count}
+          </span>
+        )}
+      </button>
+    </div>
+  );
+}
+
+function EnemyDiscardPile({ enemyDiscard }) {
+  const { setNodeRef, isOver } = useDroppable({ id: "enemy_discard" });
+  const count = enemyDiscard?.length ?? 0;
+  const topEnemy = enemyDiscard?.[count - 1] ?? null;
+
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold">Defeated</div>
+      <div
+        ref={setNodeRef}
+        className={`relative rounded-xl transition-all ${isOver ? "ring-2 ring-red-400 ring-offset-2" : ""}`}
+        style={{ width: 286, height: 213 }}
+      >
+        {/* Stack illusion */}
+        {count > 2 && <div className="absolute rounded-xl border-2 border-stone-400 bg-stone-300" style={{ width: 286, height: 213, top: 6, left: 6 }} />}
+        {count > 1 && <div className="absolute rounded-xl border-2 border-stone-400 bg-stone-300" style={{ width: 286, height: 213, top: 3, left: 3 }} />}
+        <div className="absolute top-0 left-0" style={{ zIndex: 2 }}>
+          {topEnemy ? (
+            <EnemyCardDisplay enemy={topEnemy} />
+          ) : (
+            <div
+              className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
+                isOver ? "border-red-400 bg-red-50" : "border-stone-400 bg-stone-100/60"
+              }`}
+              style={{ width: 286, height: 213 }}
+            >
+              <span className="text-3xl opacity-40">💀</span>
+              <span className={`text-xs font-semibold ${isOver ? "text-red-500" : "text-stone-400"}`}>
+                {isOver ? "Drop to defeat!" : "Drag defeated villains here"}
+              </span>
+            </div>
+          )}
+        </div>
+        {count > 0 && (
+          <div className="absolute top-2 right-2 bg-stone-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
+            {count}
+          </div>
+        )}
       </div>
-      <div className="text-[9px] text-stone-600 uppercase tracking-wide font-bold">Enemy Deck</div>
     </div>
   );
 }
@@ -158,6 +216,7 @@ export default function Game({ gameState, mySocketId }) {
     players,
     enemies,
     enemyDeck,
+    enemyDiscard,
     currentLocation,
     lostLocations,
     shop,
@@ -188,6 +247,8 @@ export default function Game({ gameState, mySocketId }) {
       socket.emit("move_token_to_enemy", { enemyId: String(over.id), tokenId: data.tokenId });
     } else if (data.draggableType === "event_card" && over.id === "event_discard") {
       socket.emit("discard_event", { eventId: data.eventId });
+    } else if (data.draggableType === "enemy_card" && over.id === "enemy_discard") {
+      socket.emit("defeat_enemy", { enemyId: data.enemyId });
     }
   }
 
@@ -303,22 +364,17 @@ export default function Game({ gameState, mySocketId }) {
             />
           </div>
 
-          {/* ── Enemy deck (below location) ── */}
-          <div style={{ position: "absolute", top: 310, left: 40, zIndex: 1 }}>
-            <EnemyDeckPile count={enemyDeck?.length ?? 0} />
+          {/* ── Villain deck + discard (row 1) ── */}
+          <div style={{ position: "absolute", top: 310, left: 40, zIndex: 1, display: "flex", gap: 24 }}>
+            <EnemyDrawPile
+              count={enemyDeck?.length ?? 0}
+              canDraw={(enemyDeck?.length ?? 0) > 0 && (enemies?.length ?? 0) < 3}
+            />
+            <EnemyDiscardPile enemyDiscard={enemyDiscard ?? []} />
           </div>
 
-          {/* ── Enemy slots row ── */}
-          <div
-            style={{
-              position: "absolute",
-              top: 430,
-              left: 40,
-              display: "flex",
-              gap: 16,
-              zIndex: 1,
-            }}
-          >
+          {/* ── Enemy slots row (row 2) ── */}
+          <div style={{ position: "absolute", top: 560, left: 40, display: "flex", gap: 16, zIndex: 1 }}>
             {Array.from({ length: 3 }).map((_, i) =>
               enemies[i] ? (
                 <EnemySlot key={enemies[i].id} enemy={enemies[i]} />
@@ -410,11 +466,11 @@ export default function Game({ gameState, mySocketId }) {
         )}
         {activeDrag?.draggableType === "event_card" && (() => {
           const event = (activeEvents ?? []).find((e) => e.id === activeDrag.eventId);
-          return event ? <EventCardDisplay event={event} /> : (
-            <div className="w-16 h-16 bg-violet-800 rounded-lg flex items-center justify-center shadow-xl pointer-events-none">
-              <span className="text-white text-xl">🎴</span>
-            </div>
-          );
+          return event ? <EventCardDisplay event={event} /> : null;
+        })()}
+        {activeDrag?.draggableType === "enemy_card" && (() => {
+          const enemy = (enemies ?? []).find((e) => e.id === activeDrag.enemyId);
+          return enemy ? <EnemyCardDisplay enemy={enemy} /> : null;
         })()}
       </DragOverlay>
     </DndContext>

@@ -33,6 +33,7 @@ function initGameState(room) {
   const goodBoy = allEnemies.find((e) => e.id === "enemy_001");
   const otherEnemies = shuffle(allEnemies.filter((e) => e.id !== "enemy_001"));
   const enemyDeck = [...otherEnemies, goodBoy];
+  enemyDeck.forEach((e) => { e.damageTokens = []; });
 
   const locationDeck = deepClone(LOCATIONS);
   const eventDeck = shuffle(deepClone(EVENTS));
@@ -40,9 +41,6 @@ function initGameState(room) {
 
   const firstLocation = locationDeck.shift();
   firstLocation.currentCucumbers = 0;
-
-  const enemies = enemyDeck.splice(0, Math.min(3, enemyDeck.length));
-  enemies.forEach((e) => { e.damageTokens = []; });
 
   const shop = shopDeck.splice(0, 6);
 
@@ -72,8 +70,9 @@ function initGameState(room) {
     currentPlayerId: players[0].playerId,
     roundNumber: 1,
     players,
-    enemies,
+    enemies: [],
     enemyDeck,
+    enemyDiscard: [],
     currentLocation: firstLocation,
     locationDeck,
     lostLocations: [],
