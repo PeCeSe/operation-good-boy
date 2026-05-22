@@ -376,6 +376,9 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Location (top-left) ── */}
           <div style={{ position: "absolute", top: 60, left: 40, zIndex: 1 }}>
+            <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-2">
+              Location
+            </div>
             <LocationBar
               currentLocation={currentLocation}
               lostLocations={lostLocations ?? []}
