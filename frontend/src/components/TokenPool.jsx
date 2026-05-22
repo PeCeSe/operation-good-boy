@@ -22,6 +22,7 @@ function PoolChip({ attackType }) {
       className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-lg select-none transition-all ${cfg.bg} ${cfg.border} ${
         isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110 shadow-sm"
       }`}
+      style={{ touchAction: "none" }}
       title={`Drag to add ${cfg.label} token`}
     >
       {cfg.icon}

@@ -21,6 +21,7 @@ function StagingToken({ token }) {
       className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-base select-none transition-all ${cfg.bg} ${cfg.border} ${
         isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110 shadow-sm"
       }`}
+      style={{ touchAction: "none" }}
       title={`${cfg.label} — drag to enemy`}
     >
       {cfg.icon}
