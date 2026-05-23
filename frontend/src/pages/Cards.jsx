@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import CHARACTERS from "../data/characters";
 import CardComponent from "../components/CardComponent";
 import LocationBar from "../components/LocationBar";
-import EventDisplay from "../components/EventDisplay";
-import EnemyComponent from "../components/EnemyComponent";
+import { EventCardDisplay } from "../components/EventDeck";
+import { EnemyCardDisplay } from "../components/EnemyComponent";
 
 // ── Raw game data (mirrored from backend/src/data/) ──────────────────────────
 
@@ -26,14 +26,14 @@ const EVENTS = [
 
 // EnemyComponent expects ability/reward as { description } objects, and maxHealth instead of hp
 const ENEMIES = [
-  { id: "en_1", name: "Angry Postman", emoji: "📬", maxHealth: 6, attack: 2, weakTo: ["charm"], resistantTo: ["scratch"], cucOnSurvive: 1, ability: { description: "Active player discards 1 card." }, reward: { description: "Remove 1 🥒." }, flavorText: "He takes this very personally." },
-  { id: "en_2", name: "Neighbour's Baby", emoji: "👶", maxHealth: 4, attack: 1, weakTo: ["charm"], resistantTo: ["ignore"], cucOnSurvive: 1, ability: { description: "All players lose 1 life." }, reward: { description: "All players gain 1 life." }, flavorText: "It just screams. Constantly." },
-  { id: "en_3", name: "Squirrel Gang", emoji: "🐿️", maxHealth: 8, attack: 2, weakTo: ["scratch"], resistantTo: ["ignore"], cucOnSurvive: 1, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "All players draw 1 card." }, flavorText: "There are more of them every time." },
-  { id: "en_4", name: "Sprinkler System", emoji: "💦", maxHealth: 5, attack: 2, weakTo: ["bite"], resistantTo: ["charm"], cucOnSurvive: 1, ability: { description: "Active player loses 1 life." }, reward: { description: "Remove 1 🥒." }, flavorText: "It has no feelings. It cannot be reasoned with." },
-  { id: "en_5", name: "Grumpy Old Man", emoji: "👴", maxHealth: 7, attack: 2, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 1, ability: { description: "Active player loses 2 lives." }, reward: { description: "All players gain 1 life. Remove 1 🥒." }, flavorText: "Get off his lawn." },
-  { id: "en_6", name: "Vacuum Cleaner", emoji: "🤖", maxHealth: 6, attack: 3, weakTo: ["bite"], resistantTo: ["scratch"], cucOnSurvive: 1, ability: { description: "All players discard 1 card." }, reward: { description: "All players draw 2 cards." }, flavorText: "A machine with no purpose but suffering." },
-  { id: "en_7", name: "Rival Cat", emoji: "😾", maxHealth: 8, attack: 3, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: { description: "Add 2 🥒 to the location." }, reward: { description: "Active player draws 2 cards." }, flavorText: "The audacity." },
-  { id: "en_8", name: "Good Boy", emoji: "🐕", maxHealth: 20, attack: 4, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "Remove 2 🥒. All players gain 1 life." }, flavorText: "The humans think he's harmless. He is not.", isBoss: true },
+  { id: "en_1", name: "Angry Postman", emoji: "📬", maxHealth: 6, attack: 2, weakTo: ["charm"], resistantTo: ["scratch"], cucOnSurvive: 1, ability: { description: "Active player discards 1 card." }, reward: { description: "Remove 1 🥒." }, flavorText: "He takes this very personally.", damageTokens: [] },
+  { id: "en_2", name: "Neighbour's Baby", emoji: "👶", maxHealth: 4, attack: 1, weakTo: ["charm"], resistantTo: ["ignore"], cucOnSurvive: 1, ability: { description: "All players lose 1 life." }, reward: { description: "All players gain 1 life." }, flavorText: "It just screams. Constantly.", damageTokens: [] },
+  { id: "en_3", name: "Squirrel Gang", emoji: "🐿️", maxHealth: 8, attack: 2, weakTo: ["scratch"], resistantTo: ["ignore"], cucOnSurvive: 1, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "All players draw 1 card." }, flavorText: "There are more of them every time.", damageTokens: [] },
+  { id: "en_4", name: "Sprinkler System", emoji: "💦", maxHealth: 5, attack: 2, weakTo: ["bite"], resistantTo: ["charm"], cucOnSurvive: 1, ability: { description: "Active player loses 1 life." }, reward: { description: "Remove 1 🥒." }, flavorText: "It has no feelings. It cannot be reasoned with.", damageTokens: [] },
+  { id: "en_5", name: "Grumpy Old Man", emoji: "👴", maxHealth: 7, attack: 2, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 1, ability: { description: "Active player loses 2 lives." }, reward: { description: "All players gain 1 life. Remove 1 🥒." }, flavorText: "Get off his lawn.", damageTokens: [] },
+  { id: "en_6", name: "Vacuum Cleaner", emoji: "🤖", maxHealth: 6, attack: 3, weakTo: ["bite"], resistantTo: ["scratch"], cucOnSurvive: 1, ability: { description: "All players discard 1 card." }, reward: { description: "All players draw 2 cards." }, flavorText: "A machine with no purpose but suffering.", damageTokens: [] },
+  { id: "en_7", name: "Rival Cat", emoji: "😾", maxHealth: 8, attack: 3, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: { description: "Add 2 🥒 to the location." }, reward: { description: "Active player draws 2 cards." }, flavorText: "The audacity.", damageTokens: [] },
+  { id: "en_8", name: "Good Boy", emoji: "🐕", maxHealth: 20, attack: 4, weakTo: ["ignore"], resistantTo: ["charm"], cucOnSurvive: 2, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "Remove 2 🥒. All players gain 1 life." }, flavorText: "The humans think he's harmless. He is not.", isBoss: true, damageTokens: [] },
 ];
 
 const KITTEN_EYES = { id: "kitten_eyes", name: "Kitten Eyes", count: 7, type: "move", image: "/cards/KittenEyes.png", effect: { attack: 0, attackType: null, pawcoins: 1, special: null }, flavorText: "Resistance is futile." };
@@ -133,7 +133,9 @@ export default function Cards() {
       <section>
         <SectionHeader>Stupid Hooman Events</SectionHeader>
         <div className="flex flex-wrap gap-3">
-          <EventDisplay events={EVENTS} />
+          {EVENTS.map((event) => (
+            <EventCardDisplay key={event.id} event={event} />
+          ))}
         </div>
       </section>
 
@@ -142,11 +144,7 @@ export default function Cards() {
         <SectionHeader>Enemies</SectionHeader>
         <div className="flex flex-wrap gap-4">
           {ENEMIES.map((enemy) => (
-            <EnemyComponent
-              key={enemy.id}
-              enemy={enemy}
-              isMyTurn={false}
-            />
+            <EnemyCardDisplay key={enemy.id} enemy={enemy} />
           ))}
         </div>
       </section>
