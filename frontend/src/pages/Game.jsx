@@ -199,50 +199,8 @@ export default function Game({ gameState, mySocketId }) {
     };
   }, []);
 
-  // Cursor tracking — send my position, receive others'
   const myColorRef = useRef("#f59e0b");
   const myNameRef = useRef("");
-  useEffect(() => {
-    myColorRef.current = me?.character?.bgFrom ?? "#f59e0b";
-    myNameRef.current = me?.name ?? "";
-  }, [me?.character?.bgFrom, me?.name]);
-
-  useEffect(() => {
-    let lastEmit = 0;
-    const onPointerMove = (e) => {
-      const now = Date.now();
-      if (now - lastEmit < 50) return;
-      lastEmit = now;
-      socket.emit("cursor_move", {
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
-        name: myNameRef.current,
-        color: myColorRef.current,
-      });
-    };
-    const onPointerLeave = () => socket.emit("cursor_leave");
-
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerleave", onPointerLeave);
-
-    const onCursorUpdate = ({ socketId, x, y, name, color }) => {
-      setOtherCursors((prev) => ({ ...prev, [socketId]: { x, y, name, color } }));
-    };
-    const onCursorLeave = ({ socketId }) => {
-      setOtherCursors((prev) => { const n = { ...prev }; delete n[socketId]; return n; });
-    };
-
-    socket.on("cursor_update", onCursorUpdate);
-    socket.on("cursor_leave", onCursorLeave);
-
-    return () => {
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerleave", onPointerLeave);
-      socket.off("cursor_update", onCursorUpdate);
-      socket.off("cursor_leave", onCursorLeave);
-      socket.emit("cursor_leave");
-    };
-  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -295,6 +253,47 @@ export default function Game({ gameState, mySocketId }) {
   } = gameState;
 
   const me = players.find((p) => p.socketId === mySocketId);
+
+  // Cursor tracking — send my position, receive others'
+  useEffect(() => {
+    myColorRef.current = me?.character?.bgFrom ?? "#f59e0b";
+    myNameRef.current = me?.name ?? "";
+  }, [me?.character?.bgFrom, me?.name]);
+
+  useEffect(() => {
+    let lastEmit = 0;
+    const onPointerMove = (e) => {
+      const now = Date.now();
+      if (now - lastEmit < 50) return;
+      lastEmit = now;
+      socket.emit("cursor_move", {
+        x: e.clientX / window.innerWidth,
+        y: e.clientY / window.innerHeight,
+        name: myNameRef.current,
+        color: myColorRef.current,
+      });
+    };
+    const onPointerLeave = () => socket.emit("cursor_leave");
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerleave", onPointerLeave);
+
+    const onCursorUpdate = ({ socketId, x, y, name, color }) => {
+      setOtherCursors((prev) => ({ ...prev, [socketId]: { x, y, name, color } }));
+    };
+    const onCursorLeave = ({ socketId }) => {
+      setOtherCursors((prev) => { const n = { ...prev }; delete n[socketId]; return n; });
+    };
+    socket.on("cursor_update", onCursorUpdate);
+    socket.on("cursor_leave", onCursorLeave);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", onPointerLeave);
+      socket.off("cursor_update", onCursorUpdate);
+      socket.off("cursor_leave", onCursorLeave);
+      socket.emit("cursor_leave");
+    };
+  }, []);
   const isMyTurn = me?.playerId === currentPlayerId;
   const currentPlayerName = players.find((p) => p.playerId === currentPlayerId)?.name;
   const otherPlayers = players.filter((p) => p.socketId !== mySocketId);
