@@ -143,6 +143,7 @@ function ShopDeckPile({ count }) {
 export default function Game({ gameState, mySocketId }) {
   const navigate = useNavigate();
   const containerRef = useRef(null);
+  const boardSurfaceRef = useRef(null);
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
   const [activeDrag, setActiveDrag] = useState(null);
   const [zoom, setZoom] = useState(1);
@@ -262,15 +263,16 @@ export default function Game({ gameState, mySocketId }) {
 
   useEffect(() => {
     let lastEmit = 0;
-    const vw = () => window.visualViewport?.width ?? window.innerWidth;
-    const vh = () => window.visualViewport?.height ?? window.innerHeight;
     const onPointerMove = (e) => {
       const now = Date.now();
       if (now - lastEmit < 50) return;
       lastEmit = now;
+      const board = boardSurfaceRef.current;
+      if (!board) return;
+      const rect = board.getBoundingClientRect();
       socket.emit("cursor_move", {
-        x: e.clientX / vw(),
-        y: e.clientY / vh(),
+        x: (e.clientX - rect.left) / zoomRef.current,
+        y: (e.clientY - rect.top) / zoomRef.current,
         name: myNameRef.current,
         color: myColorRef.current,
       });
@@ -382,6 +384,7 @@ export default function Game({ gameState, mySocketId }) {
         <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative", flexShrink: 0, margin: "auto" }}>
         {/* Board surface — scaled */}
         <div
+          ref={boardSurfaceRef}
           style={{
             width: BOARD_W,
             height: BOARD_H,
@@ -530,6 +533,40 @@ export default function Game({ gameState, mySocketId }) {
           <div style={{ position: "absolute", bottom: 30, left: 1410, width: 270, zIndex: 1 }}>
             <GameLog log={log} />
           </div>
+
+          {/* ── Other players' cursors (board-relative) ── */}
+          {Object.entries(otherCursors).map(([id, cursor]) => (
+            <div
+              key={id}
+              style={{
+                position: "absolute",
+                left: cursor.x,
+                top: cursor.y,
+                pointerEvents: "none",
+                zIndex: 9999,
+              }}
+            >
+              <div style={{ transform: `scale(${1 / zoom})`, transformOrigin: "top left" }}>
+                <svg width="16" height="20" viewBox="0 0 16 20" fill="none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", display: "block" }}>
+                  <path d="M0 0 L0 16 L4.5 12 L7.5 19 L10 18 L7 11 L12 11 Z" fill={cursor.color} stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+                </svg>
+                <div style={{
+                  background: cursor.color,
+                  color: "white",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  padding: "1px 6px",
+                  borderRadius: 4,
+                  whiteSpace: "nowrap",
+                  marginTop: 1,
+                  marginLeft: 2,
+                  boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                }}>
+                  {cursor.name}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         </div>{/* end scroll-space wrapper */}
       </div>
@@ -542,41 +579,6 @@ export default function Game({ gameState, mySocketId }) {
         currentPlayerId={currentPlayerId}
         isMyTurn={isMyTurn}
       />
-
-      {/* ── Other players' cursors ── */}
-      {Object.entries(otherCursors).map(([id, cursor]) => (
-        <div
-          key={id}
-          style={{
-            position: "fixed",
-            left: cursor.x * (window.visualViewport?.width ?? window.innerWidth),
-            top: cursor.y * (window.visualViewport?.height ?? window.innerHeight),
-            pointerEvents: "none",
-            zIndex: 9999,
-            transform: "translate(2px, 2px)",
-          }}
-        >
-          {/* Arrow */}
-          <svg width="16" height="20" viewBox="0 0 16 20" fill="none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))" }}>
-            <path d="M0 0 L0 16 L4.5 12 L7.5 19 L10 18 L7 11 L12 11 Z" fill={cursor.color} stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
-          </svg>
-          {/* Name badge */}
-          <div style={{
-            background: cursor.color,
-            color: "white",
-            fontSize: 10,
-            fontWeight: 700,
-            padding: "1px 6px",
-            borderRadius: 4,
-            whiteSpace: "nowrap",
-            marginTop: 1,
-            marginLeft: 2,
-            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-          }}>
-            {cursor.name}
-          </div>
-        </div>
-      ))}
 
       {/* ── Drag overlay ── */}
       <DragOverlay dropAnimation={null}>
