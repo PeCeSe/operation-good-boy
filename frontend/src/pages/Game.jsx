@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable } from "@dnd-kit/core";
 import LocationBar from "../components/LocationBar";
@@ -146,6 +146,7 @@ export default function Game({ gameState, mySocketId }) {
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
   const [activeDrag, setActiveDrag] = useState(null);
   const [zoom, setZoom] = useState(1);
+  const [otherCursors, setOtherCursors] = useState({});
   const zoomRef = useRef(zoom);
   useEffect(() => { zoomRef.current = zoom; }, [zoom]);
 
@@ -195,6 +196,51 @@ export default function Game({ gameState, mySocketId }) {
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, []);
+
+  // Cursor tracking — send my position, receive others'
+  const myColorRef = useRef("#f59e0b");
+  const myNameRef = useRef("");
+  useEffect(() => {
+    myColorRef.current = me?.character?.bgFrom ?? "#f59e0b";
+    myNameRef.current = me?.name ?? "";
+  }, [me?.character?.bgFrom, me?.name]);
+
+  useEffect(() => {
+    let lastEmit = 0;
+    const onPointerMove = (e) => {
+      const now = Date.now();
+      if (now - lastEmit < 50) return;
+      lastEmit = now;
+      socket.emit("cursor_move", {
+        x: e.clientX / window.innerWidth,
+        y: e.clientY / window.innerHeight,
+        name: myNameRef.current,
+        color: myColorRef.current,
+      });
+    };
+    const onPointerLeave = () => socket.emit("cursor_leave");
+
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerleave", onPointerLeave);
+
+    const onCursorUpdate = ({ socketId, x, y, name, color }) => {
+      setOtherCursors((prev) => ({ ...prev, [socketId]: { x, y, name, color } }));
+    };
+    const onCursorLeave = ({ socketId }) => {
+      setOtherCursors((prev) => { const n = { ...prev }; delete n[socketId]; return n; });
+    };
+
+    socket.on("cursor_update", onCursorUpdate);
+    socket.on("cursor_leave", onCursorLeave);
+
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerleave", onPointerLeave);
+      socket.off("cursor_update", onCursorUpdate);
+      socket.off("cursor_leave", onCursorLeave);
+      socket.emit("cursor_leave");
     };
   }, []);
 
@@ -495,6 +541,41 @@ export default function Game({ gameState, mySocketId }) {
         currentPlayerId={currentPlayerId}
         isMyTurn={isMyTurn}
       />
+
+      {/* ── Other players' cursors ── */}
+      {Object.entries(otherCursors).map(([id, cursor]) => (
+        <div
+          key={id}
+          style={{
+            position: "fixed",
+            left: cursor.x * window.innerWidth,
+            top: cursor.y * window.innerHeight,
+            pointerEvents: "none",
+            zIndex: 9999,
+            transform: "translate(2px, 2px)",
+          }}
+        >
+          {/* Arrow */}
+          <svg width="16" height="20" viewBox="0 0 16 20" fill="none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))" }}>
+            <path d="M0 0 L0 16 L4.5 12 L7.5 19 L10 18 L7 11 L12 11 Z" fill={cursor.color} stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+          </svg>
+          {/* Name badge */}
+          <div style={{
+            background: cursor.color,
+            color: "white",
+            fontSize: 10,
+            fontWeight: 700,
+            padding: "1px 6px",
+            borderRadius: 4,
+            whiteSpace: "nowrap",
+            marginTop: 1,
+            marginLeft: 2,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+          }}>
+            {cursor.name}
+          </div>
+        </div>
+      ))}
 
       {/* ── Drag overlay ── */}
       <DragOverlay dropAnimation={null}>

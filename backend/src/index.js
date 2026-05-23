@@ -305,12 +305,29 @@ io.on("connection", (socket) => {
     });
   });
 
+  // ── Cursors ─────────────────────────────────────────────────────────────────
+
+  socket.on("cursor_move", ({ x, y, name, color }) => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room) return;
+    socket.to(room.code).emit("cursor_update", { socketId: socket.id, x, y, name, color });
+  });
+
+  socket.on("cursor_leave", () => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room) return;
+    socket.to(room.code).emit("cursor_leave", { socketId: socket.id });
+  });
+
   // ── Disconnect ──────────────────────────────────────────────────────────────
 
   socket.on("disconnect", () => {
     console.log(`Disconnected: ${socket.id}`);
     const room = roomManager.getRoomBySocket(socket.id);
-    if (room) emitRoomUpdate(room.code);
+    if (room) {
+      socket.to(room.code).emit("cursor_leave", { socketId: socket.id });
+      emitRoomUpdate(room.code);
+    }
   });
 });
 
