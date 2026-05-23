@@ -57,7 +57,7 @@ function DifficultySlider({ value, onChange }) {
 
 export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const { code } = useParams();
-  const [nameInput, setNameInput] = useState("");
+  const [nameInput, setNameInput] = useState(() => localStorage.getItem("ogb_player_name") || "");
   const [nameSent, setNameSent] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [copied, setCopied] = useState(false);
@@ -79,6 +79,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const handleSetName = () => {
     const trimmed = nameInput.trim();
     if (!trimmed) return;
+    localStorage.setItem("ogb_player_name", trimmed);
     socket.emit("set_name", { name: trimmed });
     setNameSent(true);
   };
