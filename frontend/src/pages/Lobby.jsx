@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socket from "../socket";
 import CHARACTERS from "../data/characters";
@@ -66,6 +66,16 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const myPlayer = roomInfo?.players.find((p) => p.socketId === mySocketId);
   const isHost = roomInfo?.hostSocketId === mySocketId;
   const allReady = roomInfo?.players.length >= 1 && roomInfo.players.every((p) => p.isReady);
+
+  // Auto-send cached name when we first appear in the room with a default name
+  useEffect(() => {
+    if (!myPlayer) return;
+    const saved = localStorage.getItem("ogb_player_name");
+    if (saved && /^Player \d+$/.test(myPlayer.name)) {
+      socket.emit("set_name", { name: saved });
+      setNameSent(true);
+    }
+  }, [myPlayer?.playerId]);
 
   const takenCharacters = new Set(
     (roomInfo?.players || []).map((p) => p.characterId).filter(Boolean)

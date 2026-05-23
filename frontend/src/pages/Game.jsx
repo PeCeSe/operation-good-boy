@@ -591,7 +591,7 @@ export default function Game({ gameState, mySocketId }) {
           return event ? <EventCardDisplay event={event} /> : null;
         })()}
         {activeDrag?.draggableType === "enemy_card" && (() => {
-          const enemy = (enemies ?? []).find((e) => e.id === activeDrag.enemyId);
+          const enemy = (enemies ?? []).find((e) => e && e.id === activeDrag.enemyId);
           return enemy ? <EnemyCardDisplay enemy={enemy} /> : null;
         })()}
         {activeDrag?.draggableType === "enemy_deck_draw" && (
