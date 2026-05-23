@@ -262,13 +262,15 @@ export default function Game({ gameState, mySocketId }) {
 
   useEffect(() => {
     let lastEmit = 0;
+    const vw = () => window.visualViewport?.width ?? window.innerWidth;
+    const vh = () => window.visualViewport?.height ?? window.innerHeight;
     const onPointerMove = (e) => {
       const now = Date.now();
       if (now - lastEmit < 50) return;
       lastEmit = now;
       socket.emit("cursor_move", {
-        x: e.clientX / window.innerWidth,
-        y: e.clientY / window.innerHeight,
+        x: e.clientX / vw(),
+        y: e.clientY / vh(),
         name: myNameRef.current,
         color: myColorRef.current,
       });
@@ -547,8 +549,8 @@ export default function Game({ gameState, mySocketId }) {
           key={id}
           style={{
             position: "fixed",
-            left: cursor.x * window.innerWidth,
-            top: cursor.y * window.innerHeight,
+            left: cursor.x * (window.visualViewport?.width ?? window.innerWidth),
+            top: cursor.y * (window.visualViewport?.height ?? window.innerHeight),
             pointerEvents: "none",
             zIndex: 9999,
             transform: "translate(2px, 2px)",
