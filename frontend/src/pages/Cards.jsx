@@ -135,7 +135,14 @@ export default function Cards() {
         <SectionHeader>Stupid Hooman Events</SectionHeader>
         <div className="flex flex-wrap gap-3">
           {EVENTS.map((event) => (
-            <EventCardDisplay key={event.id} event={event} pack={event.pack} />
+            <div key={event.id} className="relative">
+              <EventCardDisplay event={event} pack={event.pack} />
+              {event.copies && (
+                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
+                  ×{event.copies}
+                </div>
+              )}
+            </div>
           ))}
         </div>
       </section>
