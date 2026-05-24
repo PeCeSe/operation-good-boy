@@ -393,7 +393,7 @@ export default function Game({ gameState, mySocketId }) {
             left: 0,
             transform: `scale(${zoom})`,
             transformOrigin: "top left",
-            background: "linear-gradient(160deg, #d6bc96 0%, #c4a872 50%, #c8aa78 100%)",
+            background: "radial-gradient(140% 50% at 50% 0%, #f5f0d8 48%, #c7a789 100%)",
             boxShadow: "inset 0 0 80px rgba(0,0,0,0.15)",
           }}
         >
