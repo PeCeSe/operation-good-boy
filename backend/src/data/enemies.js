@@ -1,28 +1,4 @@
 const ENEMIES = [
-  // ── Boss (always last in deck) ────────────────────────────────────────────
-  {
-    id: "enemy_001",
-    name: "Good Boy",
-    emoji: "🐕",
-    pack: 1,
-    maxHealth: 20,
-    currentHealth: 20,
-    attack: 4,
-    cucumberTokensOnSurvive: 2,
-    weakTo: [],
-    resistantTo: [],
-    ability: {
-      trigger: "start_of_round",
-      description: "Add 1 🥒 to the location.",
-    },
-    reward: {
-      description: "Remove 2 🥒. All heroes gain 1 ❤️.",
-    },
-    flavorText: "The humans think he's harmless. He is not.",
-    placedAttacks: {},
-    isBoss: true,
-  },
-
   // ── Pack 1 enemies ────────────────────────────────────────────────────────
   {
     id: "enemy_002",

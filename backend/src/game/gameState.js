@@ -29,10 +29,7 @@ function buildStartingDeck(character) {
 }
 
 function initGameState(room) {
-  const allEnemies = deepClone(ENEMIES);
-  const goodBoy = allEnemies.find((e) => e.id === "enemy_001");
-  const otherEnemies = shuffle(allEnemies.filter((e) => e.id !== "enemy_001"));
-  const enemyDeck = [...otherEnemies, goodBoy];
+  const enemyDeck = shuffle(deepClone(ENEMIES));
 
   const locationDeck = deepClone(LOCATIONS);
   const eventDeck = shuffle(deepClone(EVENTS));
