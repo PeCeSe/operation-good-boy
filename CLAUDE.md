@@ -120,6 +120,45 @@ Defeat all enemies including **Good Boy** (always at the bottom of the enemy dec
 
 ---
 
+## Image Handling
+
+### Folder structure
+All card images live in `frontend/public/cards/` organised by pack and type:
+```
+/cards
+  /pack1
+    /items/    ← shop item cards
+    /allies/   ← shop ally cards
+    /moves/    ← shop move cards (ready for when art exists)
+  /starters/   ← character starting deck cards (organised by character subfolder)
+  /fallbacks/  ← type fallback images shown when a card has no art yet
+/characters/   ← character artwork (full, headshot, stunned variants)
+```
+
+### Compression — ALWAYS compress new images before committing
+Raw AI-generated or exported PNGs are typically 2–3MB each and must be compressed with `pngquant` before being added to the repo. The repo was already bloated to 57MB from uncompressed images; keep it lean.
+
+Install if needed: `apt-get install -y pngquant`
+
+**Lobby/hero character art** (`characters/ace.png`, `fluffington.png`, `noodle.png`) — quality 85-95 (gentle, these are displayed large):
+```bash
+pngquant --quality=85-95 --speed 1 --force --output image.png image.png
+```
+
+**Everything else** (card art, headshots, stunned variants, fallbacks) — quality 65-85 (aggressive, displayed small):
+```bash
+pngquant --quality=65-85 --speed 1 --force --output image.png image.png
+```
+
+Target size after compression: ~200–800KB per image. If an image is still over 1MB after compression, flag it.
+
+### Adding new card images
+1. Compress the image (see above)
+2. Place in the correct `/cards/pack1/{type}/` folder
+3. Add an `image` field to the card entry in `backend/src/data/cards.js` — `Cards.jsx` picks it up automatically via the API
+
+---
+
 ## Important Notes for Claude
 
 - **Frontend deploys automatically** when pushing to `main` via Vercel.
