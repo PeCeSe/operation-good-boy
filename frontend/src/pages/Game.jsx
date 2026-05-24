@@ -432,7 +432,7 @@ export default function Game({ gameState, mySocketId }) {
             <LocationBar
               currentLocation={currentLocation}
               lostLocations={lostLocations ?? []}
-              totalLocations={3}
+              totalLocations={(lostLocations?.length ?? 0) + (currentLocation ? 1 : 0) + (locationDeck?.length ?? 0)}
             />
           </div>
 
