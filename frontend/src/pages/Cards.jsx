@@ -14,14 +14,10 @@ const LOCATIONS = [
 ];
 
 const EVENTS = [
-  { id: "ev_1", pack: 1, name: "The Postman Rang the Doorbell", effect: { cucumberTokens: 1 }, flavorText: "Chaos. Pure chaos." },
-  { id: "ev_2", pack: 1, name: "The Vacuum Cleaner Turned On", effect: { damageAll: 1 }, flavorText: "Everyone scatter." },
-  { id: "ev_3", pack: 1, name: "Bath Time", effect: { discardCards: 1 }, flavorText: "The indignity." },
-  { id: "ev_4", pack: 1, name: "Vet Appointment", effect: { damageAll: 2 }, flavorText: "They said it wouldn't hurt." },
-  { id: "ev_5", pack: 1, name: "Kids Are Visiting", effect: { cucumberTokens: 1, discardCards: 2 }, flavorText: "They just grab. No warning." },
-  { id: "ev_6", pack: 1, name: "It's Raining", effect: { blockShop: true }, flavorText: "We're all stuck inside. Shop's closed." },
-  { id: "ev_7", pack: 1, name: "Dog Walk Past The Window", effect: { cucumberTokens: 2 }, flavorText: "He looked right at us." },
-  { id: "ev_8", pack: 1, name: "Monday Morning", effect: { damageAll: 1, pawcoinPenalty: 1 }, flavorText: "Nobody wanted this." },
+  { id: "event_001", pack: 1, copies: 3, name: "Bath Time", effect: { damageActive: 2 }, flavorText: "The indignity." },
+  { id: "event_002", pack: 1, copies: 2, name: "The Spray Bottle", effect: { damageActive: 1, discardCards: 1 }, flavorText: "Every. Single. Time." },
+  { id: "event_003", pack: 1, copies: 3, name: "Cucumber on the Counter", effect: { cucumberTokens: 1 }, flavorText: "Who put that there?!" },
+  { id: "event_004", pack: 1, copies: 2, name: "Hoover's On", effect: { damageAll: 1, blockExtraDraw: true }, flavorText: "Everyone scatter." },
 ];
 
 const ENEMIES = [
