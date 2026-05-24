@@ -7,6 +7,7 @@ const TYPE_CONFIG = {
     border: "border-[#B06560]",
     emoji: "🐾",
     label: "MOVE",
+    fallbackImage: "/cards/fallbacks/MoveFallback.png",
   },
   item: {
     banner: "bg-[#C98F3A] text-white",
@@ -14,6 +15,7 @@ const TYPE_CONFIG = {
     border: "border-[#A0712E]",
     emoji: "📦",
     label: "ITEM",
+    fallbackImage: "/cards/fallbacks/ItemFallback.png",
   },
   ally: {
     banner: "bg-[#5D8C9E] text-white",
@@ -21,36 +23,31 @@ const TYPE_CONFIG = {
     border: "border-[#4A7080]",
     emoji: "🤝",
     label: "ALLY",
+    fallbackImage: "/cards/fallbacks/AllyFallback.png",
   },
 };
 
-const ATTACK_ICONS = {
-  scratch: "🐾",
-  bite: "🦷",
-  ignore: "🙄",
-  charm: "✨",
-};
-
 function renderDescription(text) {
-  return text.split("♥").map((part, i, arr) => (
-    <span key={i}>{part}{i < arr.length - 1 && <span className="text-red-400">♥</span>}</span>
-  ));
+  const tokens = text.split(/(♥|🪙)/);
+  return tokens.map((token, i) => {
+    if (token === "♥") return <span key={i} className="text-red-400">♥</span>;
+    if (token === "🪙") return <PawCoin key={i} />;
+    return <span key={i}>{token}</span>;
+  });
 }
 
-function EffectText({ effect }) {
-  const parts = [];
-  if (effect.attack > 0 && effect.attackType)
-    parts.push(`+${effect.attack} ${ATTACK_ICONS[effect.attackType]} ${effect.attackType}`);
-  if (effect.pawcoins > 0) parts.push(<>Gain {effect.pawcoins} <PawCoin />.</>);
-  if (effect.special === "draw_card") parts.push("Draw 1 card.");
-  if (effect.special === "heal") parts.push("Heal 1 life.");
-  if (effect.special?.startsWith("bite_")) parts.push(`+${effect.special.split("_")[1]} 🦷 bite`);
-  if (effect.special?.startsWith("charm_")) parts.push(`+${effect.special.split("_")[1]} ✨ charm`);
-  if (parts.length === 0) return <>—</>;
-  return <>{parts.map((p, i) => <span key={i}>{i > 0 && " "}{p}</span>)}</>;
+function CostBadge({ cost }) {
+  return (
+    <div className="relative flex-shrink-0 w-7 h-7 flex items-center justify-center">
+      <img src="/pawcoin.svg" alt="" className="absolute inset-0 w-full h-full" />
+      <span className="relative text-white text-[11px] font-black leading-none" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
+        {cost}
+      </span>
+    </div>
+  );
 }
 
-export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false }) {
+export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false, pack }) {
   const cfg = TYPE_CONFIG[card.type] || { banner: "bg-stone-600 text-white", image: "bg-stone-100", border: "border-stone-400", emoji: "❓", label: card.type };
 
   return (
@@ -58,8 +55,9 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       onClick={onClick}
       disabled={!isPlayable || isPlaying}
       title={card.flavorText}
+      style={{ width: 176, height: 258 }}
       className={`
-        w-44 flex-shrink-0 flex flex-col h-full rounded-xl border-2 overflow-hidden shadow-md
+        flex-shrink-0 flex flex-col rounded-xl border-2 overflow-hidden shadow-md
         bg-amber-50 text-left select-none
         transition-all duration-300
         ${cfg.border}
@@ -68,44 +66,44 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         ${!isPlayable && !isPlaying ? "opacity-50 cursor-default" : ""}
       `}
     >
-      {/* Header: name + cost */}
-      <div className="flex items-start justify-between gap-1 px-2 pt-2 pb-1 min-h-[2rem]">
-        <span className="font-bold text-sm leading-tight text-stone-800">{card.name}</span>
-        {showCost && (
-          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-400 text-white text-xs font-bold flex items-center justify-center shadow-sm">
-            {card.cost}
-          </span>
+      {/* Header: name only — full width */}
+      <div className="px-2 pt-2 pb-1 shrink-0">
+        <span className="font-bold text-xs leading-tight text-stone-800 line-clamp-1 block">{card.name}</span>
+      </div>
+
+      {/* Illustration */}
+      {(() => {
+        const imgSrc = card.image ?? cfg.fallbackImage;
+        return (
+          <div className={`shrink-0 overflow-hidden flex items-center justify-center ${cfg.image} ${imgSrc ? "" : "text-4xl"}`} style={{ aspectRatio: "3/2" }}>
+            {imgSrc
+              ? <img src={imgSrc} alt={card.name} className="w-full h-full object-contain" />
+              : cfg.emoji
+            }
+          </div>
+        );
+      })()}
+
+      {/* Type banner */}
+      <div className={`px-2 py-0.5 text-[9px] font-bold tracking-widest shrink-0 flex items-center ${cfg.banner}`}>
+        <div className="flex-1 text-center">{cfg.label}</div>
+        {pack != null && (
+          <span className="text-[8px] font-bold bg-white/25 rounded-full px-1.5 leading-tight shrink-0">P{pack}</span>
         )}
       </div>
 
-      {/* Image — square, full illustration */}
-      <div className={`mx-1.5 rounded-lg h-28 overflow-hidden flex items-center justify-center ${cfg.image} ${card.image ? "" : "text-5xl"}`}>
-        {card.image
-          ? <img src={card.image} alt={card.name} className="w-full h-full object-contain" />
-          : cfg.emoji
-        }
+      {/* Effect */}
+      <div className="px-2 pt-1 pb-0 text-[10px] text-stone-700 font-medium leading-snug flex-1 min-h-0 overflow-hidden">
+        {card.description ? renderDescription(card.description) : "—"}
       </div>
 
-      {/* Type banner */}
-      <div className={`text-center py-0.5 text-[9px] font-bold tracking-widest mt-1.5 ${cfg.banner}`}>
-        {cfg.label}
+      {/* Bottom: flavor (left) + cost (right) */}
+      <div className="flex items-end gap-1 px-2 pb-2 pt-0.5 shrink-0">
+        <div className="flex-1 text-[9px] italic text-stone-400 leading-snug line-clamp-2">
+          {card.flavorText && `"${card.flavorText}"`}
+        </div>
+        {showCost && <CostBadge cost={card.cost} />}
       </div>
-
-      {/* Effect — flex-1 keeps all cards the same height */}
-      <div className="px-2 pt-1.5 pb-1 text-xs text-stone-700 font-medium leading-snug flex-1">
-        {card.description ? renderDescription(card.description) : <EffectText effect={card.effect} />}
-      </div>
-
-      {/* Divider + flavor */}
-      {card.flavorText && (
-        <>
-          <div className="mx-2 border-t border-stone-300" />
-          <div className="px-2 pt-1 pb-2 text-[10px] italic text-stone-400 leading-snug line-clamp-2">
-            "{card.flavorText}"
-          </div>
-        </>
-      )}
-      {!card.flavorText && <div className="pb-2" />}
     </button>
   );
 }
