@@ -75,13 +75,10 @@ const SHOP_CARDS = [
   { id: "card_m04", name: "Slow Blink", type: "move", cost: 3, pack: 1, copies: 6, effect: { attack: 0, pawcoins: 0, special: "choice_2coins_or_draw" }, description: "Choose one: Gain 2 🪙, or draw a card.", flavorText: "This means I love you. Now do what I want." },
   { id: "card_m05", name: "Scratch", type: "move", cost: 5, pack: 1, copies: 2, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "Lightning fast. No regrets." },
   // Item
-  { id: "card_009", name: "Scratching Post", type: "item", cost: 4, pack: 1, effect: { attack: 2, pawcoins: 1, special: null }, flavorText: "Also works on furniture." },
-  { id: "card_010", name: "Lure Wand", type: "item", cost: 3, pack: 1, effect: { attack: 3, pawcoins: 0, special: null }, flavorText: "They never see it coming." },
-  { id: "card_011", name: "Cardboard Box", type: "item", cost: 2, pack: 1, effect: { attack: 0, pawcoins: 0, special: "draw_card" }, flavorText: "Fits any cat. No questions asked." },
-  { id: "card_012", name: "Catnip", type: "item", cost: 2, pack: 1, effect: { attack: 0, pawcoins: 3, special: null }, flavorText: "For focus. Definitely for focus." },
-  { id: "card_013", name: "Hairball", type: "item", cost: 3, pack: 1, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "A biological weapon." },
-  { id: "card_014", name: "Laser Pointer", type: "item", cost: 2, pack: 1, effect: { attack: 1, pawcoins: 0, special: "draw_card" }, flavorText: "Distracting for everyone involved." },
-  { id: "card_015", name: "Yarn Ball", type: "item", cost: 3, pack: 1, effect: { attack: 1, pawcoins: 2, special: null }, flavorText: "Multi-purpose." },
+  { id: "card_i01", name: "Squeeze Treat", type: "item", cost: 2, pack: 1, copies: 4, effect: { attack: 0, pawcoins: 0, special: "heal2_any" }, description: "Any one hero gains 2 ♥.", flavorText: "Straight from the tube." },
+  { id: "card_i02", name: "Scratching Post", type: "item", cost: 3, pack: 1, copies: 4, effect: { attack: 1, pawcoins: 0, special: "heal2_self" }, description: "Gain 1 ⚔️ and gain 2 ♥.", flavorText: "Also works on furniture." },
+  { id: "card_i03", name: "Cardboard Castle", type: "item", cost: 4, pack: 1, copies: 1, effect: { attack: 0, pawcoins: 2, special: "allies_to_top_of_deck" }, description: "Gain 2 🪙. You may put Allies you acquire on top of your deck instead of your discard pile.", flavorText: "Fits any cat. No questions asked." },
+  { id: "card_i04", name: "Toy Mouse", type: "item", cost: 5, pack: 1, copies: 1, effect: { attack: 0, pawcoins: 2, special: "draw_card" }, description: "Gain 2 🪙. Draw a card.", flavorText: "Suspiciously lifelike." },
   // Ally
   { id: "card_016", name: "Friendly Pigeon", type: "ally", cost: 3, pack: 1, effect: { attack: 0, pawcoins: 2, special: null }, flavorText: "Surprisingly cooperative for a bird." },
   { id: "card_017", name: "Old Lady Next Door", type: "ally", cost: 5, pack: 1, effect: { attack: 4, pawcoins: 0, special: null }, flavorText: "She gives out treats. Loyalty secured." },
