@@ -167,7 +167,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
           {discardCount > 1 && (
             <div className="absolute rounded-xl border-2 border-stone-300 bg-stone-200" style={{ width: 176, height: 258, top: 3, left: 3 }} />
           )}
-          <div className="absolute top-0 left-0" style={{ zIndex: 2 }}>
+          <div className="absolute top-0 left-0" style={{ zIndex: 2, pointerEvents: "none" }}>
             {topDiscard ? (
               <CardComponent card={topDiscard} isPlayable={false} />
             ) : (
