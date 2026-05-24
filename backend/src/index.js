@@ -50,8 +50,13 @@ function withGame(socket, actionFn) {
   const room = roomManager.getRoomBySocket(socket.id);
   if (!room?.gameState) return socket.emit("error", { message: "No game in progress." });
   if (room.gameState.phase !== "playing") return;
-  actionFn(room.gameState, room);
-  emitGameUpdate(room.code);
+  try {
+    actionFn(room.gameState, room);
+    emitGameUpdate(room.code);
+  } catch (err) {
+    console.error("withGame error:", err);
+    socket.emit("error", { message: "Server error processing action." });
+  }
 }
 
 // Resolve the calling player's playerId from their socket.

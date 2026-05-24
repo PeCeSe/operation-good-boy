@@ -254,6 +254,7 @@ function drawEnemy(state, slotIndex) {
   }
 
   const enemy = state.enemyDeck.shift();
+  enemy.damageTokens = [];
   state.enemies[targetSlot] = enemy;
   log(state, `${enemy.name} enters the fray!`);
 }
