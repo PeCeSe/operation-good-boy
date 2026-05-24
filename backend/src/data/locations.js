@@ -8,7 +8,6 @@ const LOCATIONS = [
     maxCucumberTokens: 4,
     currentCucumberTokens: 0,
     eventsToDraw: 1,
-    flavorText: "Comfortable. Contested.",
   },
   {
     id: "location_002",
@@ -19,7 +18,6 @@ const LOCATIONS = [
     maxCucumberTokens: 4,
     currentCucumberTokens: 0,
     eventsToDraw: 1,
-    flavorText: "The last patch of warmth worth fighting for.",
   },
 ];
 

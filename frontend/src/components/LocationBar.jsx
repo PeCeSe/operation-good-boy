@@ -50,13 +50,6 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
               </div>
             )
           }
-          {currentLocation.flavorText && (
-            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-ink/50 to-transparent px-2 pb-1">
-              <div className="text-[9px] font-flavor italic text-white/80 leading-tight line-clamp-2">
-                "{currentLocation.flavorText}"
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Events info */}
