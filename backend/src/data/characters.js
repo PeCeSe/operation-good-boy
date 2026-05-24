@@ -45,8 +45,8 @@ const STARTING_CARDS = {
     type: "item",
     cost: 0,
     image: "/cards/Pedigree.png",
-    effect: { attack: 0, pawcoins: 1, special: "moves_to_top_of_deck" },
-    description: "Gain 1 🪙. You may put Moves you acquire on the top of your deck instead of in your discard pile.",
+    effect: { attack: 0, pawcoins: 0, special: "choice_pedigree" },
+    description: "Choose one: Gain 2 🪙; or ALL Heroes gain 1 🪙.",
     flavorText: "Fourteen generations of excellence.",
   },
   persian_mirror: {
@@ -55,8 +55,8 @@ const STARTING_CARDS = {
     type: "item",
     cost: 0,
     image: "/cards/VanityMirror.png",
-    effect: { attack: 0, pawcoins: 1, special: "discard_all_gain_coin" },
-    description: "Gain 1 pawcoin. If you discard this, ALL heroes gain 1 pawcoin.",
+    effect: { attack: 0, pawcoins: 1, special: "moves_to_top_of_deck" },
+    description: "Gain 1 🪙. You may put Moves you acquire on the top of your deck instead of in your discard pile.",
     flavorText: "The fairest in the land. Obviously.",
   },
   persian_slave: {
