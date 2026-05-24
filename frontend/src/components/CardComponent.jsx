@@ -7,6 +7,7 @@ const TYPE_CONFIG = {
     border: "border-[#B06560]",
     emoji: "🐾",
     label: "MOVE",
+    fallbackImage: "/cards/MoveFallback.png",
   },
   item: {
     banner: "bg-[#C98F3A] text-white",
@@ -70,12 +71,17 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* Illustration */}
-      <div className={`mx-1.5 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${cfg.image} ${card.image ? "" : "text-4xl"}`} style={{ aspectRatio: "3/2" }}>
-        {card.image
-          ? <img src={card.image} alt={card.name} className="w-full h-full object-contain" />
-          : cfg.emoji
-        }
-      </div>
+      {(() => {
+        const imgSrc = card.image ?? cfg.fallbackImage;
+        return (
+          <div className={`mx-1.5 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${cfg.image} ${imgSrc ? "" : "text-4xl"}`} style={{ aspectRatio: "3/2" }}>
+            {imgSrc
+              ? <img src={imgSrc} alt={card.name} className="w-full h-full object-contain" />
+              : cfg.emoji
+            }
+          </div>
+        );
+      })()}
 
       {/* Type banner */}
       <div className={`px-2 py-0.5 text-[9px] font-bold tracking-widest mt-1 shrink-0 flex items-center ${cfg.banner}`}>
