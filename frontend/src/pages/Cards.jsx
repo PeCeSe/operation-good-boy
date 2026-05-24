@@ -60,7 +60,9 @@ const STARTING_DECKS = [
     charId: "char_kitten",
     cards: [
       KITTEN_EYES,
-      { id: "ki_2", name: "Kibble", count: 3, pack: 1, type: "item", effect: { attack: 0, pawcoins: 1, special: null }, flavorText: "It's all about the kibble." },
+      { id: "kitten_jingly", name: "Jingly Ball", count: 1, type: "item", image: "/cards/JinglyBall.png", effect: { attack: 0, pawcoins: 1, special: "discard_gain_2_coins" }, description: "Gain 1 🪙. If you discard this, gain 2 🪙.", flavorText: "Pretty and it makes noise!" },
+      { id: "kitten_kibble", name: "Kitten Kibble", count: 1, type: "item", image: "/cards/KittenKibble.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2_any" }, description: "Choose one: Gain 1 ⚔️, or any one hero gains 2 ♥.", flavorText: "With extra nutrients for growing kittens." },
+      { id: "kitten_mrbear", name: "Mr. Bear", count: 1, type: "ally", image: "/cards/MrBear.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2" }, description: "Choose one: Gain 1 ⚔️, or gain 2 ♥.", flavorText: "The best friend anyone could wish for." },
     ],
   },
 ];
