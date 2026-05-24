@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import CHARACTERS from "../data/characters";
 import CardComponent from "../components/CardComponent";
@@ -94,6 +95,10 @@ function PackBadge({ pack }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function Cards() {
+  const [cucumbers, setCucumbers] = useState(() =>
+    Object.fromEntries(LOCATIONS.map((l) => [l.id, 0]))
+  );
+
   const moveCards = SHOP_CARDS.filter((c) => c.type === "move");
   const itemCards = SHOP_CARDS.filter((c) => c.type === "item");
   const allyCards = SHOP_CARDS.filter((c) => c.type === "ally");
@@ -112,9 +117,10 @@ export default function Cards() {
           {LOCATIONS.map((loc, i) => (
             <div key={loc.id} className="flex flex-col gap-1.5">
               <LocationBar
-                currentLocation={loc}
+                currentLocation={{ ...loc, currentCucumbers: cucumbers[loc.id] }}
                 lostLocations={LOCATIONS.slice(0, i)}
                 totalLocations={LOCATIONS.length}
+                onSlotClick={(count) => setCucumbers((prev) => ({ ...prev, [loc.id]: count }))}
               />
               <div className="flex justify-center">
                 <PackBadge pack={loc.pack} />

@@ -1,6 +1,6 @@
 import socket from "../socket";
 
-export default function LocationBar({ currentLocation, lostLocations, totalLocations = 3 }) {
+export default function LocationBar({ currentLocation, lostLocations, totalLocations = 3, onSlotClick }) {
   if (!currentLocation) return null;
 
   const locationNumber = lostLocations.length + 1;
@@ -8,10 +8,10 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
   const isAlmostFull = currentCucumbers / maxCucumberTokens >= 0.75;
 
   const handleSlotClick = (i) => {
-    if (i < currentCucumbers) {
-      socket.emit("set_cucumbers", { count: currentCucumbers - 1 });
+    if (onSlotClick) {
+      onSlotClick(i < currentCucumbers ? currentCucumbers - 1 : currentCucumbers + 1);
     } else {
-      socket.emit("set_cucumbers", { count: currentCucumbers + 1 });
+      socket.emit("set_cucumbers", { count: i < currentCucumbers ? currentCucumbers - 1 : currentCucumbers + 1 });
     }
   };
 
