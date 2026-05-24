@@ -97,15 +97,6 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
             </button>
           ))}
         </div>
-        {lostLocations.length > 0 && (
-          <div className="ml-auto flex gap-1">
-            {lostLocations.map((loc) => (
-              <span key={loc.id} className="text-[9px] line-through text-sepia-soft/50">
-                {loc.name}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
