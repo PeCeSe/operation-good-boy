@@ -57,7 +57,7 @@ export default function Home() {
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
                 placeholder="XXXX-0000"
-                className="w-full bg-stone-100 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400 font-mono tracking-widest border border-stone-200"
+                className="w-full bg-stone-100 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400 font-mono tracking-[0.12em] border border-stone-200"
                 maxLength={9}
               />
             </div>

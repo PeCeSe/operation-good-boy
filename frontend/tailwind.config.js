@@ -86,9 +86,11 @@ export default {
       },
 
       fontFamily: {
-        display: ["Bangers", "cursive"],
-        body:    ["Nunito", "system-ui", "sans-serif"],
-        flavor:  ["'Patrick Hand'", "cursive"],
+        logo:    ["Bangers", "cursive"],                     // wordmark only — "OPERATION: GOOD BOY"
+        display: ["'Patrick Hand SC'", "cursive"],           // card names, screen titles, H1/H2
+        hand:    ["'Patrick Hand'", "cursive"],              // alias for flavor text
+        flavor:  ["'Patrick Hand'", "cursive"],              // flavor text
+        body:    ["Nunito", "system-ui", "sans-serif"],      // everything else
       },
 
       fontSize: {

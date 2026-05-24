@@ -25,9 +25,9 @@ function CardBack({ onFlip, isMyTurn, animClass }) {
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "repeating-linear-gradient(45deg, #fff 0, #fff 1px, transparent 0, transparent 50%)", backgroundSize: "10px 10px" }} />
         <div className="text-6xl opacity-30 select-none">🐾</div>
         {isMyTurn ? (
-          <div className="text-gold text-xs font-bold tracking-widest uppercase animate-pulse">Click to reveal</div>
+          <div className="text-gold text-xs font-body font-black tracking-[0.12em] uppercase animate-pulse">Click to reveal</div>
         ) : (
-          <div className="text-ink-300 text-xs font-semibold tracking-widest uppercase">Waiting…</div>
+          <div className="text-ink-300 text-xs font-body font-black tracking-[0.12em] uppercase">Waiting…</div>
         )}
       </div>
     </div>
@@ -38,8 +38,8 @@ function TurnStartCard({ item, isMyTurn, onAdvance }) {
   return (
     <div className="bg-paper-50 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden anim-slide-up border-2 border-ink-border">
       <div className="bg-moss px-5 py-4 text-center">
-        <div className="text-[9px] font-bold tracking-widest text-moss-soft uppercase mb-1">Round {item.roundNumber}</div>
-        <div className="font-display text-2xl text-white" style={{ letterSpacing: "0.04em" }}>
+        <div className="text-[9px] font-body font-black tracking-[0.12em] text-moss-soft uppercase mb-1">Round {item.roundNumber}</div>
+        <div className="font-display text-2xl text-white" >
           {isMyTurn ? "Your turn!" : `${item.playerName}'s turn`}
         </div>
       </div>
@@ -66,8 +66,8 @@ function EventCard({ event }) {
       <div className="bg-plum-deep px-5 py-3 flex items-center gap-2">
         <span className="text-2xl">📣</span>
         <div>
-          <div className="text-[9px] font-bold tracking-widest text-plum-soft uppercase">Event</div>
-          <div className="font-display text-base text-white leading-tight" style={{ letterSpacing: "0.04em" }}>
+          <div className="text-[9px] font-body font-black tracking-[0.12em] text-plum-soft uppercase">Event</div>
+          <div className="font-display text-base text-white leading-tight" >
             {event.name}
           </div>
         </div>
@@ -77,7 +77,7 @@ function EventCard({ event }) {
           <p className="text-xs font-flavor italic text-ink-500">"{event.flavorText}"</p>
         )}
         <div className="bg-plum-lighter border border-plum-soft rounded-lg px-3 py-2">
-          <div className="text-[9px] font-bold uppercase tracking-widest text-plum mb-1">Effect</div>
+          <div className="text-[9px] font-body font-black tracking-[0.12em] uppercase text-plum mb-1">Effect</div>
           <p className="text-sm font-body text-ink-700 font-semibold">
             {event.description || <DescribeEventEffect effect={event.effect} />}
           </p>
@@ -93,15 +93,15 @@ function EnemyAbilityCard({ item }) {
       <div className="bg-brown-deep px-5 py-3 flex items-center gap-2">
         <span className="text-2xl">{item.enemyEmoji || "👾"}</span>
         <div>
-          <div className="text-[9px] font-bold tracking-widest text-brown-soft uppercase">Enemy Ability</div>
-          <div className="font-display text-base text-white leading-tight" style={{ letterSpacing: "0.04em" }}>
+          <div className="text-[9px] font-body font-black tracking-[0.12em] text-brown-soft uppercase">Enemy Ability</div>
+          <div className="font-display text-base text-white leading-tight" >
             {item.enemyName}
           </div>
         </div>
       </div>
       <div className="px-5 py-4">
         <div className="bg-sepia-lighter border border-sepia-soft rounded-lg px-3 py-2">
-          <div className="text-[9px] font-bold uppercase tracking-widest text-sepia mb-1">Ability</div>
+          <div className="text-[9px] font-body font-black tracking-[0.12em] uppercase text-sepia mb-1">Ability</div>
           <p className="text-sm font-body text-ink-700 font-semibold">{item.description}</p>
         </div>
       </div>
@@ -121,14 +121,14 @@ function EffectResult({ effectResult, isMyTurn, onDone }) {
   return (
     <div className="bg-paper-50 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden anim-slide-up border-2 border-ink-border">
       <div className="bg-ink-700 px-5 py-3">
-        <div className="text-[9px] font-bold tracking-widest text-ink-300 uppercase">Effect applied</div>
+        <div className="text-[9px] font-body font-black tracking-[0.12em] text-ink-300 uppercase">Effect applied</div>
       </div>
       <div className="px-5 py-4 space-y-4">
         {!hasChanges && <p className="text-sm text-ink-300 italic text-center">No visible changes.</p>}
 
         {cucumberDelta !== 0 && (
           <div className="space-y-2">
-            <div className="text-[9px] font-bold tracking-widest text-ink-500 uppercase">{locationName}</div>
+            <div className="text-[9px] font-body font-black tracking-[0.12em] text-ink-500 uppercase">{locationName}</div>
             <div className="flex gap-1 flex-wrap items-center">
               {Array.from({ length: locationMax }).map((_, i) => {
                 const isNew = cucumberDelta > 0 && i >= locationCurrent - cucumberDelta && i < locationCurrent;

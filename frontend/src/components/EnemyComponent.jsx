@@ -9,15 +9,12 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
       style={{ width: 286, height: 213, background: "#fff8e6" }}
     >
       {/* ── Brown/ink header ── */}
-      <div className="bg-brown-deep px-3 py-1.5 flex items-center justify-between gap-2 shrink-0">
+      <div className="bg-brown-deep px-3 py-1.5 flex items-center justify-between gap-2 shrink-0 border-b" style={{ borderColor: "rgba(39,29,20,0.4)" }}>
         <div className="min-w-0">
-          <div
-            className="font-display text-base text-white leading-tight truncate"
-            style={{ letterSpacing: "0.04em" }}
-          >
+          <div className="font-display text-base text-white leading-tight truncate">
             {enemy.name}
           </div>
-          <div className="text-[9px] font-bold tracking-widest text-brown-soft uppercase">Enemy</div>
+          <div className="text-[9px] font-body font-black tracking-[0.12em] text-brown-soft uppercase">Enemy</div>
         </div>
         {pack != null && (
           <span className="text-[8px] font-bold bg-white/15 text-brown-soft rounded-full px-1.5 py-0.5 shrink-0">
@@ -38,11 +35,11 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
               <div className="text-[11px] font-body text-ink-300 italic">No ability.</div>
             )}
           </div>
-          <div className="shrink-0 mt-1.5">
+          <div className="shrink-0 mt-1.5 pt-1.5 border-t" style={{ borderColor: "rgba(39,29,20,0.2)" }}>
             <div className="flex items-center gap-1.5 mb-0.5">
-              <div className="h-px flex-1 bg-ink-border opacity-30" />
-              <span className="text-[8px] font-bold tracking-widest text-ink-500 uppercase">Reward</span>
-              <div className="h-px flex-1 bg-ink-border opacity-30" />
+              <div className="h-px flex-1 bg-ink-border opacity-20" />
+              <span className="text-[8px] font-body font-black tracking-[0.12em] text-ink-500 uppercase">Reward</span>
+              <div className="h-px flex-1 bg-ink-border opacity-20" />
             </div>
             <div className="text-[11px] font-body text-ink-700 leading-snug line-clamp-2">
               {enemy.reward?.description}

@@ -24,6 +24,8 @@ const TYPE_CONFIG = {
   },
 };
 
+const DIVIDER = { borderColor: "rgba(39, 29, 20, 0.25)" };
+
 function renderDescription(text) {
   const tokens = text.split(/(♥|🪙)/);
   return tokens.map((token, i) => {
@@ -69,12 +71,12 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         ${!isPlayable && !isPlaying ? "opacity-50 cursor-default" : ""}
       `}
     >
-      {/* ── Coloured header: card name in white Bangers ── */}
-      <div className={`px-2.5 pt-2 pb-1.5 shrink-0 flex items-center justify-between gap-1 ${cfg.header}`}>
-        <span
-          className="font-display text-base text-white leading-tight line-clamp-1 block"
-          style={{ letterSpacing: "0.03em" }}
-        >
+      {/* ── Coloured header: card name in Patrick Hand SC ── */}
+      <div
+        className={`px-2.5 pt-2 pb-1.5 shrink-0 flex items-center justify-between gap-1 border-b ${cfg.header}`}
+        style={DIVIDER}
+      >
+        <span className="font-display text-base text-white leading-tight line-clamp-1 block">
           {card.name}
         </span>
         {pack != null && (
@@ -95,8 +97,11 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         }
       </div>
 
-      {/* ── Type label banner ── */}
-      <div className={`px-2 py-0.5 text-[9px] font-bold tracking-widest shrink-0 text-center text-white ${cfg.header}`}>
+      {/* ── Type label banner — with top + bottom divider ── */}
+      <div
+        className={`px-2 py-0.5 text-[9px] font-body font-black tracking-[0.12em] shrink-0 text-center text-white border-t border-b ${cfg.header}`}
+        style={DIVIDER}
+      >
         {cfg.label}
       </div>
 
@@ -105,8 +110,11 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         {card.description ? renderDescription(card.description) : "—"}
       </div>
 
-      {/* ── Flavor + cost ── */}
-      <div className="flex items-end gap-1 px-2.5 pb-2 pt-0.5 shrink-0">
+      {/* ── Flavor + cost — with top divider ── */}
+      <div
+        className="flex items-end gap-1 px-2.5 pb-2 pt-1 shrink-0 border-t"
+        style={DIVIDER}
+      >
         <div className="flex-1 text-[9px] font-flavor italic text-ink-500 leading-snug line-clamp-2">
           {card.flavorText && `"${card.flavorText}"`}
         </div>

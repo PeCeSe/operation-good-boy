@@ -30,7 +30,7 @@ export default function ShopRow({ shop, shopDeck, paymentZone, isMyTurn, myPlaye
       {/* Payment zone */}
       <div className="mb-3 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 flex items-center gap-3 flex-wrap">
         <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-amber-600 mb-1">Payment Zone</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-600 mb-1">Payment Zone</div>
           {tokenCount === 0 ? (
             <div className="text-xs text-stone-400 italic">No coins placed</div>
           ) : (

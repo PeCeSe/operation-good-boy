@@ -13,11 +13,11 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
       style={{ width: 213, height: 213 }}
     >
       {/* ── Plum header ── */}
-      <div className="bg-plum-deep px-3 py-1.5 flex items-center gap-2 shrink-0">
+      <div className="bg-plum-deep px-3 py-1.5 flex items-center gap-2 shrink-0 border-b" style={{ borderColor: "rgba(39,29,20,0.25)" }}>
         <div className="w-5 h-5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[11px] shrink-0">
           😾
         </div>
-        <div className="text-[9px] font-bold tracking-widest text-white/80 uppercase">Stupid Hooman</div>
+        <div className="text-[9px] font-body font-black tracking-[0.12em] text-white/80 uppercase">Stupid Hooman</div>
         {pack != null && (
           <span className="text-[8px] font-bold bg-white/20 text-white/70 rounded-full px-1.5 leading-tight ml-auto shrink-0">
             P{pack}
@@ -26,7 +26,7 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
       </div>
 
       {/* ── Image area — plum gradient for fallback ── */}
-      <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden bg-plum-soft">
+      <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden bg-plum-soft border-b" style={{ borderColor: "rgba(39,29,20,0.25)" }}>
         {event.image
           ? <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
           : <span className="text-5xl opacity-30">🐾</span>
@@ -37,14 +37,11 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
       <div className="shrink-0 bg-paper-50" style={{ minHeight: 68 }}>
         <div className="flex items-center gap-1.5 px-3 pt-1.5">
           <div className="h-px flex-1 bg-plum opacity-30" />
-          <span className="text-[8px] font-bold tracking-widest uppercase text-plum">Event</span>
+          <span className="text-[9px] font-body font-black tracking-[0.12em] uppercase text-plum">Event</span>
           <div className="h-px flex-1 bg-plum opacity-30" />
         </div>
         <div className="px-3 pb-2 pt-0.5">
-          <div
-            className="font-display text-sm text-ink leading-tight"
-            style={{ letterSpacing: "0.03em" }}
-          >
+          <div className="font-display text-sm text-ink leading-tight">
             {event.name}
           </div>
           <div className="text-[10px] font-body text-ink-700 leading-snug mt-0.5 line-clamp-2">

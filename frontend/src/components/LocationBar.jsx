@@ -20,21 +20,15 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
       style={{ width: 286, height: 213 }}
     >
       {/* ── Header — sepia brown ── */}
-      <div className="bg-sepia-deep px-3 py-1.5 flex items-start justify-between gap-2 shrink-0">
+      <div className="bg-sepia-deep px-3 py-1.5 flex items-start justify-between gap-2 shrink-0 border-b" style={{ borderColor: "rgba(39,29,20,0.4)" }}>
         <div className="min-w-0">
-          <div
-            className="font-display text-base text-white leading-tight truncate"
-            style={{ letterSpacing: "0.04em" }}
-          >
+          <div className="font-display text-base text-white leading-tight truncate">
             {currentLocation.name}
           </div>
-          <div className="text-[9px] font-bold tracking-widest text-sepia-soft uppercase">Location</div>
+          <div className="text-[9px] font-body font-black tracking-[0.12em] text-sepia-soft uppercase">Location</div>
         </div>
         <div className="text-right shrink-0">
-          <div
-            className="font-display text-lg leading-tight text-sepia-soft"
-            style={{ letterSpacing: "0.04em" }}
-          >
+          <div className="font-display text-lg leading-tight text-sepia-soft">
             {locationNumber}
           </div>
           <div className="text-[9px] text-sepia-soft/70 leading-tight">of {totalLocations}</div>
@@ -88,10 +82,10 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
 
       {/* ── Bottom: cucumber token slots ── */}
       <div
-        className="shrink-0 px-3 py-1.5 flex items-center gap-1.5"
-        style={{ background: "#3d240e" }}
+        className="shrink-0 px-3 py-1.5 flex items-center gap-1.5 border-t"
+        style={{ background: "#3d240e", borderColor: "rgba(39,29,20,0.5)" }}
       >
-        <span className="text-[9px] font-bold tracking-widest uppercase shrink-0 text-sepia-soft">🥒</span>
+        <span className="text-[9px] font-bold tracking-[0.12em] uppercase shrink-0 text-sepia-soft">🥒</span>
         <div className="flex gap-1 flex-wrap">
           {Array.from({ length: maxCucumberTokens }).map((_, i) => (
             <button

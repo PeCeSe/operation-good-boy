@@ -199,7 +199,7 @@ export default function Cards() {
           { label: "Ally", cards: allyCards, color: "text-ally" },
         ].map(({ label, cards, color }) => (
           <div key={label} className="mb-8">
-            <h3 className={`font-bold text-sm uppercase tracking-widest mb-3 ${color}`}>{label}</h3>
+            <h3 className={`font-bold text-sm uppercase tracking-[0.12em] mb-3 ${color}`}>{label}</h3>
             <div className="flex flex-wrap gap-3">
               {cards.map((card) => (
                 <div key={card.id} className="relative">

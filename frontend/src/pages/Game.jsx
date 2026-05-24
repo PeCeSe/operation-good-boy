@@ -34,7 +34,7 @@ function EnemyDrawPile({ count, canDraw }) {
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold">Villain Deck</div>
+      <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold">Villain Deck</div>
       <button
         ref={setNodeRef}
         {...listeners}
@@ -67,7 +67,7 @@ function EnemyDiscardPile({ enemyDiscard }) {
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold">Defeated</div>
+      <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold">Defeated</div>
       <div
         ref={setNodeRef}
         className={`relative rounded-xl transition-all ${isOver ? "ring-2 ring-red-400 ring-offset-2" : ""}`}
@@ -426,7 +426,7 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Location (top-left) ── */}
           <div style={{ position: "absolute", top: 60, left: 40, zIndex: 1 }}>
-            <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-2">
+            <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold mb-2">
               Location
             </div>
             <LocationBar
@@ -438,7 +438,7 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Events (right of location) ── */}
           <div style={{ position: "absolute", top: 60, left: 360, zIndex: 1 }}>
-            <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-2">
+            <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold mb-2">
               Events
             </div>
             <EventDeck
@@ -506,7 +506,7 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Shop cards (2-column grid) ── */}
           <div style={{ position: "absolute", top: 240, left: 1090, zIndex: 1, width: 376 }}>
-            <div className="text-[9px] text-stone-600 uppercase tracking-widest font-bold mb-3">
+            <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold mb-3">
               Shop
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -635,7 +635,7 @@ function PaymentZonePanel({ paymentZone }) {
 
   return (
     <div className="bg-amber-50/80 border border-amber-300 rounded-xl px-3 py-2.5">
-      <div className="text-[9px] font-bold uppercase tracking-widest text-amber-700 mb-1.5">
+      <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-amber-700 mb-1.5">
         Payment Zone
       </div>
       {tokenCount === 0 ? (

@@ -102,7 +102,7 @@ export default function DiscardOverlay({ myEntry, myHand, pendingDiscardList, pl
       {/* Header */}
       <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden anim-slide-up">
         <div className="bg-red-600 px-5 py-4 text-center">
-          <div className="text-[9px] font-bold tracking-widest text-red-200 uppercase mb-1">Discard</div>
+          <div className="text-[9px] font-bold tracking-[0.12em] text-red-200 uppercase mb-1">Discard</div>
           <div className="text-white font-bold text-xl">
             Choose {required} card{required !== 1 ? "s" : ""} to discard
           </div>
@@ -110,7 +110,7 @@ export default function DiscardOverlay({ myEntry, myHand, pendingDiscardList, pl
 
         {/* Hand */}
         <div className="px-4 pt-4 pb-2">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 mb-2">
+          <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400 mb-2">
             Your hand — click or drag to discard zone
           </div>
           {remainingCards.length === 0 ? (

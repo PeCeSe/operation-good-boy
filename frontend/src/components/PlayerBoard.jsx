@@ -76,7 +76,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
     <div className="flex gap-3 px-4 py-3 bg-stone-50 border-t border-stone-200" style={{ minWidth: 900 }}>
       {/* ── Draw Pile ── */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
-        <div className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Draw</div>
+        <div className="text-[9px] text-stone-400 uppercase tracking-[0.12em] font-bold">Draw</div>
         <div ref={setDrawRef}>
           <button
             onClick={() => isMe && drawCount > 0 && socket.emit("draw_card")}
@@ -130,7 +130,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
 
       {/* ── Discard Pile ── */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
-        <div className="text-[9px] text-stone-400 uppercase tracking-widest font-bold">Discard</div>
+        <div className="text-[9px] text-stone-400 uppercase tracking-[0.12em] font-bold">Discard</div>
         <div
           ref={setDiscardRef}
           onClick={() => isMe && discardCount > 0 && setShowBrowse(true)}
@@ -373,10 +373,10 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
             </div>
           )}
           <div className="px-4 py-3 space-y-2">
-            {charData?.trait && <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 italic">{charData.trait}</div>}
+            {charData?.trait && <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400 italic">{charData.trait}</div>}
             {charData?.passive && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                <div className="text-[9px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Passive</div>
+                <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-amber-500 mb-0.5">Passive</div>
                 <div className="text-xs text-stone-700 font-semibold">⚡ {charData.passive}</div>
               </div>
             )}

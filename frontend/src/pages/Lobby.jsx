@@ -147,14 +147,14 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
       {/* Header */}
       <div className="text-center">
         <div className="text-4xl mb-2">🐾</div>
-        <h1 className="text-3xl font-bold text-amber-600">Operation: Good Boy</h1>
+        <h1 className="font-logo text-3xl text-ink" style={{ letterSpacing: "0.04em" }}>Operation: Good Boy</h1>
         <div className="flex items-center justify-center gap-3 mt-3">
-          <span className="font-mono text-xl tracking-widest bg-white border border-stone-200 shadow-sm px-4 py-1 rounded">
+          <span className="font-body font-black text-xl tracking-[0.12em] bg-paper-50 border border-ink-border shadow-sm px-4 py-1 rounded">
             {code}
           </span>
           <button
             onClick={handleCopyLink}
-            className="text-sm bg-stone-200 hover:bg-stone-300 text-stone-700 px-3 py-1 rounded transition-colors"
+            className="text-sm bg-paper-200 hover:bg-paper-300 text-ink-700 px-3 py-1 rounded transition-colors"
           >
             Copy invite link
           </button>
@@ -296,9 +296,9 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                 {/* Info */}
                 <div className="bg-white p-4 space-y-3">
                   <p className="text-xs text-stone-500 leading-relaxed">{char.backstory}</p>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-stone-400 italic">{char.trait}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400 italic">{char.trait}</div>
                   <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                    <div className="text-[9px] font-bold uppercase tracking-widest text-amber-500 mb-0.5">Passive</div>
+                    <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-amber-500 mb-0.5">Passive</div>
                     <div className="text-xs text-stone-700 font-semibold">⚡ {char.passive}</div>
                   </div>
                 </div>
