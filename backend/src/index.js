@@ -7,6 +7,11 @@ const roomManager = require("./game/roomManager");
 const { rejoinRoom, setName } = roomManager;
 const { initGameState } = require("./game/gameState");
 const actions = require("./game/actions");
+const { CARDS } = require("./data/cards");
+const { CHARACTERS, STARTING_CARDS } = require("./data/characters");
+const { ENEMIES } = require("./data/enemies");
+const { EVENTS } = require("./data/events");
+const { LOCATIONS } = require("./data/locations");
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -16,6 +21,9 @@ const allowedOrigins = [
 const app = express();
 app.use(cors({ origin: allowedOrigins }));
 app.get("/health", (_, res) => res.json({ ok: true }));
+app.get("/api/gamedata", (_, res) => {
+  res.json({ cards: CARDS, characters: CHARACTERS, startingCards: STARTING_CARDS, enemies: ENEMIES, events: EVENTS, locations: LOCATIONS });
+});
 
 const server = http.createServer(app);
 const io = new Server(server, {
