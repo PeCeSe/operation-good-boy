@@ -60,7 +60,8 @@ function initGameState(room, difficulty = 1) {
   // ── Events & shop ────────────────────────────────────────────────────────
   const eventDeck = shuffle(deepClone(EVENTS.filter((e) => e.pack <= pack)));
   const shopDeck = shuffle(
-    CARDS.filter((c) => c.pack <= pack).map((c) => uniqueCard(c))
+    CARDS.filter((c) => c.pack <= pack)
+      .flatMap((c) => Array.from({ length: c.copies ?? 1 }, () => uniqueCard(c)))
   );
 
   const firstLocation = locationDeck.shift();

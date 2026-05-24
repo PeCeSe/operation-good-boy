@@ -69,14 +69,11 @@ const STARTING_DECKS = [
 
 const SHOP_CARDS = [
   // Move
-  { id: "card_001", name: "Zoomies", type: "move", cost: 3, pack: 1, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "No warning. No reason. Full speed." },
-  { id: "card_002", name: "Dead Cat Flop", type: "move", cost: 4, pack: 1, effect: { attack: 3, pawcoins: 0, special: null }, flavorText: "The perfect guilt trip." },
-  { id: "card_003", name: "Slow Blink", type: "move", cost: 3, pack: 1, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "This means I love you. Now do what I want." },
-  { id: "card_004", name: "Pounce", type: "move", cost: 3, pack: 1, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "Maximum commitment." },
-  { id: "card_005", name: "Hiss", type: "move", cost: 2, pack: 1, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "Don't touch me. I mean it." },
-  { id: "card_006", name: "Swipe", type: "move", cost: 4, pack: 1, effect: { attack: 3, pawcoins: 0, special: null }, flavorText: "Lightning fast. No regrets." },
-  { id: "card_007", name: "Belly Trap", type: "move", cost: 3, pack: 1, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "You were warned." },
-  { id: "card_008", name: "Kneading Therapy", type: "move", cost: 4, pack: 1, effect: { attack: 0, pawcoins: 0, special: "heal" }, flavorText: "Technically helping." },
+  { id: "card_m01", name: "Knock Down From Shelf", type: "move", cost: 2, pack: 1, copies: 3, effect: { attack: 0, pawcoins: 1, special: "items_to_top_of_deck" }, description: "Gain 1 🪙. You may put Items you acquire on top of your deck instead of your discard pile.", flavorText: "It wasn't an accident." },
+  { id: "card_m02", name: "Meow", type: "move", cost: 4, pack: 1, copies: 2, effect: { attack: 0, pawcoins: 0, special: "draw_all" }, description: "ALL heroes draw a card.", flavorText: "Loud. Insistent. Effective." },
+  { id: "card_m03", name: "Zoomies", type: "move", cost: 4, pack: 1, copies: 4, effect: { attack: 1, pawcoins: 0, special: "draw_card" }, description: "Gain 1 ⚔️. Draw a card.", flavorText: "No warning. No reason. Full speed." },
+  { id: "card_m04", name: "Slow Blink", type: "move", cost: 3, pack: 1, copies: 6, effect: { attack: 0, pawcoins: 0, special: "choice_2coins_or_draw" }, description: "Choose one: Gain 2 🪙, or draw a card.", flavorText: "This means I love you. Now do what I want." },
+  { id: "card_m05", name: "Scratch", type: "move", cost: 5, pack: 1, copies: 2, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "Lightning fast. No regrets." },
   // Item
   { id: "card_009", name: "Scratching Post", type: "item", cost: 4, pack: 1, effect: { attack: 2, pawcoins: 1, special: null }, flavorText: "Also works on furniture." },
   { id: "card_010", name: "Lure Wand", type: "item", cost: 3, pack: 1, effect: { attack: 3, pawcoins: 0, special: null }, flavorText: "They never see it coming." },
@@ -207,7 +204,14 @@ export default function Cards() {
             <h3 className={`font-bold text-sm uppercase tracking-widest mb-3 ${color}`}>{label}</h3>
             <div className="flex flex-wrap gap-3">
               {cards.map((card) => (
-                <CardComponent key={card.id} card={card} showCost={true} isPlayable={true} pack={card.pack} />
+                <div key={card.id} className="relative">
+                  <CardComponent card={card} showCost={true} isPlayable={true} pack={card.pack} />
+                  {card.copies && (
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
+                      ×{card.copies}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
