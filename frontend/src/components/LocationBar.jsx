@@ -80,12 +80,16 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
             <button
               key={i}
               onClick={() => handleSlotClick(i)}
-              className={`w-5 h-5 rounded-full border-2 transition-all hover:scale-110 ${
+              className={`w-5 h-5 rounded-full transition-all hover:scale-110 ${
                 i < currentCucumbers
-                  ? "bg-green-400 border-green-300"
-                  : "bg-stone-600 border-stone-500 hover:border-green-400"
+                  ? ""
+                  : "bg-stone-600 border-2 border-stone-500 hover:border-green-400"
               }`}
-            />
+            >
+              {i < currentCucumbers && (
+                <img src="/cucumber.svg" alt="🥒" className="w-full h-full" />
+              )}
+            </button>
           ))}
         </div>
         {lostLocations.length > 0 && (
