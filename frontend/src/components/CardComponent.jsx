@@ -28,7 +28,6 @@ const TYPE_CONFIG = {
 };
 
 function renderDescription(text) {
-  // Split on both ♥ and 🪙, replacing with their respective components
   const tokens = text.split(/(♥|🪙)/);
   return tokens.map((token, i) => {
     if (token === "♥") return <span key={i} className="text-red-400">♥</span>;
@@ -60,9 +59,6 @@ function CostBadge({ cost }) {
 
 export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false, pack }) {
   const cfg = TYPE_CONFIG[card.type] || { banner: "bg-stone-600 text-white", image: "bg-stone-100", border: "border-stone-400", emoji: "❓", label: card.type };
-  // Hide flavor text on cards that have a description — description is the key content,
-  // flavor is a bonus that shouldn't crowd the effect text.
-  const showFlavor = card.flavorText && !card.description;
 
   return (
     <button
@@ -80,10 +76,9 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         ${!isPlayable && !isPlaying ? "opacity-50 cursor-default" : ""}
       `}
     >
-      {/* Header: name + cost */}
-      <div className="flex items-center justify-between gap-1 px-2 pt-2 pb-1 shrink-0">
-        <span className="font-bold text-xs leading-tight text-stone-800 line-clamp-2">{card.name}</span>
-        {showCost && <CostBadge cost={card.cost} />}
+      {/* Header: name only — full width */}
+      <div className="px-2 pt-2 pb-1 shrink-0">
+        <span className="font-bold text-xs leading-tight text-stone-800 line-clamp-1 block">{card.name}</span>
       </div>
 
       {/* Illustration */}
@@ -108,17 +103,17 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* Effect */}
-      <div className="px-2 pt-1 pb-0 text-[11px] text-stone-700 font-medium leading-snug flex-1 min-h-0 overflow-hidden">
+      <div className="px-2 pt-1 pb-0 text-[10px] text-stone-700 font-medium leading-snug flex-1 min-h-0 overflow-hidden">
         {card.description ? renderDescription(card.description) : <EffectText effect={card.effect} />}
       </div>
 
-      {/* Flavor — only shown when there's no description */}
-      {showFlavor && (
-        <div className="px-2 pt-0.5 pb-2 text-[9px] italic text-stone-400 leading-snug line-clamp-2 shrink-0">
-          "{card.flavorText}"
+      {/* Bottom: flavor (left) + cost (right) */}
+      <div className="flex items-end gap-1 px-2 pb-2 pt-0.5 shrink-0">
+        <div className="flex-1 text-[9px] italic text-stone-400 leading-snug line-clamp-2">
+          {card.flavorText && `"${card.flavorText}"`}
         </div>
-      )}
-      {!showFlavor && <div className="pb-2 shrink-0" />}
+        {showCost && <CostBadge cost={card.cost} />}
+      </div>
     </button>
   );
 }
