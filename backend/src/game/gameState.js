@@ -35,7 +35,11 @@ function initGameState(room) {
   const enemyDeck = boss ? [...regularEnemies, boss] : regularEnemies;
 
   const locationDeck = deepClone(LOCATIONS);
-  const eventDeck = shuffle(deepClone(EVENTS));
+  const eventDeck = shuffle(
+    EVENTS.flatMap((e) =>
+      Array.from({ length: e.copies ?? 1 }, (_, i) => ({ ...deepClone(e), id: `${e.id}_${i + 1}` }))
+    )
+  );
   const shopDeck = shuffle(CARDS.map((c) => uniqueCard(c)));
 
   const firstLocation = locationDeck.shift();
