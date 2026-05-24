@@ -8,9 +8,8 @@ import { EnemyCardDisplay } from "../components/EnemyComponent";
 // ── Raw game data (mirrored from backend/src/data/) ──────────────────────────
 
 const LOCATIONS = [
-  { id: "loc_1", name: "The Garden", pack: 1, maxCucumberTokens: 8, currentCucumberTokens: 0, eventsToDraw: 1, flavorText: "Good Boy's territory. Allegedly." },
-  { id: "loc_2", name: "The Street Corner", pack: 1, maxCucumberTokens: 8, currentCucumberTokens: 0, eventsToDraw: 2, flavorText: "Neutral ground. For now." },
-  { id: "loc_3", name: "The Sunny Windowsill", pack: 1, maxCucumberTokens: 8, currentCucumberTokens: 0, eventsToDraw: 3, flavorText: "The last good spot." },
+  { id: "location_001", name: "The Living Room Sofa", pack: 1, order: 1, maxCucumberTokens: 4, currentCucumberTokens: 0, eventsToDraw: 1, flavorText: "Comfortable. Contested." },
+  { id: "location_002", name: "The Sunny Garden", pack: 1, order: 2, maxCucumberTokens: 4, currentCucumberTokens: 0, eventsToDraw: 1, flavorText: "The last patch of warmth worth fighting for." },
 ];
 
 const EVENTS = [
