@@ -4,6 +4,7 @@ const EVENTS = [
     name: "Bath Time",
     pack: 1,
     copies: 3,
+    description: "Active hero loses 2 ❤️.",
     effect: {
       damageAll: 0,
       damageActive: 2,
@@ -22,6 +23,7 @@ const EVENTS = [
     name: "The Spray Bottle",
     pack: 1,
     copies: 2,
+    description: "Active hero loses 1 ❤️ and discards a card.",
     effect: {
       damageAll: 0,
       damageActive: 1,
@@ -40,6 +42,7 @@ const EVENTS = [
     name: "Cucumber on the Counter",
     pack: 1,
     copies: 3,
+    description: "Add 1 🥒 to the location.",
     effect: {
       damageAll: 0,
       damageActive: 0,
@@ -58,6 +61,7 @@ const EVENTS = [
     name: "Hoover's On",
     pack: 1,
     copies: 2,
+    description: "All heroes lose 1 ❤️ and cannot draw extra cards this turn.",
     effect: {
       damageAll: 1,
       damageActive: 0,

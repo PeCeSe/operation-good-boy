@@ -14,10 +14,10 @@ const LOCATIONS = [
 ];
 
 const EVENTS = [
-  { id: "event_001", pack: 1, copies: 3, name: "Bath Time", effect: { damageActive: 2 }, flavorText: "The indignity." },
-  { id: "event_002", pack: 1, copies: 2, name: "The Spray Bottle", effect: { damageActive: 1, discardCards: 1 }, flavorText: "Every. Single. Time." },
-  { id: "event_003", pack: 1, copies: 3, name: "Cucumber on the Counter", effect: { cucumberTokens: 1 }, flavorText: "Who put that there?!" },
-  { id: "event_004", pack: 1, copies: 2, name: "Hoover's On", effect: { damageAll: 1, blockExtraDraw: true }, flavorText: "Everyone scatter." },
+  { id: "event_001", pack: 1, copies: 3, name: "Bath Time", description: "Active hero loses 2 ❤️.", effect: { damageActive: 2 }, flavorText: "The indignity." },
+  { id: "event_002", pack: 1, copies: 2, name: "The Spray Bottle", description: "Active hero loses 1 ❤️ and discards a card.", effect: { damageActive: 1, discardCards: 1 }, flavorText: "Every. Single. Time." },
+  { id: "event_003", pack: 1, copies: 3, name: "Cucumber on the Counter", description: "Add 1 🥒 to the location.", effect: { cucumberTokens: 1 }, flavorText: "Who put that there?!" },
+  { id: "event_004", pack: 1, copies: 2, name: "Hoover's On", description: "All heroes lose 1 ❤️ and cannot draw extra cards this turn.", effect: { damageAll: 1, blockExtraDraw: true }, flavorText: "Everyone scatter." },
 ];
 
 const ENEMIES = [

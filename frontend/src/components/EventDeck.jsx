@@ -20,6 +20,7 @@ function effectLines(effect) {
 
 export function EventCardDisplay({ event, isDragging = false, pack }) {
   const lines = effectLines(event.effect);
+  const effectText = event.description ?? lines.join(" · ") ?? "";
   return (
     <div
       className={`flex-shrink-0 bg-stone-900 border-2 border-stone-600 rounded-xl overflow-hidden flex flex-col select-none transition-opacity ${
@@ -49,7 +50,7 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
         <div className="px-3 pb-2 pt-0.5">
           <div className="font-bold text-xs text-stone-800 leading-tight">{event.name}</div>
           <div className="text-[10px] text-stone-600 leading-snug mt-0.5 line-clamp-2">
-            {lines.join(" · ") || (event.flavorText ? `"${event.flavorText}"` : "No effect")}
+            {effectText || (event.flavorText ? `"${event.flavorText}"` : "No effect")}
           </div>
         </div>
       </div>
