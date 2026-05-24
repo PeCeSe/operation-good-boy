@@ -1,4 +1,5 @@
 import PawCoin from "./PawCoin";
+import { renderDescription } from "../utils/renderDescription";
 
 const TYPE_CONFIG = {
   move: {
@@ -26,14 +27,6 @@ const TYPE_CONFIG = {
 
 // Dividers use same colour + weight as the card outline
 
-function renderDescription(text) {
-  const tokens = text.split(/(♥|🪙)/);
-  return tokens.map((token, i) => {
-    if (token === "♥") return <span key={i} className="text-red">♥</span>;
-    if (token === "🪙") return <PawCoin key={i} />;
-    return <span key={i}>{token}</span>;
-  });
-}
 
 function CostBadge({ cost }) {
   return (

@@ -2,9 +2,10 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import socket from "../socket";
+import { renderDescription } from "../utils/renderDescription";
 
 export function EventCardDisplay({ event, isDragging = false, pack }) {
-  const effectText = event.description ?? "";
+  const effectText = event.description ?? null;
   return (
     <div
       className={`flex-shrink-0 border-2 border-ink-border rounded-lg overflow-hidden flex flex-col select-none transition-opacity bg-paper-50 ${
@@ -40,7 +41,9 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
             {event.name}
           </div>
           <div className="text-[10px] font-body text-ink-700 leading-snug mt-0.5 line-clamp-2">
-            {effectText || (event.flavorText ? `"${event.flavorText}"` : "No effect")}
+            {effectText
+              ? renderDescription(effectText)
+              : (event.flavorText ? `"${event.flavorText}"` : "No effect")}
           </div>
         </div>
       </div>

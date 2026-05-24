@@ -1,4 +1,5 @@
 import { useDraggable } from "@dnd-kit/core";
+import { renderDescription } from "../utils/renderDescription";
 
 export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
   return (
@@ -29,7 +30,7 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
           <div className="flex-1 min-h-0 overflow-hidden">
             {enemy.ability ? (
               <div className="text-[11px] font-body text-ink-700 leading-snug line-clamp-4">
-                {enemy.ability.description}
+                {renderDescription(enemy.ability.description)}
               </div>
             ) : (
               <div className="text-[11px] font-body text-ink-300 italic">No ability.</div>
@@ -42,7 +43,7 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
               <div className="h-px flex-1 bg-ink-border opacity-20" />
             </div>
             <div className="text-[11px] font-body text-ink-700 leading-snug line-clamp-2">
-              {enemy.reward?.description}
+              {renderDescription(enemy.reward?.description)}
             </div>
           </div>
         </div>
