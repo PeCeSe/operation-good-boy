@@ -12,35 +12,30 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
       }`}
       style={{ width: 213, height: 213 }}
     >
-      {/* ── Plum header ── */}
-      <div className="bg-plum-deep px-3 py-1.5 flex items-center gap-2 shrink-0 border-b-2 border-ink-border">
-        <div className="w-5 h-5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[11px] shrink-0">
-          😾
+      {/* ── Header: Stupid Hooman + EVENT sublabel (like location/enemy) ── */}
+      <div className="px-3 py-1.5 flex items-start justify-between gap-2 shrink-0 border-b-2 border-ink-border" style={{ background: "#826a96" }}>
+        <div className="min-w-0">
+          <div className="font-display text-base text-white leading-tight">Stupid Hooman</div>
+          <div className="text-[9px] font-body font-black tracking-[0.12em] text-white/70 uppercase">Event</div>
         </div>
-        <div className="text-[9px] font-body font-black tracking-[0.12em] text-white/80 uppercase">Stupid Hooman</div>
         {pack != null && (
-          <span className="text-[8px] font-bold bg-white/20 text-white/70 rounded-full px-1.5 leading-tight ml-auto shrink-0">
+          <span className="text-[8px] font-bold bg-white/20 text-white/70 rounded-full px-1.5 py-0.5 leading-tight shrink-0">
             P{pack}
           </span>
         )}
       </div>
 
-      {/* ── Image area — plum gradient for fallback ── */}
-      <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden bg-plum-soft border-b-2 border-ink-border">
+      {/* ── Image area ── */}
+      <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden border-b-2 border-ink-border" style={{ background: "#4f3f63" }}>
         {event.image
           ? <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
-          : <span className="text-5xl opacity-30">🐾</span>
+          : <span className="text-5xl opacity-20">🐾</span>
         }
       </div>
 
-      {/* ── Bottom: name + effect ── */}
+      {/* ── Bottom: card name + effect ── */}
       <div className="shrink-0 bg-paper-50" style={{ minHeight: 68 }}>
-        <div className="flex items-center gap-1.5 px-3 pt-1.5">
-          <div className="h-px flex-1 bg-plum opacity-30" />
-          <span className="text-[9px] font-body font-black tracking-[0.12em] uppercase text-plum">Event</span>
-          <div className="h-px flex-1 bg-plum opacity-30" />
-        </div>
-        <div className="px-3 pb-2 pt-0.5">
+        <div className="px-3 pt-2 pb-2">
           <div className="font-display text-sm text-ink leading-tight">
             {event.name}
           </div>
