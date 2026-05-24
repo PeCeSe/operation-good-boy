@@ -10,7 +10,7 @@ function OtherPlayerChip({ player, isCurrentTurn }) {
   return (
     <div
       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border-2 transition-colors ${
-        isCurrentTurn ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-white"
+        isCurrentTurn ? "border-moss bg-moss-soft/30" : "border-ink-border bg-paper-50"
       }`}
     >
       {charData?.headshot ? (
@@ -23,9 +23,9 @@ function OtherPlayerChip({ player, isCurrentTurn }) {
         <span className="text-lg">{player.character?.emoji}</span>
       )}
       <div className="min-w-0">
-        <div className="text-xs font-bold truncate">{player.name}</div>
+        <div className="text-xs font-bold truncate text-ink">{player.name}</div>
         {isCurrentTurn && (
-          <div className="text-[10px] text-amber-500 font-bold uppercase tracking-wide animate-pulse">
+          <div className="text-[10px] text-moss font-bold uppercase tracking-wide animate-pulse">
             Their turn
           </div>
         )}
@@ -33,7 +33,7 @@ function OtherPlayerChip({ player, isCurrentTurn }) {
           {Array.from({ length: maxLives }).map((_, i) => (
             <span
               key={i}
-              className={`text-[10px] leading-none ${i < (player.lives ?? 0) ? "text-red-400" : "text-stone-200"}`}
+              className={`text-[10px] leading-none ${i < (player.lives ?? 0) ? "text-red" : "text-ink-300"}`}
             >
               ♥
             </span>
@@ -55,7 +55,7 @@ function OtherPlayerChip({ player, isCurrentTurn }) {
           })}
         </div>
       )}
-      <span className="text-[10px] text-stone-400 shrink-0">🃏 {player.hand?.length ?? 0}</span>
+      <span className="text-[10px] text-ink-300 shrink-0">🃏 {player.hand?.length ?? 0}</span>
     </div>
   );
 }
@@ -70,9 +70,9 @@ export default function PlayerHUD({
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 bg-stone-50 border-t-2 border-stone-300 shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-paper-100 border-t-2 border-ink-border shadow-2xl">
       {/* Toggle bar */}
-      <div className="flex items-center gap-3 px-4 py-2 border-b border-stone-200 bg-white">
+      <div className="flex items-center gap-3 px-4 py-2 border-b border-ink-border/30 bg-paper-50">
         <div className="flex items-center gap-2 flex-1 flex-wrap min-w-0">
           {otherPlayers.map((p) => (
             <OtherPlayerChip
@@ -82,23 +82,23 @@ export default function PlayerHUD({
             />
           ))}
           {otherPlayers.length === 0 && (
-            <span className="text-xs text-stone-400 italic">Solo game</span>
+            <span className="text-xs text-ink-300 italic">Solo game</span>
           )}
         </div>
         {isMyTurn && (
-          <span className="text-amber-600 font-semibold text-sm animate-pulse shrink-0">
+          <span className="text-moss font-semibold text-sm animate-pulse shrink-0">
             Your turn!
           </span>
         )}
         <button
           onClick={() => setIsOpen((v) => !v)}
-          className="shrink-0 text-xs text-stone-500 hover:text-stone-700 border border-stone-200 bg-white rounded-lg px-3 py-1.5 transition-colors"
+          className="shrink-0 text-xs text-ink-500 hover:text-ink border border-ink-border bg-paper-50 rounded-lg px-3 py-1.5 transition-colors"
         >
           {isOpen ? "▼ Hide board" : "▲ Show board"}
         </button>
       </div>
 
-      {/* Player board — always mounted so card positions survive toggle */}
+      {/* Player board */}
       {me && (
         <div className="overflow-y-auto" style={{ maxHeight: 480, display: isOpen ? undefined : "none" }}>
           <PlayerBoard

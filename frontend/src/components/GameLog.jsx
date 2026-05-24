@@ -11,24 +11,24 @@ export default function GameLog({ log }) {
   }, [log, open]);
 
   return (
-    <div className="border border-stone-200 rounded-xl overflow-hidden">
+    <div className="border border-ink-border rounded-xl overflow-hidden">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-stone-100 hover:bg-stone-200 transition-colors text-left"
+        className="w-full flex items-center justify-between px-3 py-2 bg-paper-200 hover:bg-paper-300 transition-colors text-left"
       >
-        <span className="text-xs font-semibold text-stone-400 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-ink-500 uppercase tracking-wide">
           Log {log.length > 0 && `(${log.length})`}
         </span>
-        <span className="text-stone-400 text-xs">{open ? "▲" : "▼"}</span>
+        <span className="text-ink-300 text-xs">{open ? "▲" : "▼"}</span>
       </button>
       {open && (
-        <div className="h-48 overflow-y-auto bg-stone-50 px-3 py-2">
+        <div className="h-48 overflow-y-auto bg-paper-50 px-3 py-2">
           {log.length === 0 ? (
-            <p className="text-stone-400 text-xs italic">Nothing yet…</p>
+            <p className="text-ink-300 text-xs italic">Nothing yet…</p>
           ) : (
             <ul className="space-y-0.5">
               {log.map((entry, i) => (
-                <li key={i} className="text-xs text-stone-600">{entry}</li>
+                <li key={i} className="text-xs text-ink-700">{entry}</li>
               ))}
             </ul>
           )}

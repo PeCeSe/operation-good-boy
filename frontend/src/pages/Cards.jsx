@@ -80,13 +80,13 @@ const SHOP_CARDS = [
 
 function SectionHeader({ children }) {
   return (
-    <h2 className="text-xl font-bold text-stone-800 border-b-2 border-amber-400 pb-2 mb-4">{children}</h2>
+    <h2 className="text-xl font-bold text-ink border-b-2 border-gold pb-2 mb-4">{children}</h2>
   );
 }
 
 function PackBadge({ pack }) {
   return (
-    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500 text-white shadow">
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gold text-white shadow">
       Pack {pack}
     </span>
   );
@@ -106,8 +106,8 @@ export default function Cards() {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8 flex flex-col gap-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-amber-600">Game Reference</h1>
-        <Link to="/" className="text-sm text-stone-500 hover:text-stone-700 transition-colors">← Home</Link>
+        <h1 className="font-display text-3xl text-ink" style={{ letterSpacing: "0.04em" }}>Game Reference</h1>
+        <Link to="/" className="text-sm text-ink-500 hover:text-ink-700 transition-colors">← Home</Link>
       </div>
 
       {/* Locations */}
@@ -138,7 +138,7 @@ export default function Cards() {
             <div key={event.id} className="relative">
               <EventCardDisplay event={event} pack={event.pack} />
               {event.copies && (
-                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
+                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center shadow">
                   ×{event.copies}
                 </div>
               )}
@@ -170,15 +170,15 @@ export default function Cards() {
                     <img src={char.headshot} alt={char.name} className="w-8 h-8 object-contain" />
                   )}
                   <div>
-                    <span className="font-bold text-sm text-stone-800">{char?.name}</span>
-                    <span className="text-[10px] text-stone-400 uppercase tracking-wide ml-2">{char?.subtitle}</span>
+                    <span className="font-bold text-sm text-ink">{char?.name}</span>
+                    <span className="text-[10px] text-ink-300 uppercase tracking-wide ml-2">{char?.subtitle}</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {cards.map((card) => (
                     <div key={card.id} className="relative">
                       <CardComponent card={card} isPlayable={true} />
-                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
+                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center shadow">
                         ×{card.count}
                       </div>
                     </div>
@@ -194,9 +194,9 @@ export default function Cards() {
       <section>
         <SectionHeader>Shop Cards</SectionHeader>
         {[
-          { label: "Move", cards: moveCards, color: "text-[#B06560]" },
-          { label: "Item", cards: itemCards, color: "text-[#A0712E]" },
-          { label: "Ally", cards: allyCards, color: "text-[#4A7080]" },
+          { label: "Move", cards: moveCards, color: "text-move" },
+          { label: "Item", cards: itemCards, color: "text-item" },
+          { label: "Ally", cards: allyCards, color: "text-ally" },
         ].map(({ label, cards, color }) => (
           <div key={label} className="mb-8">
             <h3 className={`font-bold text-sm uppercase tracking-widest mb-3 ${color}`}>{label}</h3>
@@ -205,7 +205,7 @@ export default function Cards() {
                 <div key={card.id} className="relative">
                   <CardComponent card={card} showCost={true} isPlayable={true} pack={card.pack} />
                   {card.copies && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center shadow">
                       ×{card.copies}
                     </div>
                   )}

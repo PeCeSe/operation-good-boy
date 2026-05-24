@@ -4,66 +4,93 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ── Paper (backgrounds) ─────────────────────────────────────────────
+        // ── 01 · SURFACES ────────────────────────────────────────────────────
         paper: {
-          DEFAULT: "#fbf1da",
-          light:   "#fff8e6",
-          dark:    "#f3e3bf",
-          darker:  "#e7cf99",
-          deep:    "#dec48a",
+          DEFAULT: "#f5f0d8",  // page default background (paper-100)
+          50:      "#fff8e6",  // surface — cards, modals, raised panels
+          100:     "#f5f0d8",  // page default background
+          200:     "#ede0c0",  // sunken — wells, wash, board
+          300:     "#c7a789",  // edge — page gradient bottom
+          shadow:  "#c6a37a",  // card thickness / depth shadow
         },
-        // ── Ink (text / borders) ────────────────────────────────────────────
+
+        // ── 02 · INK ─────────────────────────────────────────────────────────
         ink: {
-          DEFAULT: "#271d14",
-          700:     "#2e2418",
-          500:     "#3b2c20",
-          300:     "#4a3a2c",
-          200:     "#7a6651",
-          100:     "#b39c80",
-          50:      "#cdb691",
+          DEFAULT: "#271d14",  // ink-900 — primary text
+          border:  "#362c28",  // every border, every line
+          700:     "#4a3428",  // secondary text
+          500:     "#7a6051",  // tertiary, captions
+          300:     "#a8968a",  // hairlines, disabled
         },
-        // ── Card type families ───────────────────────────────────────────────
+
+        // ── 03 · ACTION ACCENTS ──────────────────────────────────────────────
+        moss: {
+          DEFAULT: "#677b47",  // primary action, focus, your-turn
+          deep:    "#475530",
+          soft:    "#a4c7a8",
+        },
+        gold: {
+          DEFAULT: "#d49b2a",  // pawcoins, currency, payment, item cards
+          deep:    "#9c6621",
+          soft:    "#f8e0a4",
+        },
+        red: {
+          DEFAULT: "#982f21",  // life, damage, danger
+          deep:    "#6a2128",
+          soft:    "#e8b0b8",
+        },
+
+        // ── 04 · CARD FAMILIES ───────────────────────────────────────────────
+        // Sakura · move
         move: {
-          DEFAULT: "#c4564f",
-          dark:    "#9e3f2f",
-          light:   "#e8a6a1",
-          lighter: "#f7d5d2",
+          DEFAULT: "#d45641",  // main — header + type stripe
+          deep:    "#a83830",  // deeper accent
+          soft:    "#f0b0aa",  // image area fallback, tint
+          lighter: "#fae0de",  // very soft wash
         },
+        // Gold · item  (same family as action gold above)
         item: {
           DEFAULT: "#c98f3a",
-          dark:    "#8a5a1f",
-          light:   "#f0d9a4",
+          deep:    "#9c6621",
+          soft:    "#f0d9a4",
           lighter: "#fcedc7",
         },
+        // Sky · ally
         ally: {
           DEFAULT: "#5d8c9e",
-          dark:    "#3a7a78",
-          light:   "#d8e8ef",
-          lighter: "#c8dedd",
+          deep:    "#3a7a78",
+          soft:    "#c8dedd",
+          lighter: "#e5f2f4",
         },
-        // ── Accent families ──────────────────────────────────────────────────
-        sage: {
-          DEFAULT: "#6f7b4f",
-          dark:    "#4f5938",
-          light:   "#cdd7a8",
+        // Plum · event / Stupid Hooman
+        plum: {
+          DEFAULT: "#836498",
+          deep:    "#4f3f63",
+          soft:    "#d4c4e0",
+          lighter: "#ece5f4",
         },
-        violet: {
-          DEFAULT: "#6b5fa6",
-          dark:    "#4f3f63",
-          light:   "#d4c4e0",
-          lighter: "#d8d0ec",
+        // Brown · enemy
+        brown: {
+          DEFAULT: "#6b4422",
+          deep:    "#2e2318",
+          soft:    "#c8a880",
+          lighter: "#f0e0c8",
         },
-        rust: {
-          DEFAULT: "#9e3f2f",
-          dark:    "#6e2c20",
-          light:   "#e3b6ad",
+        // Sepia · location
+        sepia: {
+          DEFAULT: "#8a6517",
+          deep:    "#5c3a1e",
+          soft:    "#d0b87a",
+          lighter: "#f0e8c8",
         },
       },
+
       fontFamily: {
         display: ["Bangers", "cursive"],
         body:    ["Nunito", "system-ui", "sans-serif"],
         flavor:  ["'Patrick Hand'", "cursive"],
       },
+
       fontSize: {
         "2xs": ["11px", { lineHeight: "1.4" }],
         xs:    ["13px", { lineHeight: "1.4" }],
@@ -77,12 +104,13 @@ export default {
         "5xl": ["64px", { lineHeight: "1" }],
         "6xl": ["88px", { lineHeight: "1" }],
       },
+
       borderRadius: {
         sm:    "6px",
         DEFAULT:"6px",
         md:    "10px",
         lg:    "14px",
-        xl:    "14px",
+        xl:    "16px",
         "2xl": "22px",
         full:  "999px",
       },

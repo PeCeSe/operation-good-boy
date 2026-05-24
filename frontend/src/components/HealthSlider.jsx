@@ -18,7 +18,7 @@ export default function HealthSlider({ lives, maxLives, onChange, disabled = fal
             key={i}
             onClick={handleClick}
             className={`text-lg leading-none transition-colors select-none
-              ${filled ? "text-red-400" : "text-stone-200"}
+              ${filled ? "text-red" : "text-ink-300"}
               ${!disabled && onChange ? "cursor-pointer hover:scale-110 inline-block transition-transform" : ""}
             `}
             title={!disabled && onChange ? `Set lives to ${heartValue === lives ? lives - 1 : heartValue}` : undefined}

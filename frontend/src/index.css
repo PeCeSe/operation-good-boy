@@ -4,7 +4,8 @@
 
 body {
   font-family: 'Nunito', system-ui, sans-serif;
-  background: radial-gradient(ellipse 130% 70% at 50% 0%, #fff8e6 0%, #fbf1da 50%, #f3e3bf 100%);
+  /* Page background: radial-gradient — paper-100 at top, paper-300 at edges */
+  background: radial-gradient(140% 50% at 50% 0%, #f5f0d8 48%, #c7a789 100%);
   background-attachment: fixed;
   color: #271d14;
   min-height: 100vh;
