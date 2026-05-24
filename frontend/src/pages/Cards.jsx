@@ -24,7 +24,6 @@ const ENEMIES = [
   { id: "enemy_002", pack: 1, name: "Feral Ferret", emoji: "🐾", maxHealth: 6, attack: 2, cucumberTokensOnSurvive: 1, ability: { description: "Each time a 🥒 token is added to the location, active hero loses 2 ❤️." }, reward: { description: "Remove 1 🥒 from location." }, flavorText: "Unpredictable. Unhinged. Unstoppable.", placedAttacks: {} },
   { id: "enemy_003", pack: 1, name: "Prince Ferdinand", emoji: "👑", maxHealth: 5, attack: 2, cucumberTokensOnSurvive: 1, ability: { description: "Each time a Stupid Hoomans event or enemy causes a hero to discard a card, that hero loses 1 ❤️." }, reward: { description: "ALL heroes draw a card." }, flavorText: "He makes the rules. He also breaks them.", placedAttacks: {} },
   { id: "enemy_004", pack: 1, name: "Darla", emoji: "💅", maxHealth: 6, attack: 2, cucumberTokensOnSurvive: 1, ability: { description: "Active hero loses 1 ❤️." }, reward: { description: "ALL heroes gain 1 🪙 and 1 ❤️." }, flavorText: "She's not sorry.", placedAttacks: {} },
-  { id: "enemy_001", pack: 1, name: "Good Boy", emoji: "🐕", maxHealth: 20, attack: 4, cucumberTokensOnSurvive: 2, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "Remove 2 🥒. All heroes gain 1 ❤️." }, flavorText: "The humans think he's harmless. He is not.", isBoss: true, placedAttacks: {} },
 ];
 
 const KITTEN_EYES = { id: "kitten_eyes", name: "Kitten Eyes", count: 7, type: "move", image: "/cards/starters/KittenEyes.png", description: "Gain 1 🪙.", flavorText: "Resistance is futile." };
