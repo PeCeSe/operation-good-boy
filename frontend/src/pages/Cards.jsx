@@ -104,13 +104,18 @@ export default function Cards() {
         <SectionHeader>Stupid Hooman Events</SectionHeader>
         <div className="flex flex-wrap gap-3">
           {events.map((event) => (
-            <div key={event.id} className="relative">
-              <EventCardDisplay event={event} pack={event.pack} />
-              {event.copies && (
-                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center shadow">
-                  ×{event.copies}
-                </div>
-              )}
+            <div key={event.id} className="relative flex flex-col gap-1.5">
+              <div className="relative">
+                <EventCardDisplay event={event} />
+                {event.copies && (
+                  <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center shadow">
+                    ×{event.copies}
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-center">
+                <PackBadge pack={event.pack} />
+              </div>
             </div>
           ))}
         </div>
@@ -121,7 +126,12 @@ export default function Cards() {
         <SectionHeader>Enemies</SectionHeader>
         <div className="flex flex-wrap gap-4">
           {enemies.map((enemy) => (
-            <EnemyCardDisplay key={enemy.id} enemy={enemy} pack={enemy.pack} />
+            <div key={enemy.id} className="flex flex-col gap-1.5">
+              <EnemyCardDisplay enemy={enemy} />
+              <div className="flex justify-center">
+                <PackBadge pack={enemy.pack} />
+              </div>
+            </div>
           ))}
         </div>
       </section>
@@ -171,13 +181,18 @@ export default function Cards() {
             <h3 className={`font-bold text-sm uppercase tracking-[0.12em] mb-3 ${color}`}>{label}</h3>
             <div className="flex flex-wrap gap-3">
               {typeCards.map((card) => (
-                <div key={card.id} className="relative">
-                  <CardComponent card={card} showCost={true} isPlayable={true} pack={card.pack} />
-                  {card.copies && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center shadow">
-                      ×{card.copies}
-                    </div>
-                  )}
+                <div key={card.id} className="flex flex-col gap-1.5">
+                  <div className="relative">
+                    <CardComponent card={card} showCost={true} isPlayable={true} />
+                    {card.copies && (
+                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center shadow">
+                        ×{card.copies}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex justify-center">
+                    <PackBadge pack={card.pack} />
+                  </div>
                 </div>
               ))}
             </div>
