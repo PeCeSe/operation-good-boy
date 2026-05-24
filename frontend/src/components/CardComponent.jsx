@@ -39,7 +39,7 @@ function renderDescription(text) {
 
 function EffectText({ effect }) {
   const parts = [];
-  if (effect.attack > 0) parts.push(`+${effect.attack} ⚔️`);
+  if (effect.attack > 0) parts.push(<>Gain {effect.attack} ⚔️.</>);
   if (effect.pawcoins > 0) parts.push(<>Gain {effect.pawcoins} <PawCoin />.</>);
   if (effect.special === "draw_card") parts.push("Draw 1 card.");
   if (effect.special === "heal") parts.push("Heal 1 life.");
@@ -47,8 +47,22 @@ function EffectText({ effect }) {
   return <>{parts.map((p, i) => <span key={i}>{i > 0 && " "}{p}</span>)}</>;
 }
 
+function CostBadge({ cost }) {
+  return (
+    <div className="relative flex-shrink-0 w-7 h-7 flex items-center justify-center">
+      <img src="/pawcoin.svg" alt="" className="absolute inset-0 w-full h-full" />
+      <span className="relative text-white text-[11px] font-black leading-none" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
+        {cost}
+      </span>
+    </div>
+  );
+}
+
 export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false, pack }) {
   const cfg = TYPE_CONFIG[card.type] || { banner: "bg-stone-600 text-white", image: "bg-stone-100", border: "border-stone-400", emoji: "❓", label: card.type };
+  // Hide flavor text on cards that have a description — description is the key content,
+  // flavor is a bonus that shouldn't crowd the effect text.
+  const showFlavor = card.flavorText && !card.description;
 
   return (
     <button
@@ -69,11 +83,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       {/* Header: name + cost */}
       <div className="flex items-center justify-between gap-1 px-2 pt-2 pb-1 shrink-0">
         <span className="font-bold text-xs leading-tight text-stone-800 line-clamp-2">{card.name}</span>
-        {showCost && (
-          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-400 text-white text-xs font-bold flex items-center justify-center shadow-sm">
-            {card.cost}
-          </span>
-        )}
+        {showCost && <CostBadge cost={card.cost} />}
       </div>
 
       {/* Illustration */}
@@ -102,13 +112,13 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         {card.description ? renderDescription(card.description) : <EffectText effect={card.effect} />}
       </div>
 
-      {/* Flavor */}
-      {card.flavorText && (
+      {/* Flavor — only shown when there's no description */}
+      {showFlavor && (
         <div className="px-2 pt-0.5 pb-2 text-[9px] italic text-stone-400 leading-snug line-clamp-2 shrink-0">
           "{card.flavorText}"
         </div>
       )}
-      {!card.flavorText && <div className="pb-2 shrink-0" />}
+      {!showFlavor && <div className="pb-2 shrink-0" />}
     </button>
   );
 }
