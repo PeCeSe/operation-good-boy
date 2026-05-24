@@ -15,6 +15,7 @@ const TYPE_CONFIG = {
     border: "border-[#A0712E]",
     emoji: "📦",
     label: "ITEM",
+    fallbackImage: "/cards/ItemFallback.png",
   },
   ally: {
     banner: "bg-[#5D8C9E] text-white",
@@ -22,6 +23,7 @@ const TYPE_CONFIG = {
     border: "border-[#4A7080]",
     emoji: "🤝",
     label: "ALLY",
+    fallbackImage: "/cards/AllyFallback.png",
   },
 };
 
