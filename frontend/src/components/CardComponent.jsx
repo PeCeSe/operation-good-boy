@@ -28,9 +28,13 @@ const TYPE_CONFIG = {
 };
 
 function renderDescription(text) {
-  return text.split("♥").map((part, i, arr) => (
-    <span key={i}>{part}{i < arr.length - 1 && <span className="text-red-400">♥</span>}</span>
-  ));
+  // Split on both ♥ and 🪙, replacing with their respective components
+  const tokens = text.split(/(♥|🪙)/);
+  return tokens.map((token, i) => {
+    if (token === "♥") return <span key={i} className="text-red-400">♥</span>;
+    if (token === "🪙") return <PawCoin key={i} />;
+    return <span key={i}>{token}</span>;
+  });
 }
 
 function EffectText({ effect }) {
