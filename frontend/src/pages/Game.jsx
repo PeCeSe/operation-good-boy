@@ -150,6 +150,7 @@ export default function Game({ gameState, mySocketId }) {
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
   const [activeDrag, setActiveDrag] = useState(null);
   const [pendingPurchase, setPendingPurchase] = useState(null);
+  const lastOverRef = useRef(null);
   const [zoom, setZoom] = useState(1);
   const [otherCursors, setOtherCursors] = useState({});
   const zoomRef = useRef(zoom);
@@ -309,13 +310,22 @@ export default function Game({ gameState, mySocketId }) {
 
   function handleDragStart({ active }) {
     setActiveDrag(active.data.current ?? null);
+    lastOverRef.current = null;
+  }
+
+  function handleDragOver({ over }) {
+    lastOverRef.current = over ?? null;
   }
 
   function handleDragEnd({ active, over }) {
+    // Use last known over as fallback — dnd-kit can lose the droppable
+    // at the exact moment of pointerup when targets are in a transformed container
+    const effectiveOver = over ?? lastOverRef.current;
+    lastOverRef.current = null;
     setActiveDrag(null);
     const data = active.data.current ?? {};
     if (data.draggableType === "paw_coin") {
-      if (over?.id === "payment_zone") {
+      if (effectiveOver?.id === "payment_zone") {
         const paid = (paymentZone?.tokens ?? 0) + 1;
         socket.emit("set_paw_tokens", { tokens: Math.max(0, (me?.pawTokens ?? 0) - 1) });
         socket.emit("place_payment", { tokens: paid });
@@ -323,8 +333,8 @@ export default function Game({ gameState, mySocketId }) {
       return;
     }
     if (data.draggableType === "enemy_deck_draw") {
-      if (over?.id?.toString().startsWith("enemy_slot_")) {
-        const slotIndex = parseInt(over.id.toString().replace("enemy_slot_", ""), 10);
+      if (effectiveOver?.id?.toString().startsWith("enemy_slot_")) {
+        const slotIndex = parseInt(effectiveOver.id.toString().replace("enemy_slot_", ""), 10);
         socket.emit("draw_enemy", { slotIndex });
       }
       return;
@@ -333,12 +343,12 @@ export default function Game({ gameState, mySocketId }) {
       socket.emit("draw_event");
       return;
     }
-    if (!over) return;
-    if (data.draggableType === "staging_token" && over.id !== "staging") {
-      socket.emit("move_token_to_enemy", { enemyId: String(over.id), tokenId: data.tokenId });
-    } else if (data.draggableType === "event_card" && over.id === "event_discard") {
+    if (!effectiveOver) return;
+    if (data.draggableType === "staging_token" && effectiveOver.id !== "staging") {
+      socket.emit("move_token_to_enemy", { enemyId: String(effectiveOver.id), tokenId: data.tokenId });
+    } else if (data.draggableType === "event_card" && effectiveOver.id === "event_discard") {
       socket.emit("discard_event", { eventId: data.eventId });
-    } else if (data.draggableType === "enemy_card" && over.id === "enemy_discard") {
+    } else if (data.draggableType === "enemy_card" && effectiveOver.id === "enemy_discard") {
       socket.emit("defeat_enemy", { enemyId: data.enemyId });
     }
   }
@@ -377,7 +387,7 @@ export default function Game({ gameState, mySocketId }) {
   }
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
       {/* ── Scrollable canvas ── */}
       <div
         ref={containerRef}
