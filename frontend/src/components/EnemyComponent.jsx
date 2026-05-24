@@ -1,6 +1,6 @@
 import { useDraggable } from "@dnd-kit/core";
 
-export function EnemyCardDisplay({ enemy, isOver = false }) {
+export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
   return (
     <div
       className={`relative bg-stone-50 rounded-xl shadow-md overflow-hidden flex flex-col border-2 transition-all ${
@@ -8,11 +8,14 @@ export function EnemyCardDisplay({ enemy, isOver = false }) {
       }`}
       style={{ width: 286, height: 213 }}
     >
-      <div className="bg-stone-800 px-3 py-1.5 flex items-start justify-between gap-2 shrink-0">
+      <div className="bg-stone-800 px-3 py-1.5 flex items-center justify-between gap-2 shrink-0">
         <div className="min-w-0">
           <div className="text-white font-bold text-sm leading-tight truncate">{enemy.name}</div>
           <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase">Enemy</div>
         </div>
+        {pack != null && (
+          <span className="text-[8px] font-bold bg-white/20 text-stone-300 rounded-full px-1.5 py-0.5 shrink-0">P{pack}</span>
+        )}
       </div>
 
       <div className="flex flex-1 min-h-0">

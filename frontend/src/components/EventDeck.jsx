@@ -16,7 +16,7 @@ function effectLines(effect) {
   return lines;
 }
 
-export function EventCardDisplay({ event, isDragging = false }) {
+export function EventCardDisplay({ event, isDragging = false, pack }) {
   const lines = effectLines(event.effect);
   return (
     <div
@@ -39,6 +39,9 @@ export function EventCardDisplay({ event, isDragging = false }) {
         <div className="flex items-center gap-1.5 px-3 pt-1.5">
           <div className="h-px flex-1 bg-stone-400" />
           <span className="text-[8px] font-bold tracking-widest text-stone-500 uppercase">Event</span>
+          {pack != null && (
+            <span className="text-[8px] font-bold bg-amber-500 text-white rounded-full px-1.5 leading-tight">P{pack}</span>
+          )}
           <div className="h-px flex-1 bg-stone-400" />
         </div>
         <div className="px-3 pb-2 pt-0.5">

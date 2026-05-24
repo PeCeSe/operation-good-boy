@@ -107,17 +107,6 @@ function PackBadge({ pack }) {
   );
 }
 
-function WithPackBadge({ pack, children }) {
-  return (
-    <div className="relative">
-      {children}
-      <div className="absolute top-1.5 left-1.5 z-10">
-        <PackBadge pack={pack} />
-      </div>
-    </div>
-  );
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function Cards() {
@@ -137,13 +126,15 @@ export default function Cards() {
         <SectionHeader>Locations</SectionHeader>
         <div className="flex flex-wrap gap-4">
           {LOCATIONS.map((loc) => (
-            <div key={loc.id} className="flex flex-col gap-1">
-              <div className="self-start"><PackBadge pack={loc.pack} /></div>
+            <div key={loc.id} className="flex flex-col gap-1.5">
               <LocationBar
                 currentLocation={loc}
                 lostLocations={[]}
                 totalLocations={LOCATIONS.length}
               />
+              <div className="flex justify-center">
+                <PackBadge pack={loc.pack} />
+              </div>
             </div>
           ))}
         </div>
@@ -154,9 +145,7 @@ export default function Cards() {
         <SectionHeader>Stupid Hooman Events</SectionHeader>
         <div className="flex flex-wrap gap-3">
           {EVENTS.map((event) => (
-            <WithPackBadge key={event.id} pack={event.pack}>
-              <EventCardDisplay event={event} />
-            </WithPackBadge>
+            <EventCardDisplay key={event.id} event={event} pack={event.pack} />
           ))}
         </div>
       </section>
@@ -166,9 +155,7 @@ export default function Cards() {
         <SectionHeader>Enemies</SectionHeader>
         <div className="flex flex-wrap gap-4">
           {ENEMIES.map((enemy) => (
-            <WithPackBadge key={enemy.id} pack={enemy.pack}>
-              <EnemyCardDisplay enemy={enemy} />
-            </WithPackBadge>
+            <EnemyCardDisplay key={enemy.id} enemy={enemy} pack={enemy.pack} />
           ))}
         </div>
       </section>
@@ -192,14 +179,12 @@ export default function Cards() {
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {cards.map((card) => (
-                    <WithPackBadge key={card.id} pack={card.pack ?? 1}>
-                      <div className="relative">
-                        <CardComponent card={card} isPlayable={true} />
-                        <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
-                          ×{card.count}
-                        </div>
+                    <div key={card.id} className="relative">
+                      <CardComponent card={card} isPlayable={true} pack={card.pack ?? 1} />
+                      <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
+                        ×{card.count}
                       </div>
-                    </WithPackBadge>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -220,9 +205,7 @@ export default function Cards() {
             <h3 className={`font-bold text-sm uppercase tracking-widest mb-3 ${color}`}>{label}</h3>
             <div className="flex flex-wrap gap-3">
               {cards.map((card) => (
-                <WithPackBadge key={card.id} pack={card.pack}>
-                  <CardComponent card={card} showCost={true} isPlayable={true} />
-                </WithPackBadge>
+                <CardComponent key={card.id} card={card} showCost={true} isPlayable={true} pack={card.pack} />
               ))}
             </div>
           </div>

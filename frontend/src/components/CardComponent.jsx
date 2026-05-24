@@ -40,7 +40,7 @@ function EffectText({ effect }) {
   return <>{parts.map((p, i) => <span key={i}>{i > 0 && " "}{p}</span>)}</>;
 }
 
-export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false }) {
+export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false, pack }) {
   const cfg = TYPE_CONFIG[card.type] || { banner: "bg-stone-600 text-white", image: "bg-stone-100", border: "border-stone-400", emoji: "❓", label: card.type };
 
   return (
@@ -78,8 +78,11 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* Type banner */}
-      <div className={`text-center py-0.5 text-[9px] font-bold tracking-widest mt-1 shrink-0 ${cfg.banner}`}>
-        {cfg.label}
+      <div className={`px-2 py-0.5 text-[9px] font-bold tracking-widest mt-1 shrink-0 flex items-center ${cfg.banner}`}>
+        <div className="flex-1 text-center">{cfg.label}</div>
+        {pack != null && (
+          <span className="text-[8px] font-bold bg-white/25 rounded-full px-1.5 leading-tight shrink-0">P{pack}</span>
+        )}
       </div>
 
       {/* Effect */}
