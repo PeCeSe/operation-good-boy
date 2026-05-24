@@ -7,33 +7,36 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
   const effectText = event.description ?? "";
   return (
     <div
-      className={`flex-shrink-0 bg-stone-900 border-2 border-stone-600 rounded-xl overflow-hidden flex flex-col select-none transition-opacity ${
+      className={`flex-shrink-0 border-2 rounded-xl overflow-hidden flex flex-col select-none transition-opacity ${
         isDragging ? "opacity-30" : "shadow-md"
       }`}
-      style={{ width: 213, height: 213 }}
+      style={{ width: 213, height: 213, borderColor: "#4f3f63", background: "#fbf1da" }}
     >
-      <div className="px-3 py-1.5 flex items-center gap-2 shrink-0 bg-stone-900">
-        <div className="w-6 h-6 rounded-full bg-stone-700 border border-stone-500 flex items-center justify-center text-xs shrink-0">😾</div>
-        <div className="text-[10px] font-bold tracking-widest text-amber-400 uppercase">Stupid Hooman</div>
+      {/* Plum header */}
+      <div className="px-3 py-1.5 flex items-center gap-2 shrink-0" style={{ background: "#4f3f63" }}>
+        <div className="w-5 h-5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[11px] shrink-0">😾</div>
+        <div className="text-[9px] font-bold tracking-widest text-white/80 uppercase">Stupid Hooman</div>
+        {pack != null && (
+          <span className="text-[8px] font-bold bg-white/20 text-white/70 rounded-full px-1.5 leading-tight ml-auto shrink-0">P{pack}</span>
+        )}
       </div>
-      <div className="relative flex-1 min-h-0 bg-gradient-to-b from-stone-700 to-stone-800 flex items-center justify-center overflow-hidden">
+      {/* Image area */}
+      <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden" style={{ background: "linear-gradient(to bottom, #d4c4e0, #b8a0c8)" }}>
         {event.image
           ? <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
           : <span className="text-5xl opacity-40">🐾</span>
         }
       </div>
-      <div className="shrink-0 bg-stone-100" style={{ minHeight: 72 }}>
+      {/* Bottom info */}
+      <div className="shrink-0 bg-paper" style={{ minHeight: 68 }}>
         <div className="flex items-center gap-1.5 px-3 pt-1.5">
-          <div className="h-px flex-1 bg-stone-400" />
-          <span className="text-[8px] font-bold tracking-widest text-stone-500 uppercase">Event</span>
-          {pack != null && (
-            <span className="text-[8px] font-bold bg-amber-500 text-white rounded-full px-1.5 leading-tight">P{pack}</span>
-          )}
-          <div className="h-px flex-1 bg-stone-400" />
+          <div className="h-px flex-1" style={{ background: "#6b5fa6", opacity: 0.3 }} />
+          <span className="text-[8px] font-bold tracking-widest uppercase" style={{ color: "#6b5fa6" }}>Event</span>
+          <div className="h-px flex-1" style={{ background: "#6b5fa6", opacity: 0.3 }} />
         </div>
         <div className="px-3 pb-2 pt-0.5">
-          <div className="font-bold text-xs text-stone-800 leading-tight">{event.name}</div>
-          <div className="text-[10px] text-stone-600 leading-snug mt-0.5 line-clamp-2">
+          <div className="font-display text-sm text-ink leading-tight" style={{ letterSpacing: "0.03em" }}>{event.name}</div>
+          <div className="text-[10px] font-body text-ink-300 leading-snug mt-0.5 line-clamp-2">
             {effectText || (event.flavorText ? `"${event.flavorText}"` : "No effect")}
           </div>
         </div>

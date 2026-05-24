@@ -17,18 +17,18 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
 
   return (
     <div
-      className="flex-shrink-0 rounded-xl overflow-hidden shadow-md border-2 border-stone-600 flex flex-col"
-      style={{ width: 286, height: 213 }}
+      className="flex-shrink-0 rounded-xl overflow-hidden shadow-md border-2 flex flex-col"
+      style={{ width: 286, height: 213, borderColor: "#5c3a1e", background: "#fbf1da" }}
     >
-      {/* ── Header ── */}
-      <div className="bg-stone-800 px-3 py-1.5 flex items-start justify-between gap-2 shrink-0">
+      {/* ── Header — warm sepia brown ── */}
+      <div className="px-3 py-1.5 flex items-start justify-between gap-2 shrink-0" style={{ background: "#5c3a1e" }}>
         <div className="min-w-0">
-          <div className="text-white font-bold text-sm leading-tight truncate">{currentLocation.name}</div>
-          <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase">Location</div>
+          <div className="font-display text-base text-white leading-tight truncate" style={{ letterSpacing: "0.04em" }}>{currentLocation.name}</div>
+          <div className="text-[9px] font-bold tracking-widest uppercase" style={{ color: "#d4a96a" }}>Location</div>
         </div>
         <div className="text-right shrink-0">
-          <div className="text-amber-400 font-bold text-base leading-tight">{locationNumber}</div>
-          <div className="text-[9px] text-stone-400 leading-tight">of {totalLocations}</div>
+          <div className="font-display text-lg leading-tight" style={{ color: "#f0d9a4", letterSpacing: "0.04em" }}>{locationNumber}</div>
+          <div className="text-[9px] leading-tight" style={{ color: "#d4a96a" }}>of {totalLocations}</div>
         </div>
       </div>
 
@@ -36,8 +36,8 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
       <div className="flex flex-1 min-h-0">
         {/* Illustration — left ~58% */}
         <div
-          className="relative bg-gradient-to-br from-stone-300 to-stone-500 flex items-center justify-center overflow-hidden"
-          style={{ width: 165 }}
+          className="relative flex items-center justify-center overflow-hidden"
+          style={{ width: 165, background: "linear-gradient(135deg, #e7cf99, #c8a060)" }}
         >
           {currentLocation.image
             ? <img src={currentLocation.image} alt={currentLocation.name} className="w-full h-full object-cover" />
@@ -55,26 +55,27 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
         </div>
 
         {/* Events info — right ~42% */}
-        <div className="flex-1 bg-stone-100 flex flex-col items-center justify-center px-2 gap-2 border-l border-stone-300">
+        <div className="flex-1 flex flex-col items-center justify-center px-2 gap-2 border-l" style={{ background: "#f5e6c8", borderColor: "#d4a96a" }}>
           <div className="flex gap-1.5 justify-center">
             {Array.from({ length: Math.min(eventsToDraw, 4) }).map((_, i) => (
               <div
                 key={i}
-                className="w-8 h-8 bg-stone-700 rounded-lg flex items-center justify-center text-base shadow-sm"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-base shadow-sm"
+                style={{ background: "#4f3f63" }}
               >
                 🎴
               </div>
             ))}
           </div>
-          <div className="text-[10px] text-stone-600 font-semibold text-center leading-tight">
+          <div className="text-[10px] font-semibold text-center leading-tight" style={{ color: "#5c3a1e" }}>
             Draw {eventsToDraw} event{eventsToDraw !== 1 ? "s" : ""} per turn
           </div>
         </div>
       </div>
 
       {/* ── Bottom: cucumber token slots ── */}
-      <div className="shrink-0 bg-stone-700 px-3 py-1.5 flex items-center gap-1.5">
-        <span className="text-[9px] font-bold tracking-widest text-stone-400 uppercase shrink-0">🥒</span>
+      <div className="shrink-0 px-3 py-1.5 flex items-center gap-1.5" style={{ background: "#3d240e" }}>
+        <span className="text-[9px] font-bold tracking-widest uppercase shrink-0" style={{ color: "#d4a96a" }}>🥒</span>
         <div className="flex gap-1 flex-wrap">
           {Array.from({ length: maxCucumberTokens }).map((_, i) => (
             <button
@@ -83,8 +84,9 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
               className={`w-5 h-5 rounded-full transition-all hover:scale-110 ${
                 i < currentCucumbers
                   ? ""
-                  : "bg-stone-600 border-2 border-stone-500 hover:border-green-400"
+                  : "border-2 hover:border-green-400"
               }`}
+              style={i < currentCucumbers ? {} : { background: "#5c3a1e", borderColor: "#7a5030" }}
             >
               {i < currentCucumbers && (
                 <img src="/cucumber.svg" alt="🥒" className="w-full h-full" />
@@ -95,7 +97,7 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
         {lostLocations.length > 0 && (
           <div className="ml-auto flex gap-1">
             {lostLocations.map((loc) => (
-              <span key={loc.id} className="text-[9px] text-stone-500 line-through">{loc.name}</span>
+              <span key={loc.id} className="text-[9px] line-through" style={{ color: "#7a5030" }}>{loc.name}</span>
             ))}
           </div>
         )}

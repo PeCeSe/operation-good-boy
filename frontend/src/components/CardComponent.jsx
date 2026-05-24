@@ -74,7 +74,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
     >
       {/* Header: name */}
       <div className="px-2 pt-2 pb-1 shrink-0">
-        <span className="font-body font-bold text-xs leading-tight text-ink line-clamp-1 block">{card.name}</span>
+        <span className="font-display text-sm leading-tight text-ink line-clamp-1 block" style={{ letterSpacing: "0.03em" }}>{card.name}</span>
       </div>
 
       {/* Illustration */}
