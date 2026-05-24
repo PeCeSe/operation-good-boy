@@ -243,6 +243,7 @@ export default function Game({ gameState, mySocketId }) {
     enemyDeck,
     enemyDiscard,
     currentLocation,
+    locationDeck,
     lostLocations,
     shop,
     shopDeck,
