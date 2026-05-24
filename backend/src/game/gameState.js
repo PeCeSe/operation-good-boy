@@ -45,8 +45,7 @@ function initGameState(room) {
   const firstLocation = locationDeck.shift();
   firstLocation.currentCucumbers = 0;
 
-  const enemies = enemyDeck.splice(0, Math.min(3, enemyDeck.length));
-  enemies.forEach((e) => { e.damageTokens = []; });
+  const enemies = [];
 
   const shop = shopDeck.splice(0, 6);
 
