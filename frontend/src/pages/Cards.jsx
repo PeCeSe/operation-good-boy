@@ -17,7 +17,7 @@ const EVENTS = [
   { id: "event_001", pack: 1, copies: 3, name: "Bath Time", description: "Active hero loses 2 ❤️.", flavorText: "The indignity." },
   { id: "event_002", pack: 1, copies: 2, name: "The Spray Bottle", description: "Active hero loses 1 ❤️ and discards a card.", flavorText: "Every. Single. Time." },
   { id: "event_003", pack: 1, copies: 3, name: "Cucumber on the Counter", description: "Add 1 🥒 to the location.", flavorText: "Who put that there?!" },
-  { id: "event_004", pack: 1, copies: 2, name: "Hoover's On", description: "All heroes lose 1 ❤️ and cannot draw extra cards this turn.", flavorText: "Everyone scatter." },
+  { id: "event_004", pack: 1, copies: 2, name: "Cleaning Day", description: "All heroes lose 1 ❤️ and cannot draw extra cards this turn.", flavorText: "Everyone scatter." },
 ];
 
 const ENEMIES = [
@@ -66,10 +66,10 @@ const SHOP_CARDS = [
   { id: "card_m04", name: "Slow Blink", type: "move", cost: 3, pack: 1, copies: 6, description: "Choose one: Gain 2 🪙, or draw a card.", flavorText: "This means I love you. Now do what I want." },
   { id: "card_m05", name: "Scratch", type: "move", cost: 5, pack: 1, copies: 2, description: "Gain 2 ⚔️.", flavorText: "Lightning fast. No regrets." },
   // Item
-  { id: "card_i01", name: "Squeeze Treat", type: "item", cost: 2, pack: 1, copies: 4, description: "Any one hero gains 2 ♥.", flavorText: "Straight from the tube." },
-  { id: "card_i02", name: "Scratching Post", type: "item", cost: 3, pack: 1, copies: 4, description: "Gain 1 ⚔️ and gain 2 ♥.", flavorText: "Also works on furniture." },
-  { id: "card_i03", name: "Cardboard Castle", type: "item", cost: 4, pack: 1, copies: 1, description: "Gain 2 🪙. You may put Allies you acquire on top of your deck instead of your discard pile.", flavorText: "Fits any cat. No questions asked." },
-  { id: "card_i04", name: "Toy Mouse", type: "item", cost: 5, pack: 1, copies: 1, description: "Gain 2 🪙. Draw a card.", flavorText: "Suspiciously lifelike." },
+  { id: "card_i01", name: "Squeeze Treat", type: "item", cost: 2, pack: 1, copies: 4, image: "/cards/items/SqueezeTreat.png", description: "Any one hero gains 2 ♥.", flavorText: "Straight from the tube." },
+  { id: "card_i02", name: "Scratching Post", type: "item", cost: 3, pack: 1, copies: 4, image: "/cards/items/ScratchingPost.png", description: "Gain 1 ⚔️ and gain 2 ♥.", flavorText: "Also works on furniture." },
+  { id: "card_i03", name: "Cardboard Castle", type: "item", cost: 4, pack: 1, copies: 1, image: "/cards/items/CardboardCastle.png", description: "Gain 2 🪙. You may put Allies you acquire on top of your deck instead of your discard pile.", flavorText: "Fits any cat. No questions asked." },
+  { id: "card_i04", name: "Toy Mouse", type: "item", cost: 5, pack: 1, copies: 1, image: "/cards/items/ToyMouse.png", description: "Gain 2 🪙. Draw a card.", flavorText: "Suspiciously lifelike." },
   // Ally
   { id: "card_a01", name: "Old Lady Next Door", type: "ally", cost: 8, pack: 1, copies: 1, description: "ALL heroes gain 1 ⚔️, 1 🪙, 1 ♥ and draw a card.", flavorText: "She gives out treats. Loyalty secured." },
   { id: "card_a02", name: "Sly the Fox", type: "ally", cost: 3, pack: 1, copies: 1, description: "Gain 1 ⚔️. If you defeat an enemy, any one hero gains 2 ♥.", flavorText: "He's got a plan. Probably." },
