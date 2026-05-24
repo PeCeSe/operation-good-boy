@@ -42,7 +42,7 @@ const STARTING_DECKS = [
     charId: "char_persian",
     cards: [
       KITTEN_EYES,
-      { id: "persian_pedigree", name: "Pedigree", count: 1, pack: 1, type: "item", image: "/cards/Pedigree.png", effect: { attack: 0, pawcoins: 0, special: "choice_pedigree" }, description: "Choose: Gain 2 pawcoins, or ALL heroes gain 1 pawcoin.", flavorText: "Fourteen generations of excellence." },
+      { id: "persian_pedigree", name: "Pedigree", count: 1, pack: 1, type: "item", image: "/cards/Pedigree.png", effect: { attack: 0, pawcoins: 1, special: "moves_to_top_of_deck" }, description: "Gain 1 🪙. You may put Moves you acquire on the top of your deck instead of in your discard pile.", flavorText: "Fourteen generations of excellence." },
       { id: "persian_mirror", name: "Vanity Mirror", count: 1, pack: 1, type: "item", image: "/cards/VanityMirror.png", effect: { attack: 0, pawcoins: 1, special: "discard_all_gain_coin" }, description: "Gain 1 pawcoin. If you discard this, ALL heroes gain 1 pawcoin.", flavorText: "The fairest in the land. Obviously." },
       { id: "persian_slave", name: "Hooman Slave", count: 1, pack: 1, type: "ally", image: "/cards/HoomanSlave.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2" }, description: "Choose: Gain 1 ⚔️ attack token, or heal 2 ♥.", flavorText: "Adequate. For a hooman." },
     ],
