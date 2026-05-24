@@ -303,7 +303,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
 export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }) {
   const [showCharacter, setShowCharacter] = useState(false);
 
-  const { setNodeRef: setStagingRef, isOver: isStagingOver } = useDroppable({ id: "staging" });
+  const { setNodeRef: setStagingRef } = useDroppable({ id: "staging" });
 
   if (!player) return null;
 
@@ -445,20 +445,25 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
         {isMe && (
           <div className="flex flex-col gap-1">
             <div className="text-[10px] text-stone-400 uppercase tracking-wide font-bold">Attacks</div>
-            <div
-              ref={setStagingRef}
-              className={`flex flex-wrap gap-1.5 min-h-[2.5rem] min-w-[4rem] rounded-lg px-2 py-1 border-2 border-dashed transition-colors ${
-                isStagingOver ? "border-amber-400 bg-amber-50" : "border-stone-200 bg-stone-50"
-              }`}
-            >
-              {(attackTokens ?? []).map((token) => (
-                <StagingToken key={token.id} token={token} />
-              ))}
-              {(attackTokens ?? []).length === 0 && (
-                <span className={`text-[9px] italic self-center transition-colors ${isStagingOver ? "text-amber-400" : "text-stone-300"}`}>
-                  {isStagingOver ? "Drop!" : "Empty"}
-                </span>
-              )}
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                onClick={() => socket.emit("add_attack_token", { type: "attack" })}
+                className="w-8 h-8 rounded-full bg-orange-400 hover:bg-orange-300 text-white font-bold text-lg flex items-center justify-center transition-colors shadow"
+                title="Add attack token"
+              >
+                +
+              </button>
+              <div
+                ref={setStagingRef}
+                className="flex flex-wrap gap-1.5 min-h-[2.5rem] min-w-[4rem] rounded-lg px-2 py-1 border-2 border-dashed border-stone-200 bg-stone-50"
+              >
+                {(attackTokens ?? []).map((token) => (
+                  <StagingToken key={token.id} token={token} />
+                ))}
+                {(attackTokens ?? []).length === 0 && (
+                  <span className="text-[9px] italic self-center text-stone-300">Empty</span>
+                )}
+              </div>
             </div>
           </div>
         )}

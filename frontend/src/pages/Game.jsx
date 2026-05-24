@@ -10,7 +10,7 @@ import { EnemyCardDisplay } from "../components/EnemyComponent";
 import ShopRow from "../components/ShopRow";
 import EventDeck, { EventCardDisplay } from "../components/EventDeck";
 import GameLog from "../components/GameLog";
-import TokenPool, { ATTACK_CONFIG } from "../components/TokenPool";
+import { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import socket from "../socket";
 
@@ -334,9 +334,7 @@ export default function Game({ gameState, mySocketId }) {
       return;
     }
     if (!over) return;
-    if (data.draggableType === "pool_token" && over.id === "staging") {
-      socket.emit("add_attack_token", { type: data.attackType });
-    } else if (data.draggableType === "staging_token" && over.id !== "staging") {
+    if (data.draggableType === "staging_token" && over.id !== "staging") {
       socket.emit("move_token_to_enemy", { enemyId: String(over.id), tokenId: data.tokenId });
     } else if (data.draggableType === "event_card" && over.id === "event_discard") {
       socket.emit("discard_event", { eventId: data.eventId });
@@ -483,11 +481,6 @@ export default function Game({ gameState, mySocketId }) {
                 />
               )
             )}
-          </div>
-
-          {/* ── Token pool (bottom-left) ── */}
-          <div style={{ position: "absolute", bottom: 30, left: 40, zIndex: 1 }}>
-            <TokenPool />
           </div>
 
           {/* ── Vertical divider ── */}
