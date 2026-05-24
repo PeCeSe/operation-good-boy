@@ -2,6 +2,8 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable } from "@dnd-kit/core";
+import CardComponent from "../components/CardComponent";
+import PawCoin from "../components/PawCoin";
 import LocationBar from "../components/LocationBar";
 import EnemySlot from "../components/EnemySlot";
 import { EnemyCardDisplay } from "../components/EnemyComponent";
@@ -662,10 +664,6 @@ export default function Game({ gameState, mySocketId }) {
 }
 
 // ── Inline sub-components ─────────────────────────────────────────────────────
-
-import CardComponent from "../components/CardComponent";
-import PawCoin from "../components/PawCoin";
-import { useDroppable } from "@dnd-kit/core";
 
 function PaymentDropZone({ paymentZone }) {
   const { setNodeRef, isOver } = useDroppable({ id: "payment_zone" });
