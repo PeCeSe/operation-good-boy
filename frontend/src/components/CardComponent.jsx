@@ -2,27 +2,27 @@ import PawCoin from "./PawCoin";
 
 const TYPE_CONFIG = {
   move: {
-    banner: "bg-[#C47A76] text-white",
-    image: "bg-[#F5D5D3]",
-    border: "border-[#B06560]",
-    emoji: "🐾",
-    label: "MOVE",
+    banner: "bg-move text-white",
+    image:  "bg-move-light",
+    border: "border-move-dark",
+    emoji:  "🐾",
+    label:  "MOVE",
     fallbackImage: "/cards/fallbacks/MoveFallback.png",
   },
   item: {
-    banner: "bg-[#C98F3A] text-white",
-    image: "bg-[#F5E5C0]",
-    border: "border-[#A0712E]",
-    emoji: "📦",
-    label: "ITEM",
+    banner: "bg-item text-white",
+    image:  "bg-item-light",
+    border: "border-item-dark",
+    emoji:  "📦",
+    label:  "ITEM",
     fallbackImage: "/cards/fallbacks/ItemFallback.png",
   },
   ally: {
-    banner: "bg-[#5D8C9E] text-white",
-    image: "bg-[#D6E8EF]",
-    border: "border-[#4A7080]",
-    emoji: "🤝",
-    label: "ALLY",
+    banner: "bg-ally text-white",
+    image:  "bg-ally-light",
+    border: "border-ally-dark",
+    emoji:  "🤝",
+    label:  "ALLY",
     fallbackImage: "/cards/fallbacks/AllyFallback.png",
   },
 };
@@ -30,7 +30,7 @@ const TYPE_CONFIG = {
 function renderDescription(text) {
   const tokens = text.split(/(♥|🪙)/);
   return tokens.map((token, i) => {
-    if (token === "♥") return <span key={i} className="text-red-400">♥</span>;
+    if (token === "♥") return <span key={i} className="text-red-500">♥</span>;
     if (token === "🪙") return <PawCoin key={i} />;
     return <span key={i}>{token}</span>;
   });
@@ -48,7 +48,13 @@ function CostBadge({ cost }) {
 }
 
 export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false, pack }) {
-  const cfg = TYPE_CONFIG[card.type] || { banner: "bg-stone-600 text-white", image: "bg-stone-100", border: "border-stone-400", emoji: "❓", label: card.type };
+  const cfg = TYPE_CONFIG[card.type] || {
+    banner: "bg-ink-500 text-white",
+    image:  "bg-paper-dark",
+    border: "border-ink-500",
+    emoji:  "❓",
+    label:  card.type,
+  };
 
   return (
     <button
@@ -57,8 +63,8 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       title={card.flavorText}
       style={{ width: 176, height: 258 }}
       className={`
-        flex-shrink-0 flex flex-col rounded-xl border-2 overflow-hidden shadow-md
-        bg-amber-50 text-left select-none
+        flex-shrink-0 flex flex-col rounded-2xl border-2 overflow-hidden shadow-md
+        bg-paper text-left select-none
         transition-all duration-300
         ${cfg.border}
         ${isPlaying ? "-translate-y-10 scale-110 opacity-0 pointer-events-none" : ""}
@@ -66,9 +72,9 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         ${!isPlayable && !isPlaying ? "opacity-50 cursor-default" : ""}
       `}
     >
-      {/* Header: name only — full width */}
+      {/* Header: name */}
       <div className="px-2 pt-2 pb-1 shrink-0">
-        <span className="font-bold text-xs leading-tight text-stone-800 line-clamp-1 block">{card.name}</span>
+        <span className="font-body font-bold text-xs leading-tight text-ink line-clamp-1 block">{card.name}</span>
       </div>
 
       {/* Illustration */}
@@ -92,14 +98,14 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         )}
       </div>
 
-      {/* Effect */}
-      <div className="px-2 pt-1 pb-0 text-[10px] text-stone-700 font-medium leading-snug flex-1 min-h-0 overflow-hidden">
+      {/* Description */}
+      <div className="px-2 pt-1 pb-0 text-[10px] font-body font-semibold text-ink-300 leading-snug flex-1 min-h-0 overflow-hidden">
         {card.description ? renderDescription(card.description) : "—"}
       </div>
 
-      {/* Bottom: flavor (left) + cost (right) */}
+      {/* Bottom: flavor + cost */}
       <div className="flex items-end gap-1 px-2 pb-2 pt-0.5 shrink-0">
-        <div className="flex-1 text-[9px] italic text-stone-400 leading-snug line-clamp-2">
+        <div className="flex-1 text-[9px] font-flavor italic text-ink-200 leading-snug line-clamp-2">
           {card.flavorText && `"${card.flavorText}"`}
         </div>
         {showCost && <CostBadge cost={card.cost} />}
