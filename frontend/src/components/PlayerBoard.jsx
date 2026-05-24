@@ -8,7 +8,7 @@ import { ATTACK_CONFIG } from "./TokenPool";
 import socket from "../socket";
 
 function StagingToken({ token }) {
-  const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.scratch;
+  const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.attack;
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: token.id,
     data: { draggableType: "staging_token", tokenId: token.id, attackType: token.type },
@@ -453,7 +453,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
             <div className="text-[10px] text-stone-400 uppercase tracking-wide font-bold">Attacks</div>
             <div className="flex flex-wrap gap-1">
               {(attackTokens ?? []).map((token) => {
-                const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.scratch;
+                const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.attack;
                 return (
                   <div key={token.id} className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-sm ${cfg.bg} ${cfg.border}`}>
                     {cfg.icon}

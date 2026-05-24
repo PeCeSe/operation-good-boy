@@ -57,13 +57,13 @@ function setPawTokens(state, playerId, tokens) {
 
 // ── Attack tokens ─────────────────────────────────────────────────────────────
 
-const VALID_ATTACK_TYPES = new Set(["scratch", "bite", "charm", "ignore"]);
+const VALID_ATTACK_TYPES = new Set(["attack"]);
 
 function addAttackToken(state, playerId, type) {
   if (!VALID_ATTACK_TYPES.has(type)) return;
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
-  p.attackTokens.push({ id: `tok_${_tokenId++}`, type });
+  p.attackTokens.push({ id: `tok_${_tokenId++}`, type: "attack" });
 }
 
 function moveTokenToEnemy(state, enemyId, tokenId) {
@@ -81,7 +81,7 @@ function moveTokenToEnemy(state, enemyId, tokenId) {
   const enemy = state.enemies.find((e) => e && e.id === enemyId);
   if (!enemy) { owner.attackTokens.push(token); return; }
   enemy.damageTokens.push(token);
-  log(state, `${owner.name} places a ${token.type} token on ${enemy.name}.`);
+  log(state, `${owner.name} places an attack token on ${enemy.name}.`);
 }
 
 function removeDamageToken(state, enemyId, tokenId) {

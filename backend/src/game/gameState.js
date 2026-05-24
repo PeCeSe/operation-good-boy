@@ -28,16 +28,40 @@ function buildStartingDeck(character) {
   );
 }
 
-function initGameState(room) {
+/**
+ * difficulty: pack number (1, 2, 3, …)
+ *   - shop cards & events: all packs 1..difficulty (cumulative)
+ *   - enemies (non-boss): all packs 1..difficulty (cumulative)
+ *   - boss: highest-pack boss available up to difficulty
+ *   - locations: only the locations whose pack === difficulty
+ *     (falls back to pack 1 if none found for that pack)
+ */
+function initGameState(room, difficulty = 1) {
+  const pack = Math.max(1, difficulty);
+
+  // ── Enemies ──────────────────────────────────────────────────────────────
+  // Good Boy (enemy_001) is always the boss. Filter regular enemies by pack.
   const allEnemies = deepClone(ENEMIES);
   const goodBoy = allEnemies.find((e) => e.id === "enemy_001");
-  const otherEnemies = shuffle(allEnemies.filter((e) => e.id !== "enemy_001"));
-  const enemyDeck = [...otherEnemies, goodBoy];
+  const regularEnemies = shuffle(
+    allEnemies.filter((e) => e.id !== "enemy_001" && e.pack <= pack)
+  );
+  const enemyDeck = [...regularEnemies, goodBoy];
   enemyDeck.forEach((e) => { e.damageTokens = []; });
 
-  const locationDeck = deepClone(LOCATIONS);
-  const eventDeck = shuffle(deepClone(EVENTS));
-  const shopDeck = shuffle(CARDS.map((c) => uniqueCard(c)));
+  // ── Locations ────────────────────────────────────────────────────────────
+  // Use locations matching the selected pack; fall back to pack 1 if none.
+  let packLocations = deepClone(LOCATIONS.filter((l) => l.pack === pack));
+  if (packLocations.length === 0) {
+    packLocations = deepClone(LOCATIONS.filter((l) => l.pack === 1));
+  }
+  const locationDeck = packLocations;
+
+  // ── Events & shop ────────────────────────────────────────────────────────
+  const eventDeck = shuffle(deepClone(EVENTS.filter((e) => e.pack <= pack)));
+  const shopDeck = shuffle(
+    CARDS.filter((c) => c.pack <= pack).map((c) => uniqueCard(c))
+  );
 
   const firstLocation = locationDeck.shift();
   firstLocation.currentCucumbers = 0;
@@ -67,6 +91,7 @@ function initGameState(room) {
   return {
     roomCode: room.code,
     phase: "playing",
+    difficulty: pack,
     currentPlayerId: players[0].playerId,
     roundNumber: 1,
     players,

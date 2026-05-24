@@ -14,8 +14,8 @@ import socket from "../socket";
 const BOARD_W = 1700;
 const BOARD_H = 1300;
 
-function DragChip({ attackType }) {
-  const cfg = ATTACK_CONFIG[attackType] ?? ATTACK_CONFIG.scratch;
+function DragChip() {
+  const cfg = ATTACK_CONFIG.attack;
   return (
     <div
       className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-lg shadow-xl pointer-events-none ${cfg.bg} ${cfg.border}`}
@@ -584,7 +584,7 @@ export default function Game({ gameState, mySocketId }) {
       <DragOverlay dropAnimation={null}>
         {(activeDrag?.draggableType === "pool_token" ||
           activeDrag?.draggableType === "staging_token") && (
-          <DragChip attackType={activeDrag.attackType} />
+          <DragChip />
         )}
         {activeDrag?.draggableType === "event_card" && (() => {
           const event = (activeEvents ?? []).find((e) => e.id === activeDrag.eventId);

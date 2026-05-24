@@ -124,12 +124,12 @@ io.on("connection", (socket) => {
     if (room) emitRoomUpdate(room.code);
   });
 
-  socket.on("game_start", () => {
+  socket.on("game_start", ({ difficulty = 1 } = {}) => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (!room) return socket.emit("error", { message: "Room not found." });
     if (room.hostSocketId !== socket.id) return socket.emit("error", { message: "Only the host can start." });
     if (!roomManager.canStart(room.code)) return socket.emit("error", { message: "Not all players are ready." });
-    room.gameState = initGameState(room);
+    room.gameState = initGameState(room, difficulty);
     emitGameUpdate(room.code);
   });
 

@@ -5,7 +5,8 @@ const CARDS = [
     name: "Zoomies",
     type: "move",
     cost: 3,
-    effect: { attack: 2, attackType: "scratch", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 2, pawcoins: 0, special: null },
     flavorText: "No warning. No reason. Full speed.",
   },
   {
@@ -13,7 +14,8 @@ const CARDS = [
     name: "Dead Cat Flop",
     type: "move",
     cost: 4,
-    effect: { attack: 3, attackType: "ignore", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 3, pawcoins: 0, special: null },
     flavorText: "The perfect guilt trip.",
   },
   {
@@ -21,7 +23,8 @@ const CARDS = [
     name: "Slow Blink",
     type: "move",
     cost: 3,
-    effect: { attack: 2, attackType: "charm", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 2, pawcoins: 0, special: null },
     flavorText: "This means I love you. Now do what I want.",
   },
   {
@@ -29,7 +32,8 @@ const CARDS = [
     name: "Pounce",
     type: "move",
     cost: 3,
-    effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: "bite_1" },
+    pack: 1,
+    effect: { attack: 2, pawcoins: 0, special: null },
     flavorText: "Maximum commitment.",
   },
   {
@@ -37,7 +41,8 @@ const CARDS = [
     name: "Hiss",
     type: "move",
     cost: 2,
-    effect: { attack: 2, attackType: "ignore", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 2, pawcoins: 0, special: null },
     flavorText: "Don't touch me. I mean it.",
   },
   {
@@ -45,7 +50,8 @@ const CARDS = [
     name: "Swipe",
     type: "move",
     cost: 4,
-    effect: { attack: 3, attackType: "scratch", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 3, pawcoins: 0, special: null },
     flavorText: "Lightning fast. No regrets.",
   },
   {
@@ -53,7 +59,8 @@ const CARDS = [
     name: "Belly Trap",
     type: "move",
     cost: 3,
-    effect: { attack: 2, attackType: "bite", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 2, pawcoins: 0, special: null },
     flavorText: "You were warned.",
   },
   {
@@ -61,7 +68,8 @@ const CARDS = [
     name: "Kneading Therapy",
     type: "move",
     cost: 4,
-    effect: { attack: 0, attackType: null, pawcoins: 0, special: "heal" },
+    pack: 1,
+    effect: { attack: 0, pawcoins: 0, special: "heal" },
     flavorText: "Technically helping.",
   },
 
@@ -71,7 +79,8 @@ const CARDS = [
     name: "Scratching Post",
     type: "item",
     cost: 4,
-    effect: { attack: 2, attackType: "scratch", pawcoins: 1, special: null },
+    pack: 1,
+    effect: { attack: 2, pawcoins: 1, special: null },
     flavorText: "Also works on furniture.",
   },
   {
@@ -79,7 +88,8 @@ const CARDS = [
     name: "Lure Wand",
     type: "item",
     cost: 3,
-    effect: { attack: 3, attackType: "charm", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 3, pawcoins: 0, special: null },
     flavorText: "They never see it coming.",
   },
   {
@@ -87,7 +97,8 @@ const CARDS = [
     name: "Cardboard Box",
     type: "item",
     cost: 2,
-    effect: { attack: 0, attackType: null, pawcoins: 0, special: "draw_card" },
+    pack: 1,
+    effect: { attack: 0, pawcoins: 0, special: "draw_card" },
     flavorText: "Fits any cat. No questions asked.",
   },
   {
@@ -95,7 +106,8 @@ const CARDS = [
     name: "Catnip",
     type: "item",
     cost: 2,
-    effect: { attack: 0, attackType: null, pawcoins: 3, special: null },
+    pack: 1,
+    effect: { attack: 0, pawcoins: 3, special: null },
     flavorText: "For focus. Definitely for focus.",
   },
   {
@@ -103,7 +115,8 @@ const CARDS = [
     name: "Hairball",
     type: "item",
     cost: 3,
-    effect: { attack: 2, attackType: "bite", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 2, pawcoins: 0, special: null },
     flavorText: "A biological weapon.",
   },
   {
@@ -111,7 +124,8 @@ const CARDS = [
     name: "Laser Pointer",
     type: "item",
     cost: 2,
-    effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: "charm_1" },
+    pack: 1,
+    effect: { attack: 1, pawcoins: 0, special: "draw_card" },
     flavorText: "Distracting for everyone involved.",
   },
   {
@@ -119,7 +133,8 @@ const CARDS = [
     name: "Yarn Ball",
     type: "item",
     cost: 3,
-    effect: { attack: 1, attackType: "scratch", pawcoins: 2, special: null },
+    pack: 1,
+    effect: { attack: 1, pawcoins: 2, special: null },
     flavorText: "Multi-purpose.",
   },
 
@@ -129,7 +144,8 @@ const CARDS = [
     name: "Friendly Pigeon",
     type: "ally",
     cost: 3,
-    effect: { attack: 0, attackType: null, pawcoins: 2, special: null },
+    pack: 1,
+    effect: { attack: 0, pawcoins: 2, special: null },
     flavorText: "Surprisingly cooperative for a bird.",
   },
   {
@@ -137,7 +153,8 @@ const CARDS = [
     name: "Old Lady Next Door",
     type: "ally",
     cost: 5,
-    effect: { attack: 4, attackType: "charm", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 4, pawcoins: 0, special: null },
     flavorText: "She gives out treats. Loyalty secured.",
   },
   {
@@ -145,7 +162,8 @@ const CARDS = [
     name: "Stray Kitten",
     type: "ally",
     cost: 3,
-    effect: { attack: 1, attackType: "scratch", pawcoins: 0, special: "draw_card" },
+    pack: 1,
+    effect: { attack: 1, pawcoins: 0, special: "draw_card" },
     flavorText: "Chaotic. Enthusiastic. Present.",
   },
   {
@@ -153,7 +171,8 @@ const CARDS = [
     name: "Garden Snail",
     type: "ally",
     cost: 2,
-    effect: { attack: 2, attackType: "ignore", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 2, pawcoins: 0, special: null },
     flavorText: "Slow. Passive-aggressive. Effective.",
   },
   {
@@ -161,7 +180,8 @@ const CARDS = [
     name: "Neighborhood Mouse",
     type: "ally",
     cost: 4,
-    effect: { attack: 3, attackType: "bite", pawcoins: 0, special: null },
+    pack: 1,
+    effect: { attack: 3, pawcoins: 0, special: null },
     flavorText: "Tiny. Furious. Inexplicable.",
   },
 ];

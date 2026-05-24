@@ -24,13 +24,6 @@ const TYPE_CONFIG = {
   },
 };
 
-const ATTACK_ICONS = {
-  scratch: "🐾",
-  bite: "🦷",
-  ignore: "🙄",
-  charm: "✨",
-};
-
 function renderDescription(text) {
   return text.split("♥").map((part, i, arr) => (
     <span key={i}>{part}{i < arr.length - 1 && <span className="text-red-400">♥</span>}</span>
@@ -39,13 +32,10 @@ function renderDescription(text) {
 
 function EffectText({ effect }) {
   const parts = [];
-  if (effect.attack > 0 && effect.attackType)
-    parts.push(`+${effect.attack} ${ATTACK_ICONS[effect.attackType]} ${effect.attackType}`);
+  if (effect.attack > 0) parts.push(`+${effect.attack} ⚔️`);
   if (effect.pawcoins > 0) parts.push(<>Gain {effect.pawcoins} <PawCoin />.</>);
   if (effect.special === "draw_card") parts.push("Draw 1 card.");
   if (effect.special === "heal") parts.push("Heal 1 life.");
-  if (effect.special?.startsWith("bite_")) parts.push(`+${effect.special.split("_")[1]} 🦷 bite`);
-  if (effect.special?.startsWith("charm_")) parts.push(`+${effect.special.split("_")[1]} ✨ charm`);
   if (parts.length === 0) return <>—</>;
   return <>{parts.map((p, i) => <span key={i}>{i > 0 && " "}{p}</span>)}</>;
 }

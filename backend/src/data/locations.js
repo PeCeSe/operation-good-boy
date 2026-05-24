@@ -2,6 +2,7 @@ const LOCATIONS = [
   {
     id: "location_001",
     name: "The Garden",
+    pack: 1,
     maxCucumberTokens: 8,
     currentCucumberTokens: 0,
     eventsToDraw: 1,
@@ -10,6 +11,7 @@ const LOCATIONS = [
   {
     id: "location_002",
     name: "The Street Corner",
+    pack: 1,
     maxCucumberTokens: 8,
     currentCucumberTokens: 0,
     eventsToDraw: 2,
@@ -18,6 +20,7 @@ const LOCATIONS = [
   {
     id: "location_003",
     name: "The Sunny Windowsill",
+    pack: 1,
     maxCucumberTokens: 8,
     currentCucumberTokens: 0,
     eventsToDraw: 3,

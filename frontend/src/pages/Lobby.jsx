@@ -97,7 +97,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
     socket.emit("select_character", { characterId });
   };
   const handleReady = () => socket.emit("player_ready");
-  const handleStart = () => socket.emit("game_start");
+  const handleStart = () => socket.emit("game_start", { difficulty: difficulty + 1 });
 
   if (!roomInfo && needsPassword) {
     return (

@@ -6,8 +6,7 @@ const ENEMIES = [
     maxHealth: 20,
     currentHealth: 20,
     attack: 4,
-    weakTo: ["ignore"],
-    resistantTo: ["charm"],
+    pack: 1,
     cucumberTokensOnSurvive: 2,
     ability: {
       trigger: "start_of_round",
@@ -23,7 +22,6 @@ const ENEMIES = [
       drawCardsActive: 0,
     },
     flavorText: "The humans think he's harmless. He is not.",
-    placedAttacks: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
   },
   {
     id: "enemy_002",
@@ -32,8 +30,7 @@ const ENEMIES = [
     maxHealth: 6,
     currentHealth: 6,
     attack: 2,
-    weakTo: ["charm"],
-    resistantTo: ["scratch"],
+    pack: 1,
     cucumberTokensOnSurvive: 1,
     ability: {
       trigger: "start_of_round",
@@ -49,7 +46,6 @@ const ENEMIES = [
       drawCardsActive: 0,
     },
     flavorText: "He takes this very personally.",
-    placedAttacks: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
   },
   {
     id: "enemy_003",
@@ -58,8 +54,7 @@ const ENEMIES = [
     maxHealth: 4,
     currentHealth: 4,
     attack: 1,
-    weakTo: ["charm"],
-    resistantTo: ["ignore"],
+    pack: 1,
     cucumberTokensOnSurvive: 1,
     ability: {
       trigger: "start_of_round",
@@ -75,7 +70,6 @@ const ENEMIES = [
       drawCardsActive: 0,
     },
     flavorText: "It just screams. Constantly.",
-    placedAttacks: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
   },
   {
     id: "enemy_004",
@@ -84,8 +78,7 @@ const ENEMIES = [
     maxHealth: 8,
     currentHealth: 8,
     attack: 2,
-    weakTo: ["scratch"],
-    resistantTo: ["ignore"],
+    pack: 1,
     cucumberTokensOnSurvive: 1,
     ability: {
       trigger: "start_of_round",
@@ -101,7 +94,6 @@ const ENEMIES = [
       drawCardsActive: 0,
     },
     flavorText: "There are more of them every time.",
-    placedAttacks: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
   },
   {
     id: "enemy_005",
@@ -110,8 +102,7 @@ const ENEMIES = [
     maxHealth: 5,
     currentHealth: 5,
     attack: 2,
-    weakTo: ["bite"],
-    resistantTo: ["charm"],
+    pack: 1,
     cucumberTokensOnSurvive: 1,
     ability: {
       trigger: "start_of_round",
@@ -127,7 +118,6 @@ const ENEMIES = [
       drawCardsActive: 0,
     },
     flavorText: "It has no feelings. It cannot be reasoned with.",
-    placedAttacks: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
   },
   {
     id: "enemy_006",
@@ -136,8 +126,7 @@ const ENEMIES = [
     maxHealth: 7,
     currentHealth: 7,
     attack: 2,
-    weakTo: ["ignore"],
-    resistantTo: ["charm"],
+    pack: 1,
     cucumberTokensOnSurvive: 1,
     ability: {
       trigger: "start_of_round",
@@ -153,7 +142,6 @@ const ENEMIES = [
       drawCardsActive: 0,
     },
     flavorText: "Get off his lawn.",
-    placedAttacks: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
   },
   {
     id: "enemy_007",
@@ -162,8 +150,7 @@ const ENEMIES = [
     maxHealth: 6,
     currentHealth: 6,
     attack: 3,
-    weakTo: ["bite"],
-    resistantTo: ["scratch"],
+    pack: 1,
     cucumberTokensOnSurvive: 1,
     ability: {
       trigger: "start_of_round",
@@ -179,7 +166,6 @@ const ENEMIES = [
       drawCardsActive: 0,
     },
     flavorText: "A machine with no purpose but suffering.",
-    placedAttacks: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
   },
   {
     id: "enemy_008",
@@ -188,8 +174,7 @@ const ENEMIES = [
     maxHealth: 8,
     currentHealth: 8,
     attack: 3,
-    weakTo: ["ignore"],
-    resistantTo: ["charm"],
+    pack: 1,
     cucumberTokensOnSurvive: 2,
     ability: {
       trigger: "start_of_round",
@@ -205,7 +190,6 @@ const ENEMIES = [
       drawCardsActive: 2,
     },
     flavorText: "The audacity.",
-    placedAttacks: { scratch: 0, bite: 0, ignore: 0, charm: 0 },
   },
 ];
 

@@ -1,19 +1,5 @@
 import { useDraggable } from "@dnd-kit/core";
 
-const ATTACK_ICONS = { scratch: "🐾", bite: "🦷", ignore: "🙄", charm: "✨" };
-
-function TypePill({ label, type }) {
-  const cfg =
-    type === "weak"
-      ? "bg-green-100 border-green-400 text-green-700"
-      : "bg-red-100 border-red-400 text-red-700";
-  return (
-    <span className={`text-[9px] font-semibold border rounded px-1 py-0.5 ${cfg}`}>
-      {type === "weak" ? "↑" : "↓"} {ATTACK_ICONS[label]}
-    </span>
-  );
-}
-
 export function EnemyCardDisplay({ enemy, isOver = false }) {
   return (
     <div
@@ -27,12 +13,6 @@ export function EnemyCardDisplay({ enemy, isOver = false }) {
           <div className="text-white font-bold text-sm leading-tight truncate">{enemy.name}</div>
           <div className="text-[9px] font-bold tracking-widest text-stone-400 uppercase">Enemy</div>
         </div>
-        {((enemy.weakTo?.length > 0) || (enemy.resistantTo?.length > 0)) && (
-          <div className="flex flex-wrap gap-0.5 justify-end shrink-0 pt-0.5">
-            {enemy.weakTo?.map((t) => <TypePill key={`w-${t}`} label={t} type="weak" />)}
-            {enemy.resistantTo?.map((t) => <TypePill key={`r-${t}`} label={t} type="resist" />)}
-          </div>
-        )}
       </div>
 
       <div className="flex flex-1 min-h-0">

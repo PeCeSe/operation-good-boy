@@ -2,6 +2,7 @@ const EVENTS = [
   {
     id: "event_001",
     name: "The Postman Rang the Doorbell",
+    pack: 1,
     effect: {
       damageAll: 0,
       cucumberTokens: 1,
@@ -16,6 +17,7 @@ const EVENTS = [
   {
     id: "event_002",
     name: "The Vacuum Cleaner Turned On",
+    pack: 1,
     effect: {
       damageAll: 1,
       cucumberTokens: 0,
@@ -30,6 +32,7 @@ const EVENTS = [
   {
     id: "event_003",
     name: "Bath Time",
+    pack: 1,
     effect: {
       damageAll: 0,
       cucumberTokens: 0,
@@ -44,6 +47,7 @@ const EVENTS = [
   {
     id: "event_004",
     name: "Vet Appointment",
+    pack: 1,
     effect: {
       damageAll: 2,
       cucumberTokens: 0,
@@ -58,6 +62,7 @@ const EVENTS = [
   {
     id: "event_005",
     name: "Kids Are Visiting",
+    pack: 1,
     effect: {
       damageAll: 0,
       cucumberTokens: 1,
@@ -72,6 +77,7 @@ const EVENTS = [
   {
     id: "event_006",
     name: "It's Raining",
+    pack: 1,
     effect: {
       damageAll: 0,
       cucumberTokens: 0,
@@ -86,6 +92,7 @@ const EVENTS = [
   {
     id: "event_007",
     name: "Dog Walk Past The Window",
+    pack: 1,
     effect: {
       damageAll: 0,
       cucumberTokens: 2,
@@ -100,6 +107,7 @@ const EVENTS = [
   {
     id: "event_008",
     name: "Monday Morning",
+    pack: 1,
     effect: {
       damageAll: 1,
       cucumberTokens: 0,
