@@ -18,17 +18,20 @@ function deepClone(obj) {
 }
 
 let _cardInstanceId = 1;
-function uniqueCard(card) {
-  return { ...deepClone(card), id: `${card.id}_${_cardInstanceId++}` };
+function uniqueCard(card, seq) {
+  return { ...deepClone(card), id: `${card.id}_${seq._next++}` };
 }
 
-function buildStartingDeck(character) {
+function buildStartingDeck(character, seq) {
   return shuffle(
-    character.startingDeck.map((cardId) => uniqueCard(STARTING_CARDS[cardId]))
+    character.startingDeck.map((cardId) => uniqueCard(STARTING_CARDS[cardId], seq))
   );
 }
 
 function initGameState(room) {
+  // Per-game sequence counter — avoids ID collisions between concurrent games
+  const seq = { _next: 1 };
+
   const allEnemies = deepClone(ENEMIES);
   const boss = allEnemies.find((e) => e.isBoss);
   const regularEnemies = shuffle(allEnemies.filter((e) => !e.isBoss));
@@ -40,7 +43,7 @@ function initGameState(room) {
       Array.from({ length: e.copies ?? 1 }, (_, i) => ({ ...deepClone(e), id: `${e.id}_${i + 1}` }))
     )
   );
-  const shopDeck = shuffle(CARDS.map((c) => uniqueCard(c)));
+  const shopDeck = shuffle(CARDS.map((c) => uniqueCard(c, seq)));
 
   const firstLocation = locationDeck.shift();
   firstLocation.currentCucumbers = 0;
@@ -51,7 +54,7 @@ function initGameState(room) {
 
   const players = room.players.map((lobbyPlayer, idx) => {
     const character = deepClone(CHARACTERS.find((c) => c.id === lobbyPlayer.characterId));
-    const drawPile = buildStartingDeck(character);
+    const drawPile = buildStartingDeck(character, seq);
     const hand = drawPile.splice(0, 5);
     return {
       socketId: lobbyPlayer.socketId,
