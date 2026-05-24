@@ -24,7 +24,7 @@ const TYPE_CONFIG = {
   },
 };
 
-const DIVIDER = { borderColor: "rgba(39, 29, 20, 0.25)" };
+// Dividers use same colour + weight as the card outline
 
 function renderDescription(text) {
   const tokens = text.split(/(♥|🪙)/);
@@ -63,7 +63,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       title={card.flavorText}
       style={{ width: 176, height: 258 }}
       className={`
-        flex-shrink-0 flex flex-col rounded-2xl border-2 border-ink-border overflow-hidden shadow-md
+        flex-shrink-0 flex flex-col rounded-lg border-2 border-ink-border overflow-hidden shadow-md
         bg-paper-50 text-left select-none
         transition-all duration-300
         ${isPlaying ? "-translate-y-10 scale-110 opacity-0 pointer-events-none" : ""}
@@ -72,10 +72,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       `}
     >
       {/* ── Coloured header: card name in Patrick Hand SC ── */}
-      <div
-        className={`px-2.5 pt-2 pb-1.5 shrink-0 flex items-center justify-between gap-1 border-b ${cfg.header}`}
-        style={DIVIDER}
-      >
+      <div className={`px-2.5 pt-2 pb-1.5 shrink-0 flex items-center justify-between gap-1 border-b-2 border-ink-border ${cfg.header}`}>
         <span className="font-display text-base text-white leading-tight line-clamp-1 block">
           {card.name}
         </span>
@@ -97,11 +94,8 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         }
       </div>
 
-      {/* ── Type label banner — with top + bottom divider ── */}
-      <div
-        className={`px-2 py-0.5 text-[9px] font-body font-black tracking-[0.12em] shrink-0 text-center text-white border-t border-b ${cfg.header}`}
-        style={DIVIDER}
-      >
+      {/* ── Type label banner ── */}
+      <div className={`px-2 py-0.5 text-[9px] font-body font-black tracking-[0.12em] shrink-0 text-center text-white border-t-2 border-b-2 border-ink-border ${cfg.header}`}>
         {cfg.label}
       </div>
 
@@ -110,11 +104,8 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         {card.description ? renderDescription(card.description) : "—"}
       </div>
 
-      {/* ── Flavor + cost — with top divider ── */}
-      <div
-        className="flex items-end gap-1 px-2.5 pb-2 pt-1 shrink-0 border-t"
-        style={DIVIDER}
-      >
+      {/* ── Flavor + cost (no divider — flows from description) ── */}
+      <div className="flex items-end gap-1 px-2.5 pb-2 pt-1 shrink-0">
         <div className="flex-1 text-[9px] font-flavor italic text-ink-500 leading-snug line-clamp-2">
           {card.flavorText && `"${card.flavorText}"`}
         </div>

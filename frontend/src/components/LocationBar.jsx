@@ -16,11 +16,11 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
 
   return (
     <div
-      className="flex-shrink-0 rounded-xl overflow-hidden shadow-md border-2 border-ink-border flex flex-col"
+      className="flex-shrink-0 rounded-lg overflow-hidden shadow-md border-2 border-ink-border flex flex-col"
       style={{ width: 286, height: 213 }}
     >
       {/* ── Header — sepia brown ── */}
-      <div className="bg-sepia-deep px-3 py-1.5 flex items-start justify-between gap-2 shrink-0 border-b" style={{ borderColor: "rgba(39,29,20,0.4)" }}>
+      <div className="bg-sepia-deep px-3 py-1.5 flex items-start justify-between gap-2 shrink-0 border-b-2 border-ink-border">
         <div className="min-w-0">
           <div className="font-display text-base text-white leading-tight truncate">
             {currentLocation.name}
@@ -82,8 +82,8 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
 
       {/* ── Bottom: cucumber token slots ── */}
       <div
-        className="shrink-0 px-3 py-1.5 flex items-center gap-1.5 border-t"
-        style={{ background: "#3d240e", borderColor: "rgba(39,29,20,0.5)" }}
+        className="shrink-0 px-3 py-1.5 flex items-center gap-1.5 border-t-2 border-ink-border"
+        style={{ background: "#3d240e" }}
       >
         <span className="text-[9px] font-bold tracking-[0.12em] uppercase shrink-0 text-sepia-soft">🥒</span>
         <div className="flex gap-1 flex-wrap">

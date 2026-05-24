@@ -116,7 +116,7 @@ export default function PileControls({ drawPile, discardPile, peekCard, isMe, pl
       {isMe && peekCard && (showPeek || true) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60" onClick={() => setShowPeek(false)}>
           <div
-            className="bg-paper-50 rounded-xl p-4 shadow-2xl flex flex-col items-center gap-3 border-2 border-ink-border"
+            className="bg-paper-50 rounded-lg p-4 shadow-2xl flex flex-col items-center gap-3 border-2 border-ink-border"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="text-sm font-bold text-ink-700 mb-1">Peeked card</div>
@@ -149,7 +149,7 @@ export default function PileControls({ drawPile, discardPile, peekCard, isMe, pl
       {showBrowse && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60" onClick={() => setShowBrowse(false)}>
           <div
-            className="bg-paper-50 rounded-xl p-4 shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col border-2 border-ink-border"
+            className="bg-paper-50 rounded-lg p-4 shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col border-2 border-ink-border"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">

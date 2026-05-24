@@ -7,13 +7,13 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
   const effectText = event.description ?? "";
   return (
     <div
-      className={`flex-shrink-0 border-2 border-ink-border rounded-xl overflow-hidden flex flex-col select-none transition-opacity bg-paper-50 ${
+      className={`flex-shrink-0 border-2 border-ink-border rounded-lg overflow-hidden flex flex-col select-none transition-opacity bg-paper-50 ${
         isDragging ? "opacity-30" : "shadow-md"
       }`}
       style={{ width: 213, height: 213 }}
     >
       {/* ── Plum header ── */}
-      <div className="bg-plum-deep px-3 py-1.5 flex items-center gap-2 shrink-0 border-b" style={{ borderColor: "rgba(39,29,20,0.25)" }}>
+      <div className="bg-plum-deep px-3 py-1.5 flex items-center gap-2 shrink-0 border-b-2 border-ink-border">
         <div className="w-5 h-5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[11px] shrink-0">
           😾
         </div>
@@ -26,7 +26,7 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
       </div>
 
       {/* ── Image area — plum gradient for fallback ── */}
-      <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden bg-plum-soft border-b" style={{ borderColor: "rgba(39,29,20,0.25)" }}>
+      <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden bg-plum-soft border-b-2 border-ink-border">
         {event.image
           ? <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
           : <span className="text-5xl opacity-30">🐾</span>
@@ -82,20 +82,20 @@ function DiscardZone({ count, eventDiscard }) {
       <div
         ref={setNodeRef}
         onClick={() => count > 0 && setShowBrowse(true)}
-        className={`relative flex-shrink-0 rounded-xl transition-all ${
+        className={`relative flex-shrink-0 rounded-lg transition-all ${
           isOver ? "ring-2 ring-plum ring-offset-1" : ""
         } ${count > 0 ? "cursor-pointer hover:opacity-90" : "cursor-default"}`}
         style={{ width: 213, height: 213 }}
       >
         {count > 2 && (
           <div
-            className="absolute rounded-xl border-2 border-ink-border bg-paper-200"
+            className="absolute rounded-lg border-2 border-ink-border bg-paper-200"
             style={{ width: 213, height: 213, top: 6, left: 6 }}
           />
         )}
         {count > 1 && (
           <div
-            className="absolute rounded-xl border-2 border-ink-border bg-paper-200"
+            className="absolute rounded-lg border-2 border-ink-border bg-paper-200"
             style={{ width: 213, height: 213, top: 3, left: 3 }}
           />
         )}
@@ -104,7 +104,7 @@ function DiscardZone({ count, eventDiscard }) {
             <EventCardDisplay event={topEvent} />
           ) : (
             <div
-              className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
+              className={`rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
                 isOver
                   ? "border-plum bg-plum-lighter"
                   : "border-ink-border bg-paper-200"
@@ -134,7 +134,7 @@ function DiscardZone({ count, eventDiscard }) {
           onClick={() => setShowBrowse(false)}
         >
           <div
-            className="bg-paper-50 rounded-xl p-4 shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col border-2 border-ink-border"
+            className="bg-paper-50 rounded-lg p-4 shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] flex flex-col border-2 border-ink-border"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
@@ -198,7 +198,7 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
         {...attributes}
         onClick={handleDraw}
         disabled={deckCount === 0}
-        className={`relative flex-shrink-0 rounded-xl border-2 flex items-center justify-center select-none transition-all ${
+        className={`relative flex-shrink-0 rounded-lg border-2 flex items-center justify-center select-none transition-all ${
           deckCount > 0
             ? "border-plum bg-plum-deep hover:bg-plum cursor-pointer active:scale-95"
             : "border-ink-border bg-paper-200 cursor-default opacity-60"
@@ -219,7 +219,7 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
         <ActiveEventCard key={activeEvents[0].id} event={activeEvents[0]} />
       ) : (
         <div
-          className="flex-shrink-0 rounded-xl border-2 border-dashed border-ink-border bg-paper-200 flex items-center justify-center text-ink-300 text-xs select-none"
+          className="flex-shrink-0 rounded-lg border-2 border-dashed border-ink-border bg-paper-200 flex items-center justify-center text-ink-300 text-xs select-none"
           style={{ width: 213, height: 213 }}
         >
           Active event

@@ -3,13 +3,13 @@ import { useDraggable } from "@dnd-kit/core";
 export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
   return (
     <div
-      className={`relative rounded-xl shadow-md overflow-hidden flex flex-col border-2 transition-all ${
+      className={`relative rounded-lg shadow-md overflow-hidden flex flex-col border-2 transition-all ${
         isOver ? "border-gold" : "border-ink-border"
       }`}
       style={{ width: 286, height: 213, background: "#fff8e6" }}
     >
       {/* ── Brown/ink header ── */}
-      <div className="bg-brown-deep px-3 py-1.5 flex items-center justify-between gap-2 shrink-0 border-b" style={{ borderColor: "rgba(39,29,20,0.4)" }}>
+      <div className="bg-brown-deep px-3 py-1.5 flex items-center justify-between gap-2 shrink-0 border-b-2 border-ink-border">
         <div className="min-w-0">
           <div className="font-display text-base text-white leading-tight truncate">
             {enemy.name}
@@ -35,7 +35,7 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
               <div className="text-[11px] font-body text-ink-300 italic">No ability.</div>
             )}
           </div>
-          <div className="shrink-0 mt-1.5 pt-1.5 border-t" style={{ borderColor: "rgba(39,29,20,0.2)" }}>
+          <div className="shrink-0 mt-1.5 pt-1.5 border-t-2 border-ink-border/30">
             <div className="flex items-center gap-1.5 mb-0.5">
               <div className="h-px flex-1 bg-ink-border opacity-20" />
               <span className="text-[8px] font-body font-black tracking-[0.12em] text-ink-500 uppercase">Reward</span>

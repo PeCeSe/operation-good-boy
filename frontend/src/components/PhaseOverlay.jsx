@@ -17,7 +17,7 @@ function DescribeEventEffect({ effect }) {
 function CardBack({ onFlip, isMyTurn, animClass }) {
   return (
     <div
-      className={`w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden select-none ${animClass} ${isMyTurn ? "cursor-pointer hover:scale-[1.02] transition-transform" : "cursor-default"}`}
+      className={`w-full max-w-sm rounded-lg shadow-2xl overflow-hidden select-none ${animClass} ${isMyTurn ? "cursor-pointer hover:scale-[1.02] transition-transform" : "cursor-default"}`}
       style={{ background: "linear-gradient(135deg, #2e2318 0%, #1a1208 100%)" }}
       onClick={isMyTurn ? onFlip : undefined}
     >
@@ -36,7 +36,7 @@ function CardBack({ onFlip, isMyTurn, animClass }) {
 
 function TurnStartCard({ item, isMyTurn, onAdvance }) {
   return (
-    <div className="bg-paper-50 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden anim-slide-up border-2 border-ink-border">
+    <div className="bg-paper-50 rounded-lg shadow-2xl max-w-sm w-full overflow-hidden anim-slide-up border-2 border-ink-border">
       <div className="bg-moss px-5 py-4 text-center">
         <div className="text-[9px] font-body font-black tracking-[0.12em] text-moss-soft uppercase mb-1">Round {item.roundNumber}</div>
         <div className="font-display text-2xl text-white" >
@@ -62,7 +62,7 @@ function TurnStartCard({ item, isMyTurn, onAdvance }) {
 
 function EventCard({ event }) {
   return (
-    <div className="bg-paper-50 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden anim-flip-in border-2 border-ink-border">
+    <div className="bg-paper-50 rounded-lg shadow-2xl max-w-sm w-full overflow-hidden anim-flip-in border-2 border-ink-border">
       <div className="bg-plum-deep px-5 py-3 flex items-center gap-2">
         <span className="text-2xl">📣</span>
         <div>
@@ -89,7 +89,7 @@ function EventCard({ event }) {
 
 function EnemyAbilityCard({ item }) {
   return (
-    <div className="bg-paper-50 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden anim-flip-in border-2 border-ink-border">
+    <div className="bg-paper-50 rounded-lg shadow-2xl max-w-sm w-full overflow-hidden anim-flip-in border-2 border-ink-border">
       <div className="bg-brown-deep px-5 py-3 flex items-center gap-2">
         <span className="text-2xl">{item.enemyEmoji || "👾"}</span>
         <div>
@@ -119,7 +119,7 @@ function EffectResult({ effectResult, isMyTurn, onDone }) {
   const hasChanges = cucumberDelta !== 0 || lifeDeltas.length > 0;
 
   return (
-    <div className="bg-paper-50 rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden anim-slide-up border-2 border-ink-border">
+    <div className="bg-paper-50 rounded-lg shadow-2xl max-w-sm w-full overflow-hidden anim-slide-up border-2 border-ink-border">
       <div className="bg-ink-700 px-5 py-3">
         <div className="text-[9px] font-body font-black tracking-[0.12em] text-ink-300 uppercase">Effect applied</div>
       </div>
