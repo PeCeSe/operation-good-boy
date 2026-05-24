@@ -109,11 +109,11 @@ export default function Cards() {
       <section>
         <SectionHeader>Locations</SectionHeader>
         <div className="flex flex-wrap gap-4">
-          {LOCATIONS.map((loc) => (
+          {LOCATIONS.map((loc, i) => (
             <div key={loc.id} className="flex flex-col gap-1.5">
               <LocationBar
                 currentLocation={loc}
-                lostLocations={[]}
+                lostLocations={LOCATIONS.slice(0, i)}
                 totalLocations={LOCATIONS.length}
               />
               <div className="flex justify-center">
