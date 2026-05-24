@@ -35,34 +35,34 @@ const ENEMIES = [
   { id: "en_8", pack: 1, name: "Good Boy", emoji: "🐕", maxHealth: 20, attack: 4, cucOnSurvive: 2, ability: { description: "Add 1 🥒 to the location." }, reward: { description: "Remove 2 🥒. All players gain 1 life." }, flavorText: "The humans think he's harmless. He is not.", isBoss: true, damageTokens: [] },
 ];
 
-const KITTEN_EYES = { id: "kitten_eyes", name: "Kitten Eyes", count: 7, pack: 1, type: "move", image: "/cards/KittenEyes.png", effect: { attack: 0, pawcoins: 1, special: null }, flavorText: "Resistance is futile." };
+const KITTEN_EYES = { id: "kitten_eyes", name: "Kitten Eyes", count: 7, pack: 1, type: "move", image: "/cards/starters/KittenEyes.png", effect: { attack: 0, pawcoins: 1, special: null }, flavorText: "Resistance is futile." };
 
 const STARTING_DECKS = [
   {
     charId: "char_persian",
     cards: [
       KITTEN_EYES,
-      { id: "persian_pedigree", name: "Pedigree", count: 1, pack: 1, type: "item", image: "/cards/Pedigree.png", effect: { attack: 0, pawcoins: 0, special: "choice_pedigree" }, description: "Choose one: Gain 2 🪙; or ALL Heroes gain 1 🪙.", flavorText: "Fourteen generations of excellence." },
-      { id: "persian_mirror", name: "Vanity Mirror", count: 1, pack: 1, type: "item", image: "/cards/VanityMirror.png", effect: { attack: 0, pawcoins: 1, special: "moves_to_top_of_deck" }, description: "Gain 1 🪙. You may put Moves you acquire on the top of your deck instead of in your discard pile.", flavorText: "The fairest in the land. Obviously." },
-      { id: "persian_slave", name: "Hooman Slave", count: 1, pack: 1, type: "ally", image: "/cards/HoomanSlave.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2" }, description: "Choose: Gain 1 ⚔️ attack token, or heal 2 ♥.", flavorText: "Adequate. For a hooman." },
+      { id: "persian_pedigree", name: "Pedigree", count: 1, pack: 1, type: "item", image: "/cards/starters/persian/Pedigree.png", effect: { attack: 0, pawcoins: 0, special: "choice_pedigree" }, description: "Choose one: Gain 2 🪙; or ALL Heroes gain 1 🪙.", flavorText: "Fourteen generations of excellence." },
+      { id: "persian_mirror", name: "Vanity Mirror", count: 1, pack: 1, type: "item", image: "/cards/starters/persian/VanityMirror.png", effect: { attack: 0, pawcoins: 1, special: "moves_to_top_of_deck" }, description: "Gain 1 🪙. You may put Moves you acquire on the top of your deck instead of in your discard pile.", flavorText: "The fairest in the land. Obviously." },
+      { id: "persian_slave", name: "Hooman Slave", count: 1, pack: 1, type: "ally", image: "/cards/starters/persian/HoomanSlave.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2" }, description: "Choose: Gain 1 ⚔️ attack token, or heal 2 ♥.", flavorText: "Adequate. For a hooman." },
     ],
   },
   {
     charId: "char_streetcat",
     cards: [
       KITTEN_EYES,
-      { id: "sc_tuna", name: "Old Can of Tuna", count: 1, pack: 1, type: "item", image: "/cards/OldCanOfTuna.png", effect: { attack: 0, pawcoins: 0, special: "add_attack_or_coin" }, description: "Gain 1 ⚔️ attack token. Defeating an enemy this turn also gains 1 pawcoin.", flavorText: "Still good. Probably." },
-      { id: "sc_hide", name: "The Good Hiding Spot", count: 1, pack: 1, type: "item", image: "/cards/GoodHidingSpot.png", effect: { attack: 0, pawcoins: 1, special: "passive_protection" }, description: "Gain 1 pawcoin. While in hand: lose max 1 life per event or attack.", flavorText: "Stealth mode activated." },
-      { id: "sc_roxy", name: "Roxy", count: 1, pack: 1, type: "ally", image: "/cards/Roxy.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2" }, description: "Choose: Gain 1 ⚔️ attack token, or heal 2 ♥.", flavorText: "She stops traffic. Literally." },
+      { id: "sc_tuna", name: "Old Can of Tuna", count: 1, pack: 1, type: "item", image: "/cards/starters/streetcat/OldCanOfTuna.png", effect: { attack: 0, pawcoins: 0, special: "add_attack_or_coin" }, description: "Gain 1 ⚔️ attack token. Defeating an enemy this turn also gains 1 pawcoin.", flavorText: "Still good. Probably." },
+      { id: "sc_hide", name: "The Good Hiding Spot", count: 1, pack: 1, type: "item", image: "/cards/starters/streetcat/GoodHidingSpot.png", effect: { attack: 0, pawcoins: 1, special: "passive_protection" }, description: "Gain 1 pawcoin. While in hand: lose max 1 life per event or attack.", flavorText: "Stealth mode activated." },
+      { id: "sc_roxy", name: "Roxy", count: 1, pack: 1, type: "ally", image: "/cards/starters/streetcat/Roxy.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2" }, description: "Choose: Gain 1 ⚔️ attack token, or heal 2 ♥.", flavorText: "She stops traffic. Literally." },
     ],
   },
   {
     charId: "char_kitten",
     cards: [
       KITTEN_EYES,
-      { id: "kitten_jingly", name: "Jingly Ball", count: 1, type: "item", image: "/cards/JinglyBall.png", effect: { attack: 0, pawcoins: 1, special: "discard_gain_2_coins" }, description: "Gain 1 🪙. If you discard this, gain 2 🪙.", flavorText: "Pretty and it makes noise!" },
-      { id: "kitten_kibble", name: "Kitten Kibble", count: 1, type: "item", image: "/cards/KittenKibble.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2_any" }, description: "Choose one: Gain 1 ⚔️, or any one hero gains 2 ♥.", flavorText: "With extra nutrients for growing kittens." },
-      { id: "kitten_mrbear", name: "Mr. Bear", count: 1, type: "ally", image: "/cards/MrBear.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2" }, description: "Choose one: Gain 1 ⚔️, or gain 2 ♥.", flavorText: "The best friend anyone could wish for." },
+      { id: "kitten_jingly", name: "Jingly Ball", count: 1, type: "item", image: "/cards/starters/kitten/JinglyBall.png", effect: { attack: 0, pawcoins: 1, special: "discard_gain_2_coins" }, description: "Gain 1 🪙. If you discard this, gain 2 🪙.", flavorText: "Pretty and it makes noise!" },
+      { id: "kitten_kibble", name: "Kitten Kibble", count: 1, type: "item", image: "/cards/starters/kitten/KittenKibble.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2_any" }, description: "Choose one: Gain 1 ⚔️, or any one hero gains 2 ♥.", flavorText: "With extra nutrients for growing kittens." },
+      { id: "kitten_mrbear", name: "Mr. Bear", count: 1, type: "ally", image: "/cards/starters/kitten/MrBear.png", effect: { attack: 0, pawcoins: 0, special: "choice_attack_or_heal2" }, description: "Choose one: Gain 1 ⚔️, or gain 2 ♥.", flavorText: "The best friend anyone could wish for." },
     ],
   },
 ];

@@ -7,7 +7,7 @@ const TYPE_CONFIG = {
     border: "border-[#B06560]",
     emoji: "🐾",
     label: "MOVE",
-    fallbackImage: "/cards/MoveFallback.png",
+    fallbackImage: "/cards/fallbacks/MoveFallback.png",
   },
   item: {
     banner: "bg-[#C98F3A] text-white",
@@ -15,7 +15,7 @@ const TYPE_CONFIG = {
     border: "border-[#A0712E]",
     emoji: "📦",
     label: "ITEM",
-    fallbackImage: "/cards/ItemFallback.png",
+    fallbackImage: "/cards/fallbacks/ItemFallback.png",
   },
   ally: {
     banner: "bg-[#5D8C9E] text-white",
@@ -23,7 +23,7 @@ const TYPE_CONFIG = {
     border: "border-[#4A7080]",
     emoji: "🤝",
     label: "ALLY",
-    fallbackImage: "/cards/AllyFallback.png",
+    fallbackImage: "/cards/fallbacks/AllyFallback.png",
   },
 };
 
