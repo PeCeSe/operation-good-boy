@@ -3,24 +3,8 @@ import { createPortal } from "react-dom";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import socket from "../socket";
 
-function effectLines(effect) {
-  if (!effect) return [];
-  const lines = [];
-  if (effect.damageActive > 0)   lines.push(`Active hero loses ${effect.damageActive} ♥`);
-  if (effect.damageAll > 0)      lines.push(`All heroes lose ${effect.damageAll} ♥`);
-  if (effect.cucumberTokens > 0) lines.push(`Add ${effect.cucumberTokens} 🥒`);
-  if (effect.discardCards > 0)   lines.push(`Active hero discards ${effect.discardCards} card${effect.discardCards > 1 ? "s" : ""}`);
-  if (effect.blockExtraDraw)     lines.push("No extra card draws this turn");
-  if (effect.pawcoinPenalty > 0) lines.push(`-${effect.pawcoinPenalty} 🪙 per player`);
-  if (effect.blockShop)          lines.push("Shop is closed this turn");
-  if (effect.blockAttack)        lines.push("No attacks this turn");
-  if (effect.special)            lines.push(effect.special);
-  return lines;
-}
-
 export function EventCardDisplay({ event, isDragging = false, pack }) {
-  const lines = effectLines(event.effect);
-  const effectText = event.description ?? lines.join(" · ") ?? "";
+  const effectText = event.description ?? "";
   return (
     <div
       className={`flex-shrink-0 bg-stone-900 border-2 border-stone-600 rounded-xl overflow-hidden flex flex-col select-none transition-opacity ${

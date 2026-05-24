@@ -36,16 +36,6 @@ function renderDescription(text) {
   });
 }
 
-function EffectText({ effect }) {
-  const parts = [];
-  if (effect.attack > 0) parts.push(<>Gain {effect.attack} ⚔️.</>);
-  if (effect.pawcoins > 0) parts.push(<>Gain {effect.pawcoins} <PawCoin />.</>);
-  if (effect.special === "draw_card") parts.push("Draw 1 card.");
-  if (effect.special === "heal") parts.push("Heal 1 life.");
-  if (parts.length === 0) return <>—</>;
-  return <>{parts.map((p, i) => <span key={i}>{i > 0 && " "}{p}</span>)}</>;
-}
-
 function CostBadge({ cost }) {
   return (
     <div className="relative flex-shrink-0 w-7 h-7 flex items-center justify-center">
@@ -104,7 +94,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
 
       {/* Effect */}
       <div className="px-2 pt-1 pb-0 text-[10px] text-stone-700 font-medium leading-snug flex-1 min-h-0 overflow-hidden">
-        {card.description ? renderDescription(card.description) : <EffectText effect={card.effect} />}
+        {card.description ? renderDescription(card.description) : "—"}
       </div>
 
       {/* Bottom: flavor (left) + cost (right) */}
