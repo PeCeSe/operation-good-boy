@@ -180,7 +180,7 @@ export default function Cards() {
                 <div className="flex flex-wrap gap-3">
                   {cards.map((card) => (
                     <div key={card.id} className="relative">
-                      <CardComponent card={card} isPlayable={true} pack={card.pack ?? 1} />
+                      <CardComponent card={card} isPlayable={true} />
                       <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-stone-700 text-white text-xs font-bold flex items-center justify-center shadow">
                         ×{card.count}
                       </div>
