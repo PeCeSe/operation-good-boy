@@ -72,7 +72,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       `}
     >
       {/* ── Coloured header: card name in Patrick Hand SC ── */}
-      <div className={`px-2.5 pt-2 pb-1.5 shrink-0 flex items-center justify-between gap-1 border-b-2 border-ink-border ${cfg.header}`}>
+      <div className={`px-2.5 shrink-0 flex items-center justify-between gap-1 border-b-2 border-ink-border ${cfg.header}`} style={{ paddingTop: "0.2rem", paddingBottom: "0.2rem" }}>
         <span className="font-display text-base text-white leading-tight line-clamp-1 block">
           {card.name}
         </span>
