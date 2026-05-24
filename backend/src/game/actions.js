@@ -189,6 +189,11 @@ function placePayment(state, playerId, tokens) {
 }
 
 function clearPayment(state) {
+  const { playerId, tokens } = state.paymentZone;
+  if (playerId && tokens > 0) {
+    const p = state.players.find((p) => p.playerId === playerId);
+    if (p) p.pawTokens = (p.pawTokens ?? 0) + tokens;
+  }
   state.paymentZone = { playerId: null, tokens: 0, lastPurchase: state.paymentZone.lastPurchase };
 }
 

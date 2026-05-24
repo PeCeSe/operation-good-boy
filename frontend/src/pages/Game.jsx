@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable } from "@dnd-kit/core";
 import LocationBar from "../components/LocationBar";
@@ -146,6 +147,7 @@ export default function Game({ gameState, mySocketId }) {
   const boardSurfaceRef = useRef(null);
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
   const [activeDrag, setActiveDrag] = useState(null);
+  const [pendingPurchase, setPendingPurchase] = useState(null);
   const [zoom, setZoom] = useState(1);
   const [otherCursors, setOtherCursors] = useState({});
   const zoomRef = useRef(zoom);
@@ -310,6 +312,14 @@ export default function Game({ gameState, mySocketId }) {
   function handleDragEnd({ active, over }) {
     setActiveDrag(null);
     const data = active.data.current ?? {};
+    if (data.draggableType === "paw_coin") {
+      if (over?.id === "payment_zone") {
+        const paid = (paymentZone?.tokens ?? 0) + 1;
+        socket.emit("set_paw_tokens", { tokens: Math.max(0, (me?.pawTokens ?? 0) - 1) });
+        socket.emit("place_payment", { tokens: paid });
+      }
+      return;
+    }
     if (data.draggableType === "enemy_deck_draw") {
       if (over?.id?.toString().startsWith("enemy_slot_")) {
         const slotIndex = parseInt(over.id.toString().replace("enemy_slot_", ""), 10);
@@ -500,9 +510,9 @@ export default function Game({ gameState, mySocketId }) {
             <ShopDeckPile count={shopDeck?.length ?? 0} />
           </div>
 
-          {/* ── Payment zone ── */}
-          <div style={{ position: "absolute", top: 60, left: 1210, zIndex: 1, width: 300 }}>
-            <PaymentZonePanel paymentZone={paymentZone} />
+          {/* ── Payment drop zone ── */}
+          <div style={{ position: "absolute", top: 60, left: 1210, zIndex: 1 }}>
+            <PaymentDropZone paymentZone={paymentZone} />
           </div>
 
           {/* ── Shop cards (2-column grid) ── */}
@@ -513,7 +523,7 @@ export default function Game({ gameState, mySocketId }) {
             <div className="grid grid-cols-2 gap-3">
               {(shop ?? []).map((card, i) =>
                 card ? (
-                  <ShopCard key={card.id} card={card} />
+                  <ShopCard key={card.id} card={card} paymentZone={paymentZone} onNeedConfirm={setPendingPurchase} />
                 ) : (
                   <div
                     key={`empty-${i}`}
@@ -583,6 +593,9 @@ export default function Game({ gameState, mySocketId }) {
 
       {/* ── Drag overlay ── */}
       <DragOverlay dropAnimation={null}>
+        {activeDrag?.draggableType === "paw_coin" && (
+          <PawCoin className="w-6 h-6 pointer-events-none drop-shadow-lg" />
+        )}
         {(activeDrag?.draggableType === "pool_token" ||
           activeDrag?.draggableType === "staging_token") && (
           <DragChip />
@@ -612,70 +625,106 @@ export default function Game({ gameState, mySocketId }) {
           </div>
         )}
       </DragOverlay>
+      {/* ── Confirmation dialog ── */}
+      {pendingPurchase && createPortal(
+        <div
+          className="fixed inset-0 z-[300] flex items-center justify-center bg-ink/60"
+          onClick={() => setPendingPurchase(null)}
+        >
+          <div
+            className="bg-paper-50 rounded-lg p-5 shadow-2xl border-2 border-ink-border max-w-xs w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="font-display text-lg text-ink leading-tight mb-1">{pendingPurchase.name}</div>
+            <div className="text-sm text-ink-700 mb-4">
+              Kortet koster <strong>{pendingPurchase.cost} 🪙</strong>, men payment zone har bare <strong>{paymentZone?.tokens ?? 0} 🪙</strong>. Vil du kjøpe det likevel?
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setPendingPurchase(null)}
+                className="text-sm text-ink-500 hover:text-ink-700 px-3 py-1.5 transition-colors"
+              >
+                Avbryt
+              </button>
+              <button
+                onClick={() => { socket.emit("buy_card", { cardId: pendingPurchase.id }); setPendingPurchase(null); }}
+                className="text-sm bg-ink text-white font-bold px-4 py-1.5 rounded-lg hover:bg-ink-700 transition-colors"
+              >
+                Kjøp likevel
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </DndContext>
   );
 }
 
 // ── Inline sub-components ─────────────────────────────────────────────────────
 
-import { useState as usePaymentState } from "react";
 import CardComponent from "../components/CardComponent";
 import PawCoin from "../components/PawCoin";
+import { useDroppable } from "@dnd-kit/core";
 
-function PaymentZonePanel({ paymentZone }) {
-  const [lastVisible, setLastVisible] = usePaymentState(false);
-  const tokenCount = paymentZone?.tokens ?? 0;
-
-  useEffect(() => {
-    if (paymentZone?.lastPurchase) {
-      setLastVisible(true);
-      const t = setTimeout(() => setLastVisible(false), 3000);
-      return () => clearTimeout(t);
-    }
-  }, [paymentZone?.lastPurchase?.cardName]);
+function PaymentDropZone({ paymentZone }) {
+  const { setNodeRef, isOver } = useDroppable({ id: "payment_zone" });
+  const count = paymentZone?.tokens ?? 0;
+  const displayCount = Math.min(count, 18);
 
   return (
-    <div className="bg-amber-50/80 border border-amber-300 rounded-xl px-3 py-2.5">
-      <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-amber-700 mb-1.5">
-        Payment Zone
+    <div className="flex flex-col gap-2" style={{ width: 290 }}>
+      <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold">Payment</div>
+      <div
+        ref={setNodeRef}
+        onPointerDown={(e) => e.stopPropagation()}
+        className={`rounded-lg border-2 border-dashed min-h-[72px] p-2.5 transition-all flex flex-wrap gap-1 items-start content-start ${
+          isOver
+            ? "border-gold bg-gold-soft/40"
+            : count > 0
+            ? "border-gold/60 bg-gold-soft/20"
+            : "border-ink-border/30 bg-paper-200/30"
+        }`}
+      >
+        {count === 0 && (
+          <span className={`text-[10px] italic w-full text-center self-center transition-colors ${isOver ? "text-gold font-semibold" : "text-ink-300"}`}>
+            {isOver ? "Slipp her!" : "Dra coins hit for å betale"}
+          </span>
+        )}
+        {Array.from({ length: displayCount }).map((_, i) => (
+          <PawCoin key={i} className="w-6 h-6" />
+        ))}
+        {count > 18 && (
+          <span className="text-xs text-gold-deep font-bold self-center">+{count - 18}</span>
+        )}
       </div>
-      {tokenCount === 0 ? (
-        <div className="text-xs text-stone-400 italic">No coins placed</div>
-      ) : (
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex gap-0.5 flex-wrap">
-            {Array.from({ length: Math.min(tokenCount, 20) }).map((_, i) => (
-              <PawCoin key={i} className="w-5 h-5" />
-            ))}
-            {tokenCount > 20 && (
-              <span className="text-xs text-amber-700 self-center">+{tokenCount - 20}</span>
-            )}
-          </div>
-          <span className="text-sm font-bold text-amber-700">{tokenCount} 🪙</span>
+      {count > 0 && (
+        <div className="flex items-center justify-between px-0.5">
+          <span className="text-sm font-bold text-gold-deep">{count} 🪙</span>
           <button
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => socket.emit("clear_payment")}
-            className="text-[10px] bg-red-100 hover:bg-red-200 text-red-600 font-semibold rounded px-2 py-0.5 transition-colors"
+            className="text-[10px] text-ink-500 hover:text-ink-700 font-semibold transition-colors"
           >
-            Clear
+            Returner ↩
           </button>
-        </div>
-      )}
-      {lastVisible && paymentZone?.lastPurchase && (
-        <div className="text-[10px] text-green-600 font-semibold mt-1 animate-pulse">
-          Bought: {paymentZone.lastPurchase.cardName} for {paymentZone.lastPurchase.paid} 🪙
         </div>
       )}
     </div>
   );
 }
 
-function ShopCard({ card }) {
+function ShopCard({ card, paymentZone, onNeedConfirm }) {
+  const handleBuy = () => {
+    const paid = paymentZone?.tokens ?? 0;
+    if (paid >= card.cost) {
+      socket.emit("buy_card", { cardId: card.id });
+    } else {
+      onNeedConfirm(card);
+    }
+  };
   return (
-    <div
-      onPointerDown={(e) => e.stopPropagation()}
-      onClick={() => socket.emit("buy_card", { cardId: card.id })}
-    >
+    <div onPointerDown={(e) => e.stopPropagation()} onClick={handleBuy}>
       <CardComponent card={card} showCost isPlayable />
     </div>
   );

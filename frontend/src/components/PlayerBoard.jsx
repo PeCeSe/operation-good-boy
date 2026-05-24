@@ -29,6 +29,25 @@ function StagingToken({ token }) {
   );
 }
 
+function DraggableCoin({ index }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `paw_coin_${index}`,
+    data: { draggableType: "paw_coin" },
+  });
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      style={{ touchAction: "none", opacity: isDragging ? 0.3 : 1 }}
+      className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+      title="Drag to payment zone"
+    >
+      <PawCoin className="w-6 h-6" />
+    </div>
+  );
+}
+
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
 function DraggableHandCard({ card, position, isTop, onBringToFront }) {
@@ -312,12 +331,6 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
     socket.emit("set_paw_tokens", { tokens: (pawTokens ?? 0) + 1 });
   };
 
-  const handleMoveTokenToPayment = () => {
-    if ((pawTokens ?? 0) <= 0) return;
-    socket.emit("set_paw_tokens", { tokens: (pawTokens ?? 0) - 1 });
-    socket.emit("place_payment", { tokens: (paymentZone?.tokens ?? 0) + 1 });
-  };
-
   const handleEndTurn = () => socket.emit("end_turn");
 
   const displayTokens = Math.min(pawTokens ?? 0, 12);
@@ -401,14 +414,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
               </button>
               <div className="flex flex-wrap gap-1 max-w-xs">
                 {Array.from({ length: displayTokens }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={handleMoveTokenToPayment}
-                    className="w-6 h-6 rounded-full hover:scale-110 transition-transform"
-                    title="Move 1 coin to payment zone"
-                  >
-                    <PawCoin className="w-6 h-6" />
-                  </button>
+                  <DraggableCoin key={i} index={i} />
                 ))}
                 {extraTokens > 0 && (
                   <span className="text-xs text-stone-400 self-center">+{extraTokens} more</span>
