@@ -29,7 +29,7 @@ function StagingToken({ token }) {
   );
 }
 
-function DraggableCoin({ index }) {
+function DraggableCoin({ index, onMove }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `paw_coin_${index}`,
     data: { draggableType: "paw_coin" },
@@ -39,9 +39,10 @@ function DraggableCoin({ index }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
+      onClick={onMove}
       style={{ touchAction: "none", opacity: isDragging ? 0.3 : 1 }}
       className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
-      title="Drag to payment zone"
+      title="Klikk eller dra til payment zone"
     >
       <PawCoin className="w-6 h-6" />
     </div>
@@ -414,7 +415,14 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
               </button>
               <div className="flex flex-wrap gap-1 max-w-xs">
                 {Array.from({ length: displayTokens }).map((_, i) => (
-                  <DraggableCoin key={i} index={i} />
+                  <DraggableCoin
+                    key={i}
+                    index={i}
+                    onMove={() => {
+                      socket.emit("set_paw_tokens", { tokens: Math.max(0, (pawTokens ?? 0) - 1) });
+                      socket.emit("place_payment", { tokens: (paymentZone?.tokens ?? 0) + 1 });
+                    }}
+                  />
                 ))}
                 {extraTokens > 0 && (
                   <span className="text-xs text-stone-400 self-center">+{extraTokens} more</span>

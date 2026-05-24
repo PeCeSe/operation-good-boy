@@ -636,8 +636,8 @@ export default function Game({ gameState, mySocketId }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="font-display text-lg text-ink leading-tight mb-1">{pendingPurchase.name}</div>
-            <div className="text-sm text-ink-700 mb-4">
-              Kortet koster <strong>{pendingPurchase.cost} 🪙</strong>, men payment zone har bare <strong>{paymentZone?.tokens ?? 0} 🪙</strong>. Vil du kjøpe det likevel?
+            <div className="text-sm text-ink-700 mb-4 flex flex-wrap items-center gap-1">
+              Kortet koster <strong className="inline-flex items-center gap-0.5">{pendingPurchase.cost} <PawCoin className="w-4 h-4" /></strong>, men payment zone har bare <strong className="inline-flex items-center gap-0.5">{paymentZone?.tokens ?? 0} <PawCoin className="w-4 h-4" /></strong>. Vil du kjøpe det likevel?
             </div>
             <div className="flex gap-2 justify-end">
               <button
@@ -700,7 +700,7 @@ function PaymentDropZone({ paymentZone }) {
       </div>
       {count > 0 && (
         <div className="flex items-center justify-between px-0.5">
-          <span className="text-sm font-bold text-gold-deep">{count} 🪙</span>
+          <span className="text-sm font-bold text-gold-deep flex items-center gap-1">{count} <PawCoin className="w-4 h-4" /></span>
           <button
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => socket.emit("clear_payment")}
