@@ -9,7 +9,7 @@ const EVENTS = [
   },
   {
     id: "event_002",
-    name: "The Spray Bottle",
+    name: "Delayed Dinner",
     pack: 1,
     copies: 2,
     description: "Active hero loses 1 ❤️ and discards a card.",
