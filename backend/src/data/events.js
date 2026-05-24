@@ -25,7 +25,7 @@ const EVENTS = [
   },
   {
     id: "event_004",
-    name: "Hoover's On",
+    name: "Cleaning Day",
     pack: 1,
     copies: 2,
     description: "All heroes lose 1 ❤️ and cannot draw extra cards this turn.",
