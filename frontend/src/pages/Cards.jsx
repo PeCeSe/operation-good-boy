@@ -80,11 +80,9 @@ const SHOP_CARDS = [
   { id: "card_i03", name: "Cardboard Castle", type: "item", cost: 4, pack: 1, copies: 1, effect: { attack: 0, pawcoins: 2, special: "allies_to_top_of_deck" }, description: "Gain 2 🪙. You may put Allies you acquire on top of your deck instead of your discard pile.", flavorText: "Fits any cat. No questions asked." },
   { id: "card_i04", name: "Toy Mouse", type: "item", cost: 5, pack: 1, copies: 1, effect: { attack: 0, pawcoins: 2, special: "draw_card" }, description: "Gain 2 🪙. Draw a card.", flavorText: "Suspiciously lifelike." },
   // Ally
-  { id: "card_016", name: "Friendly Pigeon", type: "ally", cost: 3, pack: 1, effect: { attack: 0, pawcoins: 2, special: null }, flavorText: "Surprisingly cooperative for a bird." },
-  { id: "card_017", name: "Old Lady Next Door", type: "ally", cost: 5, pack: 1, effect: { attack: 4, pawcoins: 0, special: null }, flavorText: "She gives out treats. Loyalty secured." },
-  { id: "card_018", name: "Stray Kitten", type: "ally", cost: 3, pack: 1, effect: { attack: 1, pawcoins: 0, special: "draw_card" }, flavorText: "Chaotic. Enthusiastic. Present." },
-  { id: "card_019", name: "Garden Snail", type: "ally", cost: 2, pack: 1, effect: { attack: 2, pawcoins: 0, special: null }, flavorText: "Slow. Passive-aggressive. Effective." },
-  { id: "card_020", name: "Neighborhood Mouse", type: "ally", cost: 4, pack: 1, effect: { attack: 3, pawcoins: 0, special: null }, flavorText: "Tiny. Furious. Inexplicable." },
+  { id: "card_a01", name: "Old Lady Next Door", type: "ally", cost: 8, pack: 1, copies: 1, effect: { attack: 0, pawcoins: 0, special: "all_gain_attack_coin_heal_draw" }, description: "ALL heroes gain 1 ⚔️, 1 🪙, 1 ♥ and draw a card.", flavorText: "She gives out treats. Loyalty secured." },
+  { id: "card_a02", name: "Sly the Fox", type: "ally", cost: 3, pack: 1, copies: 1, effect: { attack: 1, pawcoins: 0, special: "defeat_enemy_heal2_any" }, description: "Gain 1 ⚔️. If you defeat an enemy, any one hero gains 2 ♥.", flavorText: "He's got a plan. Probably." },
+  { id: "card_a03", name: "Herbert the Hedgehog", type: "ally", cost: 4, pack: 1, copies: 1, effect: { attack: 1, pawcoins: 0, special: "heal1_all" }, description: "Gain 1 ⚔️. ALL heroes gain 1 ♥.", flavorText: "Surprisingly sturdy. Surprisingly helpful." },
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
