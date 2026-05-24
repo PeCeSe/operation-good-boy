@@ -43,7 +43,11 @@ function initGameState(room) {
       Array.from({ length: e.copies ?? 1 }, (_, i) => ({ ...deepClone(e), id: `${e.id}_${i + 1}` }))
     )
   );
-  const shopDeck = shuffle(CARDS.map((c) => uniqueCard(c, seq)));
+  const shopDeck = shuffle(
+    CARDS.flatMap((c) =>
+      Array.from({ length: c.copies ?? 1 }, () => uniqueCard(c, seq))
+    )
+  );
 
   const firstLocation = locationDeck.shift();
   firstLocation.currentCucumbers = 0;
