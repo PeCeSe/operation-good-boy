@@ -239,18 +239,6 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
         )}
       </button>
 
-      {/* Active event slot */}
-      {activeEvents?.[0] ? (
-        <ActiveEventCard key={activeEvents[0].id} event={activeEvents[0]} />
-      ) : (
-        <div
-          className="flex-shrink-0 rounded-lg border-2 border-dashed border-ink-border bg-paper-200 flex items-center justify-center text-ink-300 text-xs select-none"
-          style={{ width: 213, height: 213 }}
-        >
-          Active event
-        </div>
-      )}
-
       {/* Discard pile */}
       <DiscardZone count={discardCount} eventDiscard={eventDiscard} />
     </div>

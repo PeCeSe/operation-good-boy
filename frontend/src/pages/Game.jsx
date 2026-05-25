@@ -346,8 +346,6 @@ export default function Game({ gameState, mySocketId }) {
     if (!effectiveOver) return;
     if (data.draggableType === "staging_token" && effectiveOver.id !== "staging") {
       socket.emit("move_token_to_enemy", { enemyId: String(effectiveOver.id), tokenId: data.tokenId });
-    } else if (data.draggableType === "event_card" && effectiveOver.id === "event_discard") {
-      socket.emit("discard_event", { eventId: data.eventId });
     } else if (data.draggableType === "enemy_card" && effectiveOver.id === "enemy_discard") {
       socket.emit("defeat_enemy", { enemyId: data.enemyId });
     }
@@ -608,10 +606,6 @@ export default function Game({ gameState, mySocketId }) {
           activeDrag?.draggableType === "staging_token") && (
           <DragChip />
         )}
-        {activeDrag?.draggableType === "event_card" && (() => {
-          const event = (activeEvents ?? []).find((e) => e.id === activeDrag.eventId);
-          return event ? <EventCardDisplay event={event} /> : null;
-        })()}
         {activeDrag?.draggableType === "enemy_card" && (() => {
           const enemy = (enemies ?? []).find((e) => e && e.id === activeDrag.enemyId);
           return enemy ? <EnemyCardDisplay enemy={enemy} /> : null;
