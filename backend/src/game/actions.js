@@ -285,9 +285,12 @@ function endTurn(state, playerId) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
 
-  // Clear staging tokens and paw tokens
+  // Clear staging tokens, paw tokens, and any leftover payment zone coins
   p.attackTokens = [];
   p.pawTokens = 0;
+  if (state.paymentZone.playerId === playerId) {
+    state.paymentZone = { playerId: null, tokens: 0, lastPurchase: state.paymentZone.lastPurchase };
+  }
 
   // Discard hand, draw new hand
   p.discardPile.push(...p.hand);
