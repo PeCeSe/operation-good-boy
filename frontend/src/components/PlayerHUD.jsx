@@ -1,9 +1,37 @@
 import { useState } from "react";
-import { useDroppable } from "@dnd-kit/core";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PawCoin from "./PawCoin";
 import PlayerBoard, { StagingToken } from "./PlayerBoard";
 import CHARACTERS from "../data/characters";
 import socket from "../socket";
+
+// ── Draggable pawcoin ──────────────────────────────────────────────────────────
+
+function DraggableCoin({ index, onMove }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: `paw_coin_${index}`,
+    data: { draggableType: "paw_coin" },
+  });
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      onClick={onMove}
+      style={{ touchAction: "none", opacity: isDragging ? 0.3 : 1 }}
+      className="shrink-0 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+      title="Click or drag to payment zone"
+    >
+      <PawCoin className="w-9 h-9" />
+    </div>
+  );
+}
+
+// ── Main HUD ───────────────────────────────────────────────────────────────────
+
+// Fixed pixel width for each staging area — keeps hearts centred regardless of token count
+const STAGING_W = 180;
+const STAGING_H = 44;
 
 export default function PlayerHUD({
   me,
@@ -39,8 +67,8 @@ export default function PlayerHUD({
       <div className="bg-paper-50 border-t-2 border-ink-border shadow-2xl">
         <div className="flex items-center gap-4 px-5 py-2.5">
 
-          {/* Left: Coins + Attacks */}
-          <div className="flex items-center gap-5 shrink-0">
+          {/* Left: Coins + Attacks — fixed-width staging areas so hearts never jump */}
+          <div className="flex items-center gap-4 shrink-0">
 
             {/* Pawcoins */}
             <div className="flex flex-col gap-1">
@@ -49,10 +77,26 @@ export default function PlayerHUD({
                 <button
                   onClick={() => socket.emit("set_paw_tokens", { tokens: pawTokens + 1 })}
                   disabled={!isMyTurn}
-                  className="w-6 h-6 bg-gold border-2 border-gold-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none disabled:opacity-40 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+                  className="w-7 h-7 shrink-0 bg-gold border-2 border-gold-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none disabled:opacity-40 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
                 >+</button>
-                <PawCoin className="w-5 h-5" />
-                <span className="text-sm font-bold text-gold-deep min-w-[12px]">{pawTokens}</span>
+                <div
+                  className="flex items-center gap-1 overflow-x-auto rounded-lg px-1.5 py-1 border-2 border-dashed border-gold/40 bg-paper-200/20"
+                  style={{ width: STAGING_W, minHeight: STAGING_H }}
+                >
+                  {pawTokens === 0
+                    ? <span className="text-[9px] italic text-ink-300/60 whitespace-nowrap select-none">Empty</span>
+                    : Array.from({ length: pawTokens }).map((_, i) => (
+                        <DraggableCoin
+                          key={i}
+                          index={i}
+                          onMove={() => {
+                            socket.emit("set_paw_tokens", { tokens: Math.max(0, pawTokens - 1) });
+                            socket.emit("place_payment", { tokens: (paymentZone?.tokens ?? 0) + 1 });
+                          }}
+                        />
+                      ))
+                  }
+                </div>
               </div>
             </div>
 
@@ -63,16 +107,17 @@ export default function PlayerHUD({
                 <button
                   onClick={() => socket.emit("add_attack_token", { type: "attack" })}
                   disabled={!isMyTurn}
-                  className="w-6 h-6 bg-red border-2 border-red-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none disabled:opacity-40 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+                  className="w-7 h-7 shrink-0 bg-red border-2 border-red-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none disabled:opacity-40 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
                 >+</button>
                 <div
                   ref={setStagingRef}
-                  className={`flex flex-wrap gap-1 min-h-[1.75rem] min-w-[3rem] rounded-lg px-1.5 py-1 border-2 border-dashed transition-colors ${
+                  className={`flex items-center gap-1 overflow-x-auto rounded-lg px-1.5 py-1 border-2 border-dashed transition-colors ${
                     isOverStaging ? "border-red bg-red/5" : "border-ink-300/50 bg-paper-200/20"
                   }`}
+                  style={{ width: STAGING_W, minHeight: STAGING_H }}
                 >
                   {atkTokens.length === 0
-                    ? <span className="text-[9px] italic self-center text-ink-300/60">Empty</span>
+                    ? <span className="text-[9px] italic text-ink-300/60 whitespace-nowrap select-none">Empty</span>
                     : atkTokens.map(t => <StagingToken key={t.id} token={t} />)
                   }
                 </div>
@@ -82,8 +127,8 @@ export default function PlayerHUD({
 
           {/* Center: Lives */}
           <div className="flex-1 flex justify-center items-center">
-            <div className="relative flex gap-0.5 flex-wrap justify-center">
-              {/* Slider track behind the hearts — inset-x-4 = half-heart, so track goes center-to-center */}
+            <div className="relative flex gap-0.5 justify-center">
+              {/* Slider track — inset-x-4 = half heart width, so track goes center-to-center */}
               <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 h-1 rounded-full bg-ink-300/20 overflow-hidden pointer-events-none">
                 <div
                   className="h-full rounded-full bg-red/60 transition-all duration-150"
@@ -91,11 +136,10 @@ export default function PlayerHUD({
                 />
               </div>
               {Array.from({ length: maxLives }).map((_, i) => {
-                const num = maxLives - i;          // 9 → 1, left to right
-                const filled = (maxLives - 1 - i) < lives; // "9" goes grey first
+                const num = maxLives - i;
+                const filled = (maxLives - 1 - i) < lives;
                 const handleClick = () => {
                   if (!me?.playerId) return;
-                  // clicking the leftmost filled heart → decrease; otherwise set to that number
                   const newLives = num === lives ? lives - 1 : num;
                   socket.emit("set_lives", { playerId: me.playerId, lives: Math.max(0, newLives) });
                 };
@@ -111,7 +155,7 @@ export default function PlayerHUD({
                   </button>
                 );
               })}
-              {/* STUNNED overlay — centered on top of the hearts */}
+              {/* STUNNED overlay */}
               {isStunned && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <span className="text-sm font-bold tracking-widest uppercase text-red border-2 border-red px-2.5 py-0.5 rounded bg-paper-50/80" style={{ transform: "rotate(-4deg)", display: "inline-block" }}>
