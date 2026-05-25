@@ -3,29 +3,32 @@ import { useParams } from "react-router-dom";
 import socket from "../socket";
 import CHARACTERS from "../data/characters";
 
-const DIFFICULTY_LABELS = ["Easy", "Medium", "Hard"];
-const DIFFICULTY_COLORS = ["text-green-600", "text-amber-500", "text-red-500"];
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const DAY_COLORS = [
+  "text-green-500", "text-lime-500", "text-yellow-500", "text-amber-500",
+  "text-orange-500", "text-red-400", "text-red-600",
+];
 
 function DifficultySlider({ value, onChange }) {
   return (
     <div className="space-y-2">
       <div className="text-sm font-semibold text-center text-stone-700">
         Difficulty:{" "}
-        <span className={`font-bold ${DIFFICULTY_COLORS[value]}`}>{DIFFICULTY_LABELS[value]}</span>
+        <span className={`font-bold ${DAY_COLORS[value]}`}>{DAYS[value]}</span>
       </div>
       <div className="relative flex items-center h-6">
         <div className="absolute left-4 right-4 h-1 bg-stone-200 rounded-full" />
         <div
           className="absolute left-4 h-1 bg-amber-400 rounded-full transition-all duration-200"
-          style={{ width: `calc(${value * 50}% - ${value}rem)` }}
+          style={{ width: `calc(${(value / 6) * 100}% - ${(value / 6) * 2}rem)` }}
         />
         <div className="relative w-full flex justify-between px-4">
-          {DIFFICULTY_LABELS.map((label, i) => (
+          {DAYS.map((day, i) => (
             <button
-              key={label}
+              key={day}
               onClick={() => onChange(i)}
               className="flex items-center justify-center w-4 h-4 -mx-2 focus:outline-none"
-              title={label}
+              title={day}
             >
               <div
                 className={`rounded-full border-2 transition-all duration-200 ${
@@ -39,15 +42,15 @@ function DifficultySlider({ value, onChange }) {
         </div>
       </div>
       <div className="flex justify-between px-3">
-        {DIFFICULTY_LABELS.map((label, i) => (
+        {DAYS.map((day, i) => (
           <span
-            key={label}
-            className={`text-[11px] font-medium cursor-pointer transition-colors ${
-              i === value ? DIFFICULTY_COLORS[i] : "text-stone-400 hover:text-stone-500"
+            key={day}
+            className={`text-[10px] font-medium cursor-pointer transition-colors ${
+              i === value ? DAY_COLORS[i] : "text-stone-400 hover:text-stone-500"
             }`}
             onClick={() => onChange(i)}
           >
-            {label}
+            {day.slice(0, 3)}
           </span>
         ))}
       </div>
@@ -61,7 +64,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const [nameSent, setNameSent] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [copied, setCopied] = useState(false);
-  const [difficulty, setDifficulty] = useState(1);
+  const [difficulty, setDifficulty] = useState(0);
 
   const myPlayer = roomInfo?.players.find((p) => p.socketId === mySocketId);
   const isHost = roomInfo?.hostSocketId === mySocketId;
