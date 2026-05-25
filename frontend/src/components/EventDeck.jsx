@@ -30,7 +30,7 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
       <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden border-b-2 border-ink-border" style={{ background: "#4f3f63" }}>
         {event.image
           ? <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
-          : <span className="text-5xl opacity-20">🐾</span>
+          : <img src="/cards/event_icon.png" alt="Event" className="w-3/4 h-3/4 object-contain" />
         }
       </div>
 
@@ -196,15 +196,21 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
         {...attributes}
         onClick={handleDraw}
         disabled={deckCount === 0}
-        className={`relative flex-shrink-0 rounded-lg border-2 flex items-center justify-center select-none transition-all ${
+        className={`relative flex-shrink-0 rounded-lg border-2 overflow-hidden select-none transition-all ${
           deckCount > 0
-            ? "border-plum bg-plum-deep hover:bg-plum cursor-pointer active:scale-95"
-            : "border-ink-border bg-paper-200 cursor-default opacity-60"
+            ? "border-plum cursor-pointer active:scale-95 hover:brightness-105"
+            : "border-ink-border cursor-default opacity-60"
         } ${isDeckDragging ? "opacity-40" : ""}`}
         style={{ width: 213, height: 213, touchAction: "none" }}
         title={deckCount > 0 ? "Click or drag to draw an event" : "Event deck empty"}
       >
-        <span className="text-6xl opacity-70">🎴</span>
+        {deckCount > 0 ? (
+          <img src="/cards/event_back.png" alt="Event deck" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-paper-200 flex items-center justify-center">
+            <span className="text-4xl opacity-30">🎴</span>
+          </div>
+        )}
         {deckCount > 0 && (
           <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
             {deckCount}
