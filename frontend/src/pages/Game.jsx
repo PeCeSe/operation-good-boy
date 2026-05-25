@@ -389,55 +389,63 @@ export default function Game({ gameState, mySocketId }) {
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
 
       {/* ── Top bar ── */}
-      <div className="fixed top-0 left-0 right-0 z-[150] h-10 bg-ink flex items-center px-3 gap-3 border-b border-white/10 shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-[150] h-14 bg-ink flex items-center px-3 gap-3 border-b border-white/10 shadow-sm">
         {/* Left: logo */}
-        <span className="font-display text-white/50 text-xs tracking-wide shrink-0 hidden sm:block">🐾 OGB</span>
+        <span className="font-display text-white/40 text-xs tracking-wide shrink-0 hidden md:block">🐾 OGB</span>
 
-        {/* Center: turn order */}
-        <div className="flex-1 flex items-center justify-center gap-1">
+        {/* Center: player turn-order pills */}
+        <div className="flex-1 flex items-center justify-center gap-1.5">
           {players.map((p, i) => {
             const isCurrent = p.playerId === currentPlayerId;
             const isMe = p.playerId === me?.playerId;
             const char = CHARACTERS.find(c => c.id === p.character?.id);
-            const maxLives = p.character?.maxLives ?? 9;
             return (
-              <div key={p.playerId} className="flex items-center gap-1">
-                {i > 0 && <span className="text-white/20 text-xs mx-0.5">›</span>}
-                <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs transition-all ${
+              <div key={p.playerId} className="flex items-center gap-1.5">
+                {i > 0 && <span className="text-white/20 text-base leading-none">›</span>}
+                <div className={`flex items-center gap-2 px-2 py-1 rounded-lg border transition-all ${
                   isCurrent
-                    ? "bg-gold/20 border border-gold/60 text-white"
-                    : "text-white/50"
+                    ? "bg-paper-50 border-gold shadow-md"
+                    : "bg-paper-50/10 border-white/10"
                 }`}>
+                  {/* Headshot — spans both text rows */}
                   {char?.headshot
-                    ? <img src={char.headshot} alt={p.name} className="w-4 h-4 object-contain rounded-full shrink-0" />
-                    : <span className="text-[10px]">🐱</span>
+                    ? <img src={char.headshot} alt={p.name} className="w-8 h-8 object-contain shrink-0" />
+                    : <span className="w-8 h-8 flex items-center justify-center text-lg">🐱</span>
                   }
-                  <span className={`font-body text-[11px] max-w-[60px] truncate ${isMe ? "font-bold" : ""}`}>{p.name}</span>
-                  <span className="text-red text-[10px]">♥</span>
-                  <span className={`font-mono text-[11px] ${p.lives <= 3 ? "text-red" : "text-white/70"}`}>{p.lives}</span>
+                  {/* Two-line info */}
+                  <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className={`font-body text-[11px] leading-none truncate max-w-[72px] ${
+                      isCurrent ? "text-ink" : "text-white/60"
+                    } ${isMe ? "font-bold" : ""}`}>{p.name}</span>
+                    <div className={`flex items-center gap-1.5 text-[10px] leading-none font-mono ${
+                      isCurrent ? "text-ink-500" : "text-white/35"
+                    }`}>
+                      <span className={p.lives <= 3 ? "text-red font-bold" : "text-red/80"}>♥{p.lives}</span>
+                      <span className="opacity-30">·</span>
+                      <span className="text-gold-deep">🪙{p.pawTokens ?? 0}</span>
+                      <span className="opacity-30">·</span>
+                      <span>⚔{p.attackTokens?.length ?? 0}</span>
+                      <span className="opacity-30">·</span>
+                      <span>🃏{p.hand?.length ?? 0}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Right: round + zoom controls */}
+        {/* Right: round + zoom */}
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-white/30 text-[11px] font-body hidden sm:block">Rnd {roundNumber}</span>
           <div className="flex items-center gap-0.5">
-            <button
-              onClick={() => setZoom(z => clampZoom(parseFloat((z - 0.1).toFixed(2))))}
-              className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none"
-            >−</button>
-            <button
-              onClick={() => setZoom(1)}
+            <button onClick={() => setZoom(z => clampZoom(parseFloat((z - 0.1).toFixed(2))))}
+              className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none">−</button>
+            <button onClick={() => setZoom(1)}
               className="text-white/50 hover:text-white text-[11px] font-mono w-9 text-center hover:bg-white/10 rounded py-0.5 transition-colors"
-              title="Reset zoom"
-            >{Math.round(zoom * 100)}%</button>
-            <button
-              onClick={() => setZoom(z => clampZoom(parseFloat((z + 0.1).toFixed(2))))}
-              className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none"
-            >+</button>
+              title="Reset zoom">{Math.round(zoom * 100)}%</button>
+            <button onClick={() => setZoom(z => clampZoom(parseFloat((z + 0.1).toFixed(2))))}
+              className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none">+</button>
           </div>
         </div>
       </div>
@@ -447,7 +455,7 @@ export default function Game({ gameState, mySocketId }) {
         ref={containerRef}
         style={{
           position: "fixed",
-          top: 40,
+          top: 56,
           left: 0,
           right: 0,
           bottom: 0,
