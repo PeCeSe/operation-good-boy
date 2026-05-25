@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PawCoin from "./PawCoin";
 import PlayerBoard from "./PlayerBoard";
+import CHARACTERS from "../data/characters";
 import socket from "../socket";
 
 export default function PlayerHUD({
@@ -16,6 +17,8 @@ export default function PlayerHUD({
   const maxLives   = me?.character?.maxLives ?? 9;
   const pawTokens  = me?.pawTokens ?? 0;
   const atkTokens  = me?.attackTokens ?? [];
+  const isStunned  = lives === 0;
+  const charData   = CHARACTERS.find(c => c.id === me?.character?.id);
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40">
@@ -73,7 +76,25 @@ export default function PlayerHUD({
           </div>
 
           {/* Center: Lives */}
-          <div className="flex-1 flex justify-center items-center">
+          <div className="flex-1 flex justify-center items-center gap-3">
+
+            {/* Stunned headshot — only when knocked out */}
+            {isStunned && charData?.stunned && (
+              <img
+                src={charData.stunned}
+                alt="stunned"
+                className="w-10 h-10 object-contain shrink-0 animate-pulse"
+              />
+            )}
+
+            <div className="flex flex-col items-center gap-0.5">
+              {/* STUNNED label */}
+              {isStunned && (
+                <span className="text-[10px] font-bold tracking-widest uppercase text-red animate-pulse">
+                  STUNNED!
+                </span>
+              )}
+
             <div className="relative flex gap-0.5 flex-wrap justify-center">
               {/* Slider track behind the hearts — inset-x-4 = half-heart, so track goes center-to-center */}
               <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 h-1 rounded-full bg-ink-300/20 overflow-hidden pointer-events-none">
@@ -104,6 +125,7 @@ export default function PlayerHUD({
                 );
               })}
             </div>
+            </div>{/* end flex-col */}
           </div>
 
           {/* Right: End Turn */}
