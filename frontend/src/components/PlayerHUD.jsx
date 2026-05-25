@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PawCoin from "./PawCoin";
 import PlayerBoard, { StagingToken } from "./PlayerBoard";
@@ -28,11 +28,13 @@ function DraggableCoin({ index, onMove }) {
   );
 }
 
-// ── Main HUD ───────────────────────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────────────────
 
-// Fixed pixel width for each staging area — keeps hearts centred regardless of token count
-const STAGING_W = 180;
-const STAGING_H = 44;
+const MAX_DRAWER_H  = 480;
+const STAGING_W     = 180;
+const STAGING_H     = 44;
+
+// ── Main HUD ───────────────────────────────────────────────────────────────────
 
 export default function PlayerHUD({
   me,
@@ -41,7 +43,10 @@ export default function PlayerHUD({
   currentPlayerId,
   isMyTurn,
 }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [drawerHeight, setDrawerHeight] = useState(MAX_DRAWER_H);
+  const [isDragging,   setIsDragging]   = useState(false);
+  const dragStateRef = useRef(null);
+
   const { setNodeRef: setStagingRef, isOver: isOverStaging } = useDroppable({ id: "staging" });
 
   const lives      = me?.lives ?? 0;
@@ -51,16 +56,53 @@ export default function PlayerHUD({
   const isStunned  = lives === 0;
   const charData   = CHARACTERS.find(c => c.id === me?.character?.id);
 
+  // ── Handle drag-to-resize ──────────────────────────────────────────────────
+
+  const handlePointerDown = (e) => {
+    e.preventDefault();
+    const startY      = e.clientY;
+    const startHeight = drawerHeight;
+    dragStateRef.current = { hasDragged: false };
+    setIsDragging(true);
+
+    const onMove = (ev) => {
+      const delta = startY - ev.clientY; // drag up → positive → taller
+      if (Math.abs(delta) > 4) dragStateRef.current.hasDragged = true;
+      setDrawerHeight(Math.max(0, Math.min(MAX_DRAWER_H, startHeight + delta)));
+    };
+
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup",   onUp);
+      setIsDragging(false);
+      if (dragStateRef.current?.hasDragged) {
+        // Snap: open if dragged past 30 % threshold, else close
+        setDrawerHeight(h => h > MAX_DRAWER_H * 0.3 ? MAX_DRAWER_H : 0);
+      }
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup",   onUp);
+  };
+
+  const handleClick = () => {
+    if (dragStateRef.current?.hasDragged) return; // was a drag, not a tap
+    setDrawerHeight(h => h > 0 ? 0 : MAX_DRAWER_H);
+  };
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40">
 
       {/* ── Drawer handle tab ── */}
       <div className="flex justify-center">
         <button
-          onClick={() => setIsOpen(v => !v)}
-          className="bg-paper-50 border-2 border-b-0 border-ink-border rounded-t-lg px-6 py-0.5 text-ink-400 hover:text-ink transition-colors text-[11px] font-bold tracking-wide flex items-center gap-1.5 shadow-[0_-2px_6px_rgba(0,0,0,0.06)]"
+          onPointerDown={handlePointerDown}
+          onClick={handleClick}
+          className="bg-paper-50 border-2 border-b-0 border-ink-border rounded-t-lg px-6 py-0.5 text-ink-400 hover:text-ink transition-colors text-[11px] font-bold tracking-wide flex items-center gap-1.5 shadow-[0_-2px_6px_rgba(0,0,0,0.06)] cursor-row-resize select-none"
         >
-          {isOpen ? "▼ Hide" : "▲ Show"}
+          {drawerHeight > 0 ? "▼ Hide" : "▲ Show"}
         </button>
       </div>
 
@@ -68,7 +110,7 @@ export default function PlayerHUD({
       <div className="bg-paper-50 border-t-2 border-ink-border shadow-2xl">
         <div className="flex items-center gap-4 px-5 py-2.5">
 
-          {/* Left: Coins + Attacks — fixed-width staging areas so hearts never jump */}
+          {/* Left: Coins + Attacks */}
           <div className="flex items-center gap-4 shrink-0">
 
             {/* Pawcoins */}
@@ -129,7 +171,7 @@ export default function PlayerHUD({
           {/* Center: Lives */}
           <div className="flex-1 flex justify-center items-center">
             <div className="relative flex gap-0.5 justify-center">
-              {/* Slider track — inset-x-4 = half heart width, so track goes center-to-center */}
+              {/* Slider track */}
               <div className="absolute inset-x-5 top-1/2 -translate-y-1/2 h-1 rounded-full bg-ink-300/20 overflow-hidden pointer-events-none">
                 <div
                   className="h-full rounded-full bg-red/60 transition-all duration-150"
@@ -137,7 +179,7 @@ export default function PlayerHUD({
                 />
               </div>
               {Array.from({ length: maxLives }).map((_, i) => {
-                const num = maxLives - i;
+                const num    = maxLives - i;
                 const filled = (maxLives - 1 - i) < lives;
                 const handleClick = () => {
                   if (!me?.playerId) return;
@@ -182,17 +224,18 @@ export default function PlayerHUD({
         </div>
       </div>
 
-      {/* ── Expanded: PlayerBoard ── */}
-      {me && isOpen && (
-        <div className="bg-paper-100 border-t border-ink-border/20 overflow-y-auto" style={{ maxHeight: 480 }}>
-          <PlayerBoard
-            player={me}
-            isMe={true}
-            isCurrentTurn={isMyTurn}
-            paymentZone={paymentZone}
-          />
+      {/* ── Drawer — height-driven so it can be dragged partially open ── */}
+      <div
+        className="bg-paper-100 border-t border-ink-border/20 overflow-hidden"
+        style={{
+          height: drawerHeight,
+          transition: isDragging ? "none" : "height 200ms ease-out",
+        }}
+      >
+        <div className="overflow-y-auto" style={{ maxHeight: MAX_DRAWER_H }}>
+          {me && <PlayerBoard player={me} isMe={true} isCurrentTurn={isMyTurn} paymentZone={paymentZone} />}
         </div>
-      )}
+      </div>
     </div>
   );
 }
