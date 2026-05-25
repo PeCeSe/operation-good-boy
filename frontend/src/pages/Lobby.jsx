@@ -5,8 +5,8 @@ import CHARACTERS from "../data/characters";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const DAY_COLORS = [
-  "text-green-500", "text-lime-500", "text-yellow-500", "text-amber-500",
-  "text-orange-500", "text-red-400", "text-red-600",
+  "text-moss", "text-moss", "text-gold", "text-gold",
+  "text-gold-deep", "text-red", "text-red-deep",
 ];
 
 function DifficultySlider({ value, onChange }) {
@@ -317,28 +317,28 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
         <button
           onClick={handleReady}
           disabled={!myPlayer?.characterId}
-          className={`px-6 py-3 rounded-lg font-display border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow] ${
+          className={`px-6 py-3 rounded-lg font-display border-2 border-ink transition-[transform,box-shadow] ${
             myPlayer?.isReady
-              ? "bg-moss text-white"
+              ? "bg-moss-deep text-white translate-y-px shadow-none"
               : myPlayer?.characterId
-              ? "bg-paper-200 text-ink"
-              : "bg-paper-200 text-ink-300 opacity-40 cursor-not-allowed shadow-none"
+              ? "bg-moss text-white shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none"
+              : "bg-moss text-white opacity-40 cursor-not-allowed shadow-[0_2px_0_#271d14]"
           }`}
         >
-          {myPlayer?.isReady ? "✓ Ready!" : "Ready"}
+          ✓ Ready
         </button>
 
         {isHost && (
           <button
             onClick={handleStart}
             disabled={!allReady}
-            className={`px-6 py-3 rounded-lg font-display border-2 transition-[transform,box-shadow] ${
+            className={`px-6 py-3 rounded-lg font-display border-2 transition-[transform,box-shadow] flex items-center gap-2 ${
               allReady
                 ? "bg-moss text-white border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none"
                 : "bg-paper-200 text-ink-300 border-ink-300 opacity-40 cursor-not-allowed"
             }`}
           >
-            Start Game 🐾
+            <span>▶</span> Start Game
           </button>
         )}
       </div>
