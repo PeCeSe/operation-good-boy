@@ -414,8 +414,7 @@ export default function Game({ gameState, mySocketId }) {
             left: 0,
             transform: `scale(${zoom})`,
             transformOrigin: "top left",
-            background: "radial-gradient(140% 50% at 50% 0%, #f5f0d8 48%, #c7a789 100%)",
-            boxShadow: "inset 0 0 80px rgba(0,0,0,0.15)",
+            background: "#f3e3bf",
           }}
         >
           {/* Pan background — behind everything */}
