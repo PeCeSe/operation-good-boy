@@ -294,9 +294,9 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                 </div>
 
                 {/* Info */}
-                <div className="bg-white p-4 space-y-3 flex-1">
-                  <p className="text-xs text-stone-500 leading-relaxed">{char.backstory}</p>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400 italic">{char.trait}</div>
+                <div className="bg-white p-4 flex-1 flex flex-col">
+                  <p className="text-xs text-stone-500 leading-relaxed flex-1">{char.backstory}</p>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400 italic mt-3">{char.trait}</div>
                 </div>
               </button>
             );
