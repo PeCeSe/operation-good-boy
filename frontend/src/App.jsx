@@ -68,9 +68,12 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
-      {/* Alpha banner — vertical strip on left side */}
-      <div className="fixed left-0 top-1/2 -translate-y-1/2 z-[100] pointer-events-none select-none">
-        <div className="bg-gold text-ink text-[9px] font-bold tracking-widest uppercase py-1 px-3 -rotate-90 origin-center shadow-sm opacity-60">
+      {/* Alpha banner — flush left edge, behind drawer (z-30 < drawer z-40) */}
+      <div className="fixed left-0 top-1/2 -translate-y-1/2 z-[30] pointer-events-none select-none">
+        <div
+          className="bg-gold text-ink font-bold tracking-widest uppercase"
+          style={{ writingMode: "vertical-lr", transform: "rotate(180deg)", fontSize: 9, padding: "10px 3px", letterSpacing: "0.15em" }}
+        >
           Alpha
         </div>
       </div>
