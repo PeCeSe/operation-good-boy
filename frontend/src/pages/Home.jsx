@@ -37,13 +37,13 @@ export default function Home() {
             </div>
             <button
               onClick={handleCreate}
-              className="bg-moss hover:bg-moss-deep text-white font-display tracking-wide py-3 rounded-lg transition-colors w-full"
+              className="bg-moss text-white font-display tracking-wide py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow] w-full"
             >
               Create Room
             </button>
             <button
               onClick={() => setShowJoin(true)}
-              className="bg-paper-200 hover:bg-paper-300 text-ink-700 font-body py-3 rounded-lg transition-colors font-medium w-full"
+              className="bg-paper-200 text-ink font-display py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow] w-full"
             >
               Join Room
             </button>
@@ -73,13 +73,13 @@ export default function Home() {
             </div>
             <button
               onClick={handleJoin}
-              className="bg-moss hover:bg-moss-deep text-white font-display tracking-wide py-3 rounded-lg transition-colors w-full"
+              className="bg-moss text-white font-display tracking-wide py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow] w-full"
             >
               Join Room
             </button>
             <button
               onClick={() => setShowJoin(false)}
-              className="bg-paper-200 hover:bg-paper-300 text-ink-700 font-body py-3 rounded-lg transition-colors font-medium w-full"
+              className="bg-paper-200 text-ink font-display py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow] w-full"
             >
               Back
             </button>

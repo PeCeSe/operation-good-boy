@@ -123,7 +123,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
           <button
             onClick={() => socket.emit("join_room", { code, password: passwordInput })}
             disabled={!passwordInput}
-            className="bg-moss hover:bg-moss-deep disabled:opacity-40 text-white font-display py-2 rounded-lg transition-colors"
+            className="bg-moss text-white font-display py-2 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow] disabled:opacity-40 disabled:shadow-none disabled:cursor-not-allowed"
           >
             Join Room
           </button>
@@ -157,7 +157,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
           </span>
           <button
             onClick={handleCopyLink}
-            className="text-sm bg-paper-200 hover:bg-paper-300 text-ink-700 px-3 py-1 rounded transition-colors"
+            className="text-sm bg-paper-200 text-ink font-display px-4 py-1.5 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
           >
             Copy invite link
           </button>
@@ -178,7 +178,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
         <button
           onClick={handleSetName}
           disabled={!nameInput.trim()}
-          className="bg-paper-200 hover:bg-paper-300 text-ink-700 font-body disabled:opacity-40 px-4 py-2 rounded text-sm font-semibold transition-colors"
+          className="bg-paper-200 text-ink font-display disabled:opacity-40 px-4 py-2 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow] disabled:shadow-none disabled:cursor-not-allowed"
         >
           {nameSent ? "✓" : "Set"}
         </button>
@@ -317,12 +317,12 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
         <button
           onClick={handleReady}
           disabled={!myPlayer?.characterId}
-          className={`px-6 py-3 rounded-lg font-bold transition-colors ${
+          className={`px-6 py-3 rounded-lg font-display border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow] ${
             myPlayer?.isReady
-              ? "bg-moss hover:bg-moss-deep text-white"
+              ? "bg-moss text-white"
               : myPlayer?.characterId
-              ? "bg-paper-300 hover:bg-paper-200 text-ink-700"
-              : "bg-paper-200 text-ink-300 opacity-50 cursor-not-allowed"
+              ? "bg-paper-200 text-ink"
+              : "bg-paper-200 text-ink-300 opacity-40 cursor-not-allowed shadow-none"
           }`}
         >
           {myPlayer?.isReady ? "✓ Ready!" : "Ready"}
@@ -332,10 +332,10 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
           <button
             onClick={handleStart}
             disabled={!allReady}
-            className={`px-6 py-3 rounded-lg font-bold transition-colors ${
+            className={`px-6 py-3 rounded-lg font-display border-2 transition-[transform,box-shadow] ${
               allReady
-                ? "bg-moss hover:bg-moss-deep text-white font-display"
-                : "bg-paper-200 text-ink-300 opacity-50 cursor-not-allowed"
+                ? "bg-moss text-white border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none"
+                : "bg-paper-200 text-ink-300 border-ink-300 opacity-40 cursor-not-allowed"
             }`}
           >
             Start Game 🐾
