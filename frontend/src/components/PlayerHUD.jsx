@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PawCoin from "./PawCoin";
 import PlayerBoard, { StagingToken } from "./PlayerBoard";
+import { ATTACK_CONFIG } from "./TokenPool";
 import CHARACTERS from "../data/characters";
 import socket from "../socket";
 
@@ -84,7 +85,7 @@ export default function PlayerHUD({
                   style={{ width: STAGING_W, minHeight: STAGING_H }}
                 >
                   {pawTokens === 0
-                    ? <span className="text-[9px] italic text-ink-300/60 whitespace-nowrap select-none">Empty</span>
+                    ? <PawCoin className="w-9 h-9 opacity-20" />
                     : Array.from({ length: pawTokens }).map((_, i) => (
                         <DraggableCoin
                           key={i}
@@ -117,7 +118,7 @@ export default function PlayerHUD({
                   style={{ width: STAGING_W, minHeight: STAGING_H }}
                 >
                   {atkTokens.length === 0
-                    ? <span className="text-[9px] italic text-ink-300/60 whitespace-nowrap select-none">Empty</span>
+                    ? <div className="w-9 h-9 rounded-full border-2 border-ink-300/25 flex items-center justify-center text-base opacity-25">{ATTACK_CONFIG.attack.icon}</div>
                     : atkTokens.map(t => <StagingToken key={t.id} token={t} />)
                   }
                 </div>
