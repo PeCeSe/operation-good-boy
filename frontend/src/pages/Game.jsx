@@ -169,17 +169,35 @@ export default function Game({ gameState, mySocketId }) {
       setZoom((z) => clampZoom(z + (e.deltaY < 0 ? 0.05 : -0.05)));
     };
 
-    // WASD / arrow keys = pan
-    const PAN_STEP = 80;
+    // WASD / arrow keys = smooth pan via rAF
+    const PAN_SPEED = 8; // px per frame (~480px/s at 60fps)
+    const PAN_KEYS  = new Set(["arrowup","arrowdown","arrowleft","arrowright","w","a","s","d"]);
+    const keysHeld  = new Set();
+    const raf       = { id: null };
+
+    const panLoop = () => {
+      const c = containerRef.current;
+      if (c) {
+        if (keysHeld.has("arrowup")    || keysHeld.has("w")) c.scrollTop  -= PAN_SPEED;
+        if (keysHeld.has("arrowdown")  || keysHeld.has("s")) c.scrollTop  += PAN_SPEED;
+        if (keysHeld.has("arrowleft")  || keysHeld.has("a")) c.scrollLeft -= PAN_SPEED;
+        if (keysHeld.has("arrowright") || keysHeld.has("d")) c.scrollLeft += PAN_SPEED;
+      }
+      raf.id = keysHeld.size > 0 ? requestAnimationFrame(panLoop) : null;
+    };
+
     const onKeyDown = (e) => {
       const tag = e.target?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
-      switch (e.key) {
-        case "ArrowUp":    case "w": case "W": el.scrollTop  -= PAN_STEP; e.preventDefault(); break;
-        case "ArrowDown":  case "s": case "S": el.scrollTop  += PAN_STEP; e.preventDefault(); break;
-        case "ArrowLeft":  case "a": case "A": el.scrollLeft -= PAN_STEP; e.preventDefault(); break;
-        case "ArrowRight": case "d": case "D": el.scrollLeft += PAN_STEP; e.preventDefault(); break;
-      }
+      const key = e.key.toLowerCase();
+      if (!PAN_KEYS.has(key)) return;
+      e.preventDefault();
+      keysHeld.add(key);
+      if (!raf.id) raf.id = requestAnimationFrame(panLoop);
+    };
+
+    const onKeyUp = (e) => {
+      keysHeld.delete(e.key.toLowerCase());
     };
 
     // Mobile: pinch-to-zoom
@@ -208,12 +226,15 @@ export default function Game({ gameState, mySocketId }) {
 
     el.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup",   onKeyUp);
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd);
     return () => {
       el.removeEventListener("wheel", onWheel);
       window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup",   onKeyUp);
+      if (raf.id) cancelAnimationFrame(raf.id);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
