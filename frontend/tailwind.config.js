@@ -9,9 +9,9 @@ export default {
           DEFAULT: "#fbf1da",  // page default background (paper-100)
           50:      "#fff8e6",  // surface — cards, modals, raised panels
           100:     "#fbf1da",  // page default background
-          200:     "#ede0c0",  // sunken — wells, wash, board
-          300:     "#c7a789",  // edge — page gradient bottom
-          shadow:  "#c6a37a",  // card thickness / depth shadow
+          200:     "#f3e3bf",  // sunken — wells, hover wash, board
+          300:     "#e7cf99",  // edge — page gradient bottom
+          shadow:  "#c4a17a",  // card thickness / depth shadow (paper-edge)
         },
 
         // ── 02 · INK ─────────────────────────────────────────────────────────
