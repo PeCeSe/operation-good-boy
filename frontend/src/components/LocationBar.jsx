@@ -61,9 +61,13 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
             {Array.from({ length: Math.min(eventsToDraw, 4) }).map((_, i) => (
               <div
                 key={i}
-                className="w-8 h-8 rounded-lg bg-plum-deep flex items-center justify-center text-base shadow-sm"
+                className="relative w-8 h-11 rounded overflow-hidden border border-plum shadow-sm flex-shrink-0"
               >
-                🎴
+                <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute w-6 h-6 rounded-full" style={{ background: "rgba(180,150,210,0.6)" }} />
+                  <img src="/cards/event_icon.png" className="relative w-5 h-5 object-contain" style={{ filter: "saturate(0.6) brightness(0.85)" }} />
+                </div>
               </div>
             ))}
           </div>
