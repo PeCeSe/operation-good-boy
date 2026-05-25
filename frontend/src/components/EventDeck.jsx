@@ -30,7 +30,7 @@ export function EventCardDisplay({ event, isDragging = false, pack }) {
       <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden border-b-2 border-ink-border" style={{ background: "#4f3f63" }}>
         {event.image
           ? <img src={event.image} alt={event.name} className="w-full h-full object-cover" />
-          : <img src="/cards/event_icon.png" alt="Event" className="w-3/4 h-3/4 object-contain" />
+          : <span className="text-5xl opacity-20">🐾</span>
         }
       </div>
 
@@ -205,7 +205,10 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
         title={deckCount > 0 ? "Click or drag to draw an event" : "Event deck empty"}
       >
         {deckCount > 0 ? (
-          <img src="/cards/event_back.png" alt="Event deck" className="w-full h-full object-cover" />
+          <>
+            <img src="/cards/event_back.png" alt="Event deck" className="absolute inset-0 w-full h-full object-cover" />
+            <img src="/cards/event_icon.png" alt="" className="relative z-10 w-1/2 h-1/2 object-contain drop-shadow-lg" />
+          </>
         ) : (
           <div className="w-full h-full bg-paper-200 flex items-center justify-center">
             <span className="text-4xl opacity-30">🎴</span>
