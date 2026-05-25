@@ -599,38 +599,42 @@ export default function Game({ gameState, mySocketId }) {
 
       {/* ── Drag overlay ── */}
       <DragOverlay dropAnimation={null}>
-        {activeDrag?.draggableType === "paw_coin" && (
-          <PawCoin className="w-6 h-6 pointer-events-none drop-shadow-lg" />
-        )}
-        {(activeDrag?.draggableType === "pool_token" ||
-          activeDrag?.draggableType === "staging_token") && (
-          <DragChip />
-        )}
-        {activeDrag?.draggableType === "enemy_card" && (() => {
-          const enemy = (enemies ?? []).find((e) => e && e.id === activeDrag.enemyId);
-          return enemy ? <EnemyCardDisplay enemy={enemy} /> : null;
-        })()}
-        {activeDrag?.draggableType === "enemy_deck_draw" && (
-          <div
-            className="rounded-xl border-2 border-ink bg-ink-700 flex items-center justify-center shadow-2xl pointer-events-none"
-            style={{ width: 286, height: 213 }}
-          >
-            <span className="text-6xl opacity-60">👾</span>
-          </div>
-        )}
-        {activeDrag?.draggableType === "event_deck_draw" && (
-          <div
-            className="relative rounded-lg border-2 border-plum overflow-hidden shadow-2xl pointer-events-none"
-            style={{ width: 213, height: 213 }}
-          >
-            <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="absolute w-28 h-28 rounded-full" style={{ background: "rgba(180, 150, 210, 0.6)" }} />
-              <div className="relative w-24 h-24 flex items-center justify-center">
-                <img src="/cards/event_icon.png" className="w-full h-full object-contain" />
-                <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: "rgba(130, 106, 150, 0.55)", mixBlendMode: "color" }} />
+        {activeDrag && (
+          <div style={{ transform: `scale(${zoom})`, transformOrigin: "top left" }}>
+            {activeDrag.draggableType === "paw_coin" && (
+              <PawCoin className="w-6 h-6 pointer-events-none drop-shadow-lg" />
+            )}
+            {(activeDrag.draggableType === "pool_token" ||
+              activeDrag.draggableType === "staging_token") && (
+              <DragChip />
+            )}
+            {activeDrag.draggableType === "enemy_card" && (() => {
+              const enemy = (enemies ?? []).find((e) => e && e.id === activeDrag.enemyId);
+              return enemy ? <EnemyCardDisplay enemy={enemy} /> : null;
+            })()}
+            {activeDrag.draggableType === "enemy_deck_draw" && (
+              <div
+                className="rounded-xl border-2 border-ink bg-ink-700 flex items-center justify-center shadow-2xl pointer-events-none"
+                style={{ width: 286, height: 213 }}
+              >
+                <span className="text-6xl opacity-60">👾</span>
               </div>
-            </div>
+            )}
+            {activeDrag.draggableType === "event_deck_draw" && (
+              <div
+                className="relative rounded-lg border-2 border-plum overflow-hidden shadow-2xl pointer-events-none"
+                style={{ width: 213, height: 213 }}
+              >
+                <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute w-28 h-28 rounded-full" style={{ background: "rgba(180, 150, 210, 0.6)" }} />
+                  <div className="relative w-24 h-24 flex items-center justify-center">
+                    <img src="/cards/event_icon.png" className="w-full h-full object-contain" />
+                    <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: "rgba(130, 106, 150, 0.55)", mixBlendMode: "color" }} />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </DragOverlay>
