@@ -33,7 +33,7 @@ export default function EnemySlot({ enemy }) {
         className={`min-h-16 rounded-xl border-2 border-dashed p-2 flex flex-wrap gap-1.5 transition-all ${
           isOver
             ? "border-red bg-red-soft/20 scale-[1.02]"
-            : "border-ink-border/30 bg-paper-200/10"
+            : "border-ink-300/50 bg-paper-200/20"
         }`}
       >
         {damageTokens.map((t) => (

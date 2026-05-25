@@ -85,7 +85,7 @@ function EnemyDiscardPile({ enemyDiscard }) {
           ) : (
             <div
               className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
-                isOver ? "border-red bg-red-soft/20" : "border-ink-border/40 bg-paper-100/50"
+                isOver ? "border-red bg-red-soft/20" : "border-ink-300/50 bg-paper-200/20"
               }`}
               style={{ width: 286, height: 213 }}
             >
@@ -117,8 +117,8 @@ function EmptyEnemySlot({ slotIndex, isDeckBeingDragged }) {
           isOver
             ? "border-brown bg-brown-soft/20 ring-2 ring-brown"
             : highlight
-            ? "border-ink-300 bg-paper-300/20"
-            : "border-ink-border/20 bg-paper-200/20"
+            ? "border-ink-300/70 bg-paper-300/20"
+            : "border-ink-300/50 bg-paper-200/20"
         }`}
         style={{ height: 213 }}
       >
@@ -126,7 +126,7 @@ function EmptyEnemySlot({ slotIndex, isDeckBeingDragged }) {
           {isOver ? "Drop here!" : "—"}
         </span>
       </div>
-      <div className="h-16 rounded-xl border-2 border-dashed border-ink-border/20 bg-paper-200/10" />
+      <div className="h-16 rounded-xl border-2 border-dashed border-ink-300/50 bg-paper-200/20" />
     </div>
   );
 }
@@ -535,7 +535,7 @@ export default function Game({ gameState, mySocketId }) {
                 ) : (
                   <div
                     key={`empty-${i}`}
-                    className="rounded-xl border-2 border-dashed border-ink-border/30 bg-paper-50/20 flex items-center justify-center text-ink-300/50 text-sm select-none"
+                    className="rounded-xl border-2 border-dashed border-ink-300/50 bg-paper-200/20 flex items-center justify-center text-ink-300/60 text-sm select-none"
                     style={{ width: 176, height: 258 }}
                   >
                     Sold
@@ -687,12 +687,12 @@ function PaymentDropZone({ paymentZone }) {
             ? "border-gold bg-gold-soft/40"
             : count > 0
             ? "border-gold/60 bg-gold-soft/20"
-            : "border-ink-border/30 bg-paper-200/30"
+            : "border-ink-300/50 bg-paper-200/20"
         }`}
       >
         {count === 0 && (
           <span className={`text-[10px] italic w-full text-center self-center transition-colors ${isOver ? "text-gold font-semibold" : "text-ink-300"}`}>
-            {isOver ? "Slipp her!" : "Dra coins hit for å betale"}
+            {isOver ? "Drop here!" : "Drag coins here to pay"}
           </span>
         )}
         {Array.from({ length: displayCount }).map((_, i) => (
