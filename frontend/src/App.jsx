@@ -68,9 +68,9 @@ export default function App() {
 
   return (
     <div className="min-h-screen">
-      {/* Alpha banner */}
-      <div className="fixed top-0 right-0 z-[100] overflow-hidden w-36 h-36 pointer-events-none select-none">
-        <div className="absolute top-8 right-[-32px] w-40 bg-gold text-ink text-[10px] font-bold tracking-widest uppercase text-center py-1.5 rotate-45 shadow-md">
+      {/* Alpha banner — vertical strip on left side */}
+      <div className="fixed left-0 top-1/2 -translate-y-1/2 z-[100] pointer-events-none select-none">
+        <div className="bg-gold text-ink text-[9px] font-bold tracking-widest uppercase py-1 px-3 -rotate-90 origin-center shadow-sm opacity-60">
           Alpha
         </div>
       </div>
