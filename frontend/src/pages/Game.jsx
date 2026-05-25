@@ -386,12 +386,49 @@ export default function Game({ gameState, mySocketId }) {
 
   return (
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+
+      {/* ── Top bar ── */}
+      <div className="fixed top-0 left-0 right-0 z-[150] h-10 bg-ink flex items-center px-4 gap-3 border-b border-white/10 shadow-sm">
+        {/* Left: logo */}
+        <span className="font-display text-white/70 text-sm tracking-wide shrink-0 hidden sm:block">🐾 Operation: Good Boy</span>
+        <span className="font-display text-white/70 text-sm shrink-0 sm:hidden">🐾 OGB</span>
+
+        {/* Center: round + turn */}
+        <div className="flex-1 flex items-center justify-center gap-2 text-sm">
+          <span className="text-white/40 font-body text-xs">Round {roundNumber}</span>
+          <span className="text-white/20">·</span>
+          {isMyTurn
+            ? <span className="text-gold font-semibold font-body text-xs animate-pulse">✦ Your turn!</span>
+            : <span className="text-white/60 font-body text-xs">{currentPlayerName}'s turn</span>
+          }
+        </div>
+
+        {/* Right: zoom controls */}
+        <div className="flex items-center gap-0.5 shrink-0">
+          <button
+            onClick={() => setZoom(z => clampZoom(parseFloat((z - 0.1).toFixed(2))))}
+            className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none"
+          >−</button>
+          <button
+            onClick={() => setZoom(1)}
+            className="text-white/50 hover:text-white text-[11px] font-mono w-9 text-center hover:bg-white/10 rounded py-0.5 transition-colors"
+            title="Reset zoom"
+          >{Math.round(zoom * 100)}%</button>
+          <button
+            onClick={() => setZoom(z => clampZoom(parseFloat((z + 0.1).toFixed(2))))}
+            className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none"
+          >+</button>
+        </div>
+      </div>
+
       {/* ── Scrollable canvas ── */}
       <div
         ref={containerRef}
         style={{
           position: "fixed",
-          inset: 0,
+          top: 40,
+          left: 0,
+          right: 0,
           bottom: 0,
           overflow: "auto",
           scrollbarWidth: "none",
@@ -427,20 +464,6 @@ export default function Game({ gameState, mySocketId }) {
             onPointerUp={handleBgPointerEnd}
             onPointerLeave={handleBgPointerEnd}
           />
-
-          {/* ── Header bar ── */}
-          <div style={{ position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 2 }}>
-            <div className="flex items-center gap-3 bg-ink/80 backdrop-blur-sm rounded-full px-5 py-2 text-white text-sm shadow-lg">
-              <span className="text-gold font-bold tracking-wide">🐾 Operation: Good Boy</span>
-              <span className="text-ink-300">·</span>
-              <span className="text-paper-300">Round {roundNumber}</span>
-              <span className="text-ink-300">·</span>
-              {isMyTurn
-                ? <span className="text-gold font-semibold animate-pulse">Your turn!</span>
-                : <span className="text-paper-300">{currentPlayerName}'s turn</span>
-              }
-            </div>
-          </div>
 
           {/* ══════════════════════════════════
               LEFT HALF — game area
