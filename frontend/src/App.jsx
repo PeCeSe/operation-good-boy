@@ -70,17 +70,19 @@ export default function App() {
     <div className="min-h-screen">
       {/* Alpha banner */}
       <div className="fixed top-0 right-0 z-[100] overflow-hidden w-36 h-36 pointer-events-none select-none">
-        <div className="absolute top-8 right-[-32px] w-40 bg-amber-500 text-white text-[10px] font-bold tracking-widest uppercase text-center py-1.5 rotate-45 shadow-md">
+        <div className="absolute top-8 right-[-32px] w-40 bg-gold text-ink text-[10px] font-bold tracking-widest uppercase text-center py-1.5 rotate-45 shadow-md">
           Alpha
         </div>
       </div>
 
       {error && (
         <div
-          className="fixed top-4 right-4 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50 cursor-pointer"
+          className="fixed top-4 right-4 bg-red text-white font-body text-sm px-4 py-2.5 rounded-lg border-2 border-red-deep shadow-[0_2px_0_#271d14] z-50 cursor-pointer flex items-center gap-2"
           onClick={clearError}
         >
-          {error} ✕
+          <span>⚠️</span>
+          <span>{error}</span>
+          <span className="opacity-60 ml-1">✕</span>
         </div>
       )}
       <Routes>
