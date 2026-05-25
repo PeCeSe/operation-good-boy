@@ -5,7 +5,7 @@ import CardComponent from "./CardComponent";
 import { ATTACK_CONFIG } from "./TokenPool";
 import socket from "../socket";
 
-function StagingToken({ token }) {
+export function StagingToken({ token }) {
   const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.attack;
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: token.id,
@@ -333,8 +333,6 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
 export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }) {
   const [showCharacter, setShowCharacter] = useState(false);
 
-  const { setNodeRef: setStagingRef } = useDroppable({ id: "staging" });
-
   if (!player) return null;
 
   const {
@@ -411,24 +409,6 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
               </div>
             )}
             <div className="text-xs text-ink-300">Max lives: {maxLives}</div>
-          </div>
-        </div>
-      )}
-
-      {/* Attack staging area — drag tokens to enemies */}
-      {isMe && (
-        <div className="bg-paper-50 border-t border-ink-border/20 px-4 py-2 flex items-center gap-2">
-          <div className="text-[9px] text-ink-300 uppercase tracking-wide font-bold shrink-0">Staging</div>
-          <div
-            ref={setStagingRef}
-            className="flex flex-wrap gap-1.5 min-h-[2.25rem] flex-1 rounded-lg px-2 py-1 border-2 border-dashed border-ink-300/50 bg-paper-200/20"
-          >
-            {(attackTokens ?? []).map((token) => (
-              <StagingToken key={token.id} token={token} />
-            ))}
-            {(attackTokens ?? []).length === 0 && (
-              <span className="text-[9px] italic self-center text-ink-300/60">Drag attack tokens here, then drag to an enemy</span>
-            )}
           </div>
         </div>
       )}

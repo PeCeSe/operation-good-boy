@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useDroppable } from "@dnd-kit/core";
 import PawCoin from "./PawCoin";
-import PlayerBoard from "./PlayerBoard";
+import PlayerBoard, { StagingToken } from "./PlayerBoard";
 import CHARACTERS from "../data/characters";
 import socket from "../socket";
 
@@ -12,6 +13,7 @@ export default function PlayerHUD({
   isMyTurn,
 }) {
   const [isOpen, setIsOpen] = useState(true);
+  const { setNodeRef: setStagingRef, isOver: isOverStaging } = useDroppable({ id: "staging" });
 
   const lives      = me?.lives ?? 0;
   const maxLives   = me?.character?.maxLives ?? 9;
@@ -63,14 +65,17 @@ export default function PlayerHUD({
                   disabled={!isMyTurn}
                   className="w-6 h-6 bg-red border-2 border-red-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none disabled:opacity-40 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
                 >+</button>
-                {atkTokens.length === 0
-                  ? <span className="text-[10px] text-ink-300 italic">Empty</span>
-                  : <div className="flex gap-0.5 flex-wrap max-w-[80px]">
-                      {atkTokens.map(t => (
-                        <span key={t.id} className="text-sm">⚔️</span>
-                      ))}
-                    </div>
-                }
+                <div
+                  ref={setStagingRef}
+                  className={`flex flex-wrap gap-1 min-h-[1.75rem] min-w-[3rem] rounded-lg px-1.5 py-1 border-2 border-dashed transition-colors ${
+                    isOverStaging ? "border-red bg-red/5" : "border-ink-300/50 bg-paper-200/20"
+                  }`}
+                >
+                  {atkTokens.length === 0
+                    ? <span className="text-[9px] italic self-center text-ink-300/60">Empty</span>
+                    : atkTokens.map(t => <StagingToken key={t.id} token={t} />)
+                  }
+                </div>
               </div>
             </div>
           </div>
