@@ -208,9 +208,9 @@ function buyCard(state, playerId, cardId) {
 
   const paid = state.paymentZone.tokens;
   const change = Math.max(0, paid - card.cost);
-  if (change > 0) p.pawTokens = (p.pawTokens ?? 0) + change;
-  state.paymentZone = { playerId: null, tokens: 0, lastPurchase: { cardName: card.name, paid: paid - change } };
-  log(state, `${p.name} bought ${card.name} (paid ${paid - change} 🪙${change > 0 ? `, ${change} 🪙 tilbake` : ""}).`);
+  // Leave change in the payment zone so the player can spend it on the next card
+  state.paymentZone = { playerId: change > 0 ? state.paymentZone.playerId : null, tokens: change, lastPurchase: { cardName: card.name, paid: paid - change } };
+  log(state, `${p.name} bought ${card.name} (paid ${paid - change} 🪙${change > 0 ? `, ${change} 🪙 left in zone` : ""}).`);
 }
 
 // ── Events ────────────────────────────────────────────────────────────────────
