@@ -415,17 +415,28 @@ export default function Game({ gameState, mySocketId }) {
                     <span className={`font-body text-[11px] leading-none truncate max-w-[72px] ${
                       isCurrent ? "text-ink" : "text-ink-500"
                     } ${isMe ? "font-bold" : ""}`}>{p.name}</span>
-                    <div className={`flex items-center gap-1 text-[10px] leading-none font-mono ${
+                    <div className={`flex items-center gap-1.5 leading-none font-mono text-[10px] ${
                       isCurrent ? "text-ink-500" : "text-ink-300"
                     }`}>
-                      <span className={p.lives <= 3 ? "text-red font-bold" : "text-red/70"}>♥{p.lives}</span>
-                      <span className="text-ink-border mx-0.5">·</span>
-                      <PawCoin className="w-3 h-3 inline" />
-                      <span className="text-gold-deep">{p.pawTokens ?? 0}</span>
-                      <span className="text-ink-border mx-0.5">·</span>
-                      <span>⚔️{p.attackTokens?.length ?? 0}</span>
-                      <span className="text-ink-border mx-0.5">·</span>
-                      <span>🃏{p.hand?.length ?? 0}</span>
+                      {/* Lives */}
+                      <span className={`flex items-center gap-0.5 ${p.lives <= 3 ? "text-red font-bold" : "text-red/70"}`}>
+                        <span className="text-[11px]">♥</span><span>{p.lives}</span>
+                      </span>
+                      <span className="text-ink-border">·</span>
+                      {/* Coins */}
+                      <span className="flex items-center gap-0.5">
+                        <PawCoin className="w-3.5 h-3.5" /><span className="text-gold-deep">{p.pawTokens ?? 0}</span>
+                      </span>
+                      <span className="text-ink-border">·</span>
+                      {/* Attacks */}
+                      <span className="flex items-center gap-0.5">
+                        <span>⚔️</span><span>{p.attackTokens?.length ?? 0}</span>
+                      </span>
+                      <span className="text-ink-border">·</span>
+                      {/* Cards in hand */}
+                      <span className="flex items-center gap-0.5">
+                        <span>🃏</span><span>{p.hand?.length ?? 0}</span>
+                      </span>
                     </div>
                   </div>
                 </div>
