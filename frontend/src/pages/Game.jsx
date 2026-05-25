@@ -389,9 +389,9 @@ export default function Game({ gameState, mySocketId }) {
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
 
       {/* ── Top bar ── */}
-      <div className="fixed top-0 left-0 right-0 z-[150] h-14 bg-ink flex items-center px-3 gap-3 border-b border-white/10 shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-[150] h-14 bg-paper-50 border-b-2 border-ink-border flex items-center px-3 gap-3 shadow-sm">
         {/* Left: logo */}
-        <span className="font-display text-white/40 text-xs tracking-wide shrink-0 hidden md:block">🐾 OGB</span>
+        <span className="font-display text-ink-300 text-xs tracking-wide shrink-0 hidden md:block">🐾 OGB</span>
 
         {/* Center: player turn-order pills */}
         <div className="flex-1 flex items-center justify-center gap-1.5">
@@ -401,31 +401,29 @@ export default function Game({ gameState, mySocketId }) {
             const char = CHARACTERS.find(c => c.id === p.character?.id);
             return (
               <div key={p.playerId} className="flex items-center gap-1.5">
-                {i > 0 && <span className="text-white/20 text-base leading-none">›</span>}
+                {i > 0 && <span className="text-ink-300 text-base leading-none">›</span>}
                 <div className={`flex items-center gap-2 px-2 py-1 rounded-lg border transition-all ${
                   isCurrent
-                    ? "bg-paper-50 border-gold shadow-md"
-                    : "bg-paper-50/10 border-white/10"
+                    ? "bg-paper-100 border-gold shadow-sm"
+                    : "bg-paper-200/40 border-ink-border/30"
                 }`}>
-                  {/* Headshot — spans both text rows */}
                   {char?.headshot
                     ? <img src={char.headshot} alt={p.name} className="w-8 h-8 object-contain shrink-0" />
                     : <span className="w-8 h-8 flex items-center justify-center text-lg">🐱</span>
                   }
-                  {/* Two-line info */}
                   <div className="flex flex-col gap-0.5 min-w-0">
                     <span className={`font-body text-[11px] leading-none truncate max-w-[72px] ${
-                      isCurrent ? "text-ink" : "text-white/60"
+                      isCurrent ? "text-ink" : "text-ink-500"
                     } ${isMe ? "font-bold" : ""}`}>{p.name}</span>
                     <div className={`flex items-center gap-1.5 text-[10px] leading-none font-mono ${
-                      isCurrent ? "text-ink-500" : "text-white/35"
+                      isCurrent ? "text-ink-500" : "text-ink-300"
                     }`}>
-                      <span className={p.lives <= 3 ? "text-red font-bold" : "text-red/80"}>♥{p.lives}</span>
-                      <span className="opacity-30">·</span>
+                      <span className={p.lives <= 3 ? "text-red font-bold" : "text-red/70"}>♥{p.lives}</span>
+                      <span className="text-ink-border">·</span>
                       <span className="text-gold-deep">🪙{p.pawTokens ?? 0}</span>
-                      <span className="opacity-30">·</span>
+                      <span className="text-ink-border">·</span>
                       <span>⚔{p.attackTokens?.length ?? 0}</span>
-                      <span className="opacity-30">·</span>
+                      <span className="text-ink-border">·</span>
                       <span>🃏{p.hand?.length ?? 0}</span>
                     </div>
                   </div>
@@ -437,15 +435,15 @@ export default function Game({ gameState, mySocketId }) {
 
         {/* Right: round + zoom */}
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-white/30 text-[11px] font-body hidden sm:block">Rnd {roundNumber}</span>
+          <span className="text-ink-300 text-[11px] font-body hidden sm:block">Rnd {roundNumber}</span>
           <div className="flex items-center gap-0.5">
             <button onClick={() => setZoom(z => clampZoom(parseFloat((z - 0.1).toFixed(2))))}
-              className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none">−</button>
+              className="w-6 h-6 rounded flex items-center justify-center text-ink-300 hover:text-ink hover:bg-ink-border/10 transition-colors text-base leading-none">−</button>
             <button onClick={() => setZoom(1)}
-              className="text-white/50 hover:text-white text-[11px] font-mono w-9 text-center hover:bg-white/10 rounded py-0.5 transition-colors"
+              className="text-ink-300 hover:text-ink text-[11px] font-mono w-9 text-center hover:bg-ink-border/10 rounded py-0.5 transition-colors"
               title="Reset zoom">{Math.round(zoom * 100)}%</button>
             <button onClick={() => setZoom(z => clampZoom(parseFloat((z + 0.1).toFixed(2))))}
-              className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none">+</button>
+              className="w-6 h-6 rounded flex items-center justify-center text-ink-300 hover:text-ink hover:bg-ink-border/10 transition-colors text-base leading-none">+</button>
           </div>
         </div>
       </div>
