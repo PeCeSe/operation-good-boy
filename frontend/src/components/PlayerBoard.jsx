@@ -361,7 +361,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
         <div className="flex items-center gap-2 flex-wrap">
           {charData?.headshot
             ? <img
-                src={isStunned && charData.stunned ? charData.stunned : charData.headshot}
+                src={(isStunned || (lives ?? 0) === 0) && charData.stunned ? charData.stunned : charData.headshot}
                 alt={name}
                 className="w-9 h-9 object-contain shrink-0"
               />

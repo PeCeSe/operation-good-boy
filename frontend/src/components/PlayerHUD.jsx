@@ -109,7 +109,7 @@ export default function PlayerHUD({
               {/* STUNNED overlay — centered on top of the hearts */}
               {isStunned && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span className="text-[11px] font-bold tracking-widest uppercase text-red bg-paper-50/90 px-2 py-0.5 rounded">
+                  <span className="text-[11px] font-bold tracking-widest uppercase text-red border-2 border-red px-2 py-0.5 rounded">
                     STUNNED!
                   </span>
                 </div>
