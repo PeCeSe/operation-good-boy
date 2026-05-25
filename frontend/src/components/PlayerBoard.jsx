@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useDraggable, useDroppable, DndContext, useSensor, useSensors, PointerSensor, TouchSensor } from "@dnd-kit/core";
+import { useDraggable, useDroppable, DndContext, DragOverlay, useSensor, useSensors, PointerSensor, TouchSensor } from "@dnd-kit/core";
 import CHARACTERS from "../data/characters";
 import PawCoin from "./PawCoin";
 import HealthSlider from "./HealthSlider";
@@ -251,6 +251,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
 function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   const [cardPositions, setCardPositions] = useState({});
   const [topCardId, setTopCardId] = useState(null);
+  const [activeDragType, setActiveDragType] = useState(null);
 
   const handKey = (hand || []).map((c) => c.id).join(",");
   useEffect(() => {
@@ -273,6 +274,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   );
 
   const handleDragEnd = ({ active, over, delta }) => {
+    setActiveDragType(null);
     if (active?.data?.current?.draggableType === "draw_pile") {
       socket.emit("draw_card");
       return;
@@ -296,7 +298,11 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   };
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={({ active }) => setActiveDragType(active?.data?.current?.draggableType ?? null)}
+      onDragEnd={handleDragEnd}
+    >
       <HandAreaInner
         hand={hand}
         drawPile={drawPile}
@@ -307,6 +313,16 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
         onBringToFront={setTopCardId}
         isMe={isMe}
       />
+      <DragOverlay dropAnimation={null}>
+        {activeDragType === "draw_pile" && (
+          <div
+            className="rounded-xl border-2 border-brown bg-brown-deep flex items-center justify-center shadow-2xl pointer-events-none opacity-90"
+            style={{ width: 176, height: 258 }}
+          >
+            <span className="text-5xl">🐾</span>
+          </div>
+        )}
+      </DragOverlay>
     </DndContext>
   );
 }
