@@ -51,7 +51,7 @@ function DraggableCoin({ index, onMove }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, isTop, onBringToFront }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -64,7 +64,7 @@ function DraggableHandCard({ card, position, isTop, onBringToFront }) {
         position: "absolute",
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
-        zIndex: isDragging ? 100 : isTop ? 10 : 2,
+        zIndex: isDragging ? 1000 : zIndex,
         opacity: isDragging ? 0.4 : 1,
         touchAction: "none",
       }}
@@ -76,7 +76,7 @@ function DraggableHandCard({ card, position, isTop, onBringToFront }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, topCardId, onBringToFront, isMe, handCanvasRef }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -152,7 +152,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
             key={card.id}
             card={card}
             position={cardPositions[card.id] ?? { x: 0, y: 0 }}
-            isTop={card.id === topCardId}
+            zIndex={zOrder.indexOf(card.id) + 2}
             onBringToFront={onBringToFront}
           />
         ))}
@@ -253,7 +253,9 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
 
 function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   const [cardPositions, setCardPositions] = useState({});
-  const [topCardId, setTopCardId] = useState(null);
+  const [zOrder, setZOrder] = useState([]);
+  const onBringToFront = (cardId) =>
+    setZOrder(prev => [...prev.filter(id => id !== cardId), cardId]);
   const [activeDragType, setActiveDragType] = useState(null);
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
@@ -329,8 +331,8 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
         discardPile={discardPile}
         peekCard={peekCard}
         cardPositions={cardPositions}
-        topCardId={topCardId}
-        onBringToFront={setTopCardId}
+        zOrder={zOrder}
+        onBringToFront={onBringToFront}
         isMe={isMe}
         handCanvasRef={handCanvasRef}
       />
