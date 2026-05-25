@@ -12,6 +12,7 @@ import EventDeck, { EventCardDisplay } from "../components/EventDeck";
 import GameLog from "../components/GameLog";
 import { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
+import CHARACTERS from "../data/characters";
 import socket from "../socket";
 
 const BOARD_W = 1700;
@@ -388,36 +389,56 @@ export default function Game({ gameState, mySocketId }) {
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
 
       {/* ── Top bar ── */}
-      <div className="fixed top-0 left-0 right-0 z-[150] h-10 bg-ink flex items-center px-4 gap-3 border-b border-white/10 shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-[150] h-10 bg-ink flex items-center px-3 gap-3 border-b border-white/10 shadow-sm">
         {/* Left: logo */}
-        <span className="font-display text-white/70 text-sm tracking-wide shrink-0 hidden sm:block">🐾 Operation: Good Boy</span>
-        <span className="font-display text-white/70 text-sm shrink-0 sm:hidden">🐾 OGB</span>
+        <span className="font-display text-white/50 text-xs tracking-wide shrink-0 hidden sm:block">🐾 OGB</span>
 
-        {/* Center: round + turn */}
-        <div className="flex-1 flex items-center justify-center gap-2 text-sm">
-          <span className="text-white/40 font-body text-xs">Round {roundNumber}</span>
-          <span className="text-white/20">·</span>
-          {isMyTurn
-            ? <span className="text-gold font-semibold font-body text-xs animate-pulse">✦ Your turn!</span>
-            : <span className="text-white/60 font-body text-xs">{currentPlayerName}'s turn</span>
-          }
+        {/* Center: turn order */}
+        <div className="flex-1 flex items-center justify-center gap-1">
+          {players.map((p, i) => {
+            const isCurrent = p.playerId === currentPlayerId;
+            const isMe = p.playerId === me?.playerId;
+            const char = CHARACTERS.find(c => c.id === p.character?.id);
+            const maxLives = p.character?.maxLives ?? 9;
+            return (
+              <div key={p.playerId} className="flex items-center gap-1">
+                {i > 0 && <span className="text-white/20 text-xs mx-0.5">›</span>}
+                <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs transition-all ${
+                  isCurrent
+                    ? "bg-gold/20 border border-gold/60 text-white"
+                    : "text-white/50"
+                }`}>
+                  {char?.headshot
+                    ? <img src={char.headshot} alt={p.name} className="w-4 h-4 object-contain rounded-full shrink-0" />
+                    : <span className="text-[10px]">🐱</span>
+                  }
+                  <span className={`font-body text-[11px] max-w-[60px] truncate ${isMe ? "font-bold" : ""}`}>{p.name}</span>
+                  <span className="text-red text-[10px]">♥</span>
+                  <span className={`font-mono text-[11px] ${p.lives <= 3 ? "text-red" : "text-white/70"}`}>{p.lives}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Right: zoom controls */}
-        <div className="flex items-center gap-0.5 shrink-0">
-          <button
-            onClick={() => setZoom(z => clampZoom(parseFloat((z - 0.1).toFixed(2))))}
-            className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none"
-          >−</button>
-          <button
-            onClick={() => setZoom(1)}
-            className="text-white/50 hover:text-white text-[11px] font-mono w-9 text-center hover:bg-white/10 rounded py-0.5 transition-colors"
-            title="Reset zoom"
-          >{Math.round(zoom * 100)}%</button>
-          <button
-            onClick={() => setZoom(z => clampZoom(parseFloat((z + 0.1).toFixed(2))))}
-            className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none"
-          >+</button>
+        {/* Right: round + zoom controls */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-white/30 text-[11px] font-body hidden sm:block">Rnd {roundNumber}</span>
+          <div className="flex items-center gap-0.5">
+            <button
+              onClick={() => setZoom(z => clampZoom(parseFloat((z - 0.1).toFixed(2))))}
+              className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none"
+            >−</button>
+            <button
+              onClick={() => setZoom(1)}
+              className="text-white/50 hover:text-white text-[11px] font-mono w-9 text-center hover:bg-white/10 rounded py-0.5 transition-colors"
+              title="Reset zoom"
+            >{Math.round(zoom * 100)}%</button>
+            <button
+              onClick={() => setZoom(z => clampZoom(parseFloat((z + 0.1).toFixed(2))))}
+              className="w-6 h-6 rounded flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors text-base leading-none"
+            >+</button>
+          </div>
         </div>
       </div>
 
