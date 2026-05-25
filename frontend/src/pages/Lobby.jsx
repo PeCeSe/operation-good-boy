@@ -297,10 +297,6 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                 <div className="bg-white p-4 space-y-3">
                   <p className="text-xs text-stone-500 leading-relaxed">{char.backstory}</p>
                   <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400 italic">{char.trait}</div>
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                    <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-amber-500 mb-0.5">Passive</div>
-                    <div className="text-xs text-stone-700 font-semibold">⚡ {char.passive}</div>
-                  </div>
                 </div>
               </button>
             );
