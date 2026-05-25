@@ -391,7 +391,7 @@ export default function Game({ gameState, mySocketId }) {
       {/* ── Top bar ── */}
       <div className="fixed top-0 left-0 right-0 z-[150] h-14 bg-paper-50 border-b-2 border-ink-border flex items-center px-3 gap-3 shadow-sm">
         {/* Left: logo */}
-        <span className="font-display text-ink-300 text-xs tracking-wide shrink-0 hidden md:block">🐾 OGB</span>
+        <span className="font-display text-ink-300 text-xs tracking-wide shrink-0 hidden md:block">🐾 Operation: Good Boy</span>
 
         {/* Center: player turn-order pills */}
         <div className="flex-1 flex items-center justify-center gap-1.5">
@@ -447,7 +447,7 @@ export default function Game({ gameState, mySocketId }) {
 
         {/* Right: round + zoom */}
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-ink-300 text-[11px] font-body hidden sm:block">Rnd {roundNumber}</span>
+          <span className="text-ink-300 text-[11px] font-body hidden sm:block">Round {roundNumber}</span>
           <div className="flex items-center gap-0.5">
             <button onClick={() => setZoom(z => clampZoom(parseFloat((z - 0.1).toFixed(2))))}
               className="w-6 h-6 rounded flex items-center justify-center text-ink-300 hover:text-ink hover:bg-ink-border/10 transition-colors text-base leading-none">−</button>
