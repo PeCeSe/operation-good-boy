@@ -107,6 +107,21 @@ export default function Cards() {
         <Link to="/" className="text-sm text-ink-500 hover:text-ink-700 transition-colors">← Home</Link>
       </div>
 
+      {/* Card Backs */}
+      <section>
+        <SectionHeader>Card Backs</SectionHeader>
+        <div className="flex flex-wrap gap-6">
+          <div className="flex flex-col items-center gap-1.5">
+            <CardBack />
+            <span className="text-[9px] text-ink-300 italic">Starter &amp; Shop cards</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5">
+            <EventCardBack />
+            <span className="text-[9px] text-ink-300 italic">Event cards</span>
+          </div>
+        </div>
+      </section>
+
       {/* Locations */}
       <section>
         <SectionHeader>Locations</SectionHeader>
@@ -131,10 +146,6 @@ export default function Cards() {
       <section>
         <SectionHeader>Stupid Hooman Events</SectionHeader>
         <div className="flex flex-wrap gap-3">
-          <div className="flex flex-col gap-1.5">
-            <EventCardBack />
-            <div className="flex justify-center"><span className="text-[9px] text-ink-300 italic">card back</span></div>
-          </div>
           {events.map((event) => (
             <div key={event.id} className="relative flex flex-col gap-1.5">
               <div className="relative">
@@ -172,12 +183,6 @@ export default function Cards() {
       <section>
         <SectionHeader>Starting Decks</SectionHeader>
         <div className="flex flex-col gap-6">
-          <div className="flex flex-wrap gap-3">
-            <div className="flex flex-col gap-1.5">
-              <CardBack />
-              <div className="flex justify-center"><span className="text-[9px] text-ink-300 italic">card back</span></div>
-            </div>
-          </div>
           {startingDecks.map(({ char, cards: deckCards }) => {
             const frontendChar = CHARACTERS.find((c) => c.id === char.id);
             return (
@@ -218,10 +223,6 @@ export default function Cards() {
           <div key={label} className="mb-8">
             <h3 className={`font-bold text-sm uppercase tracking-[0.12em] mb-3 ${color}`}>{label}</h3>
             <div className="flex flex-wrap gap-3">
-              <div className="flex flex-col gap-1.5">
-                <CardBack />
-                <div className="flex justify-center"><span className="text-[9px] text-ink-300 italic">card back</span></div>
-              </div>
               {typeCards.map((card) => (
                 <div key={card.id} className="flex flex-col gap-1.5">
                   <div className="relative">
