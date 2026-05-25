@@ -87,7 +87,7 @@ function DiscardZone({ count, eventDiscard }) {
       >
         {count > 2 && (
           <div
-            className="absolute rounded border-2 border-plum overflow-hidden"
+            className="absolute rounded-lg border-2 border-plum overflow-hidden"
             style={{ width: 213, height: 213, top: 6, left: 6 }}
           >
             <img src="/cards/event_back.png" className="w-full h-full object-cover opacity-80" />
@@ -95,7 +95,7 @@ function DiscardZone({ count, eventDiscard }) {
         )}
         {count > 1 && (
           <div
-            className="absolute rounded border-2 border-plum overflow-hidden"
+            className="absolute rounded-lg border-2 border-plum overflow-hidden"
             style={{ width: 213, height: 213, top: 3, left: 3 }}
           >
             <img src="/cards/event_back.png" className="w-full h-full object-cover opacity-90" />
