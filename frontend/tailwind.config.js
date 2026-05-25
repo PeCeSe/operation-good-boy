@@ -6,9 +6,9 @@ export default {
       colors: {
         // ── 01 · SURFACES ────────────────────────────────────────────────────
         paper: {
-          DEFAULT: "#f5f0d8",  // page default background (paper-100)
+          DEFAULT: "#fbf1da",  // page default background (paper-100)
           50:      "#fff8e6",  // surface — cards, modals, raised panels
-          100:     "#f5f0d8",  // page default background
+          100:     "#fbf1da",  // page default background
           200:     "#ede0c0",  // sunken — wells, wash, board
           300:     "#c7a789",  // edge — page gradient bottom
           shadow:  "#c6a37a",  // card thickness / depth shadow
