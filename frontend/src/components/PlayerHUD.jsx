@@ -76,19 +76,20 @@ export default function PlayerHUD({
           <div className="flex-1 flex justify-center items-center">
             <div className="flex gap-0.5 flex-wrap justify-center">
               {Array.from({ length: maxLives }).map((_, i) => {
-                const filled = i < lives;
-                const num = i + 1;
+                const num = maxLives - i;          // 9 → 1, left to right
+                const filled = (maxLives - 1 - i) < lives; // "9" goes grey first
                 const handleClick = () => {
                   if (!me?.playerId) return;
-                  const newLives = (i + 1 === lives) ? i : i + 1;
-                  socket.emit("set_lives", { playerId: me.playerId, lives: newLives });
+                  // clicking the leftmost filled heart → decrease; otherwise set to that number
+                  const newLives = num === lives ? lives - 1 : num;
+                  socket.emit("set_lives", { playerId: me.playerId, lives: Math.max(0, newLives) });
                 };
                 return (
                   <button
                     key={i}
                     onClick={handleClick}
                     className="relative w-8 h-8 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
-                    title={filled ? (i + 1 === lives ? "Click to lose a life" : `Set lives to ${num}`) : `Set lives to ${num}`}
+                    title={filled ? (num === lives ? "Click to lose a life" : `Set lives to ${num}`) : `Set lives to ${num}`}
                   >
                     <span className={`text-[32px] leading-none select-none ${filled ? "text-red" : "text-ink-300/30"}`}>♥</span>
                     <span className={`absolute text-[9px] font-bold leading-none ${filled ? "text-white" : "text-ink-300/50"}`}>{num}</span>
