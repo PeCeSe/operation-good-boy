@@ -98,8 +98,8 @@ export default function PlayerHUD({
                     className="relative w-8 h-8 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
                     title={filled ? (num === lives ? "Click to lose a life" : `Set lives to ${num}`) : `Set lives to ${num}`}
                   >
-                    <span className={`text-[32px] leading-none select-none ${filled ? "text-red" : "text-ink-200"}`}>♥</span>
-                    <span className={`absolute text-[9px] font-bold leading-none ${filled ? "text-white" : "text-ink-400"}`}>{num}</span>
+                    <span className={`text-[32px] leading-none select-none ${filled ? "text-red" : "text-ink-300"}`}>♥</span>
+                    <span className={`absolute text-[9px] font-bold leading-none ${filled ? "text-white" : "text-ink-500"}`}>{num}</span>
                   </button>
                 );
               })}
