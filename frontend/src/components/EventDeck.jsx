@@ -211,14 +211,14 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
             {/* Centered icon group */}
             <div className="absolute inset-0 flex items-center justify-center">
               {/* Soft purple glow circle behind icon */}
-              <div className="absolute w-28 h-28 rounded-full" style={{ background: "rgba(180, 150, 210, 0.25)" }} />
+              <div className="absolute w-28 h-28 rounded-full" style={{ background: "rgba(180, 150, 210, 0.6)" }} />
               {/* Icon */}
               <div className="relative w-24 h-24 flex items-center justify-center">
                 <img src="/cards/event_icon.png" alt="" className="w-full h-full object-contain" />
                 {/* Purple color wash to blend into card */}
                 <div
                   className="absolute inset-0 rounded-full pointer-events-none"
-                  style={{ background: "rgba(130, 106, 150, 0.35)", mixBlendMode: "color" }}
+                  style={{ background: "rgba(130, 106, 150, 0.55)", mixBlendMode: "color" }}
                 />
               </div>
             </div>
