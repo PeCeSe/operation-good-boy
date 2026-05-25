@@ -75,10 +75,7 @@ export default function PlayerHUD({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup",   onUp);
       setIsDragging(false);
-      if (dragStateRef.current?.hasDragged) {
-        // Snap: open if dragged past 30 % threshold, else close
-        setDrawerHeight(h => h > MAX_DRAWER_H * 0.3 ? MAX_DRAWER_H : 0);
-      }
+      // No snap — stays wherever released
     };
 
     window.addEventListener("pointermove", onMove);
@@ -100,7 +97,7 @@ export default function PlayerHUD({
         <button
           onPointerDown={handlePointerDown}
           onClick={handleClick}
-          className="bg-paper-50 border-2 border-b-0 border-ink-border rounded-t-lg px-6 py-0.5 text-ink-400 hover:text-ink transition-colors text-[11px] font-bold tracking-wide flex items-center gap-1.5 shadow-[0_-2px_6px_rgba(0,0,0,0.06)] cursor-row-resize select-none"
+          className={`bg-paper-50 border-2 border-b-0 border-ink-border rounded-t-lg px-6 py-0.5 text-ink-400 hover:text-ink transition-colors text-[11px] font-bold tracking-wide flex items-center gap-1.5 shadow-[0_-2px_6px_rgba(0,0,0,0.06)] select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         >
           {drawerHeight > 0 ? "▼ Hide" : "▲ Show"}
         </button>
