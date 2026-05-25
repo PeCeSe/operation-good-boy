@@ -141,7 +141,8 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   }
 
   return (
-    <div className="bg-paper-100 min-h-screen max-w-4xl mx-auto px-4 py-8 flex flex-col gap-8">
+    <div className="bg-paper-100 min-h-screen">
+    <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-8">
       {copied && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-ink text-paper-50 text-sm font-semibold px-4 py-2 rounded-full shadow-lg anim-slide-up">
           Link copied! 🔗
@@ -346,6 +347,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
       {!allReady && roomInfo.players.length < 2 && (
         <p className="text-center text-ink-300 text-sm">Select a character and ready up to start.</p>
       )}
+    </div>
     </div>
   );
 }
