@@ -129,7 +129,7 @@ export default function PlayerHUD({
           <div className="flex-1 flex justify-center items-center">
             <div className="relative flex gap-0.5 justify-center">
               {/* Slider track — inset-x-4 = half heart width, so track goes center-to-center */}
-              <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 h-1 rounded-full bg-ink-300/20 overflow-hidden pointer-events-none">
+              <div className="absolute inset-x-5 top-1/2 -translate-y-1/2 h-1 rounded-full bg-ink-300/20 overflow-hidden pointer-events-none">
                 <div
                   className="h-full rounded-full bg-red/60 transition-all duration-150"
                   style={{ width: `${maxLives > 1 ? ((lives - 1) / (maxLives - 1)) * 100 : (lives > 0 ? 100 : 0)}%`, float: "right" }}
@@ -147,11 +147,11 @@ export default function PlayerHUD({
                   <button
                     key={i}
                     onClick={handleClick}
-                    className="relative w-8 h-8 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
+                    className="relative w-11 h-11 flex items-center justify-center hover:scale-110 active:scale-95 transition-transform"
                     title={filled ? (num === lives ? "Click to lose a life" : `Set lives to ${num}`) : `Set lives to ${num}`}
                   >
-                    <span className={`text-[32px] leading-none select-none ${filled ? "text-red" : "text-ink-300"}`}>♥</span>
-                    <span className={`absolute text-[9px] font-bold leading-none ${filled ? "text-white" : "text-ink-500"}`}>{num}</span>
+                    <span className={`text-[44px] leading-none select-none ${filled ? "text-red" : "text-ink-300"}`}>♥</span>
+                    <span className={`absolute text-[10px] font-bold leading-none ${filled ? "text-white" : "text-ink-500"}`}>{num}</span>
                   </button>
                 );
               })}
