@@ -80,6 +80,11 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
+  const { setNodeRef: setDrawDragRef, listeners: drawListeners, attributes: drawAttributes, isDragging: isDrawDragging } = useDraggable({
+    id: "draw_pile_drag",
+    data: { draggableType: "draw_pile" },
+    disabled: !isMe || drawCount === 0,
+  });
   const { setNodeRef: setDiscardRef, isOver: isOverDiscard } = useDroppable({ id: "inner_discard_pile" });
 
   const drawCount = drawPile?.length ?? 0;
@@ -99,15 +104,18 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
         <div className="text-[9px] text-ink-300 uppercase tracking-[0.12em] font-bold">Draw</div>
         <div ref={setDrawRef}>
           <button
+            ref={setDrawDragRef}
+            {...drawListeners}
+            {...drawAttributes}
             onClick={() => isMe && drawCount > 0 && socket.emit("draw_card")}
             disabled={!isMe || drawCount === 0}
             className={`relative rounded-xl border-2 flex items-center justify-center select-none transition-all ${
               isOverDraw
                 ? "border-brown-soft bg-brown ring-2 ring-brown-soft ring-offset-1"
                 : "border-brown bg-brown-deep"
-            } ${isMe && drawCount > 0 ? "hover:bg-brown cursor-pointer active:scale-95" : "opacity-60 cursor-default"}`}
-            style={{ width: 176, height: 258 }}
-            title={isMe ? (drawCount > 0 ? "Click to draw a card" : "Draw pile empty") : undefined}
+            } ${isMe && drawCount > 0 ? "hover:bg-brown cursor-pointer active:scale-95" : "opacity-60 cursor-default"} ${isDrawDragging ? "opacity-40" : ""}`}
+            style={{ width: 176, height: 258, touchAction: "none" }}
+            title={isMe ? (drawCount > 0 ? "Click or drag to draw a card" : "Draw pile empty") : undefined}
           >
             <span className="text-5xl">🐾</span>
             {drawCount > 0 && (
@@ -264,6 +272,10 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   );
 
   const handleDragEnd = ({ active, over, delta }) => {
+    if (active?.data?.current?.draggableType === "draw_pile") {
+      socket.emit("draw_card");
+      return;
+    }
     const cardId = active?.data?.current?.cardId;
     if (!cardId) return;
     if (over?.id === "inner_draw_pile") {
