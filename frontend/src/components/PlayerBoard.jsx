@@ -308,7 +308,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
     } else if (over?.id === "inner_discard_pile") {
       socket.emit("discard_card", { cardId });
     } else {
-      setTopCardId(cardId);
+      onBringToFront(cardId);
       setCardPositions((prev) => ({
         ...prev,
         [cardId]: {
