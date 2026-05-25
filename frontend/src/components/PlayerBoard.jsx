@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useDraggable, useDroppable, DndContext, DragOverlay, useSensor, useSensors, PointerSensor, TouchSensor } from "@dnd-kit/core";
 import CHARACTERS from "../data/characters";
-import PawCoin from "./PawCoin";
-import HealthSlider from "./HealthSlider";
 import CardComponent from "./CardComponent";
 import { ATTACK_CONFIG } from "./TokenPool";
 import socket from "../socket";
@@ -25,26 +23,6 @@ function StagingToken({ token }) {
       title={`${cfg.label} — drag to enemy`}
     >
       {cfg.icon}
-    </div>
-  );
-}
-
-function DraggableCoin({ index, onMove }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `paw_coin_${index}`,
-    data: { draggableType: "paw_coin" },
-  });
-  return (
-    <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
-      onClick={onMove}
-      style={{ touchAction: "none", opacity: isDragging ? 0.3 : 1 }}
-      className="cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
-      title="Click or drag to payment zone"
-    >
-      <PawCoin className="w-6 h-6" />
     </div>
   );
 }
@@ -376,19 +354,6 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
   const maxLives = character?.maxLives ?? 9;
   const charData = CHARACTERS.find((c) => c.id === character?.id);
 
-  const handleSetLives = (newLives) => {
-    socket.emit("set_lives", { playerId, lives: newLives });
-  };
-
-  const handleGainToken = () => {
-    socket.emit("set_paw_tokens", { tokens: (pawTokens ?? 0) + 1 });
-  };
-
-  const handleEndTurn = () => socket.emit("end_turn");
-
-  const displayTokens = Math.min(pawTokens ?? 0, 12);
-  const extraTokens = (pawTokens ?? 0) - 12;
-
   return (
     <div className={`rounded-xl border-2 shadow-md overflow-visible transition-all ${isCurrentTurn ? "border-gold" : "border-ink-border/20"}`}>
       {/* Header */}
@@ -420,7 +385,6 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
             <span className="text-xs">{showCharacter ? "▲" : "▼"}</span>
           </button>
         </div>
-        <HealthSlider lives={lives ?? 0} maxLives={maxLives} onChange={handleSetLives} disabled={false} />
       </div>
 
       {/* Collapsible character section */}
@@ -451,100 +415,23 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
         </div>
       )}
 
-      {/* Resources row */}
-      <div className="bg-paper-50 border-t border-b border-ink-border/20 px-4 py-3 flex items-start gap-4 flex-wrap">
-        {/* Pawcoin wallet */}
-        {isMe ? (
-          <div className="flex flex-col gap-1.5">
-            <div className="text-[10px] text-ink-300 uppercase tracking-wide font-bold">Pawcoins</div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={handleGainToken}
-                className="w-8 h-8 rounded-full bg-gold border-2 border-gold-deep text-white font-bold text-lg flex items-center justify-center shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
-                title="Gain 1 pawcoin"
-              >
-                +
-              </button>
-              <div className="flex flex-wrap gap-1 max-w-xs">
-                {Array.from({ length: displayTokens }).map((_, i) => (
-                  <DraggableCoin
-                    key={i}
-                    index={i}
-                    onMove={() => {
-                      socket.emit("set_paw_tokens", { tokens: Math.max(0, (pawTokens ?? 0) - 1) });
-                      socket.emit("place_payment", { tokens: (paymentZone?.tokens ?? 0) + 1 });
-                    }}
-                  />
-                ))}
-                {extraTokens > 0 && (
-                  <span className="text-xs text-ink-300 self-center">+{extraTokens} more</span>
-                )}
-              </div>
-              <span className="text-sm text-gold-deep font-semibold ml-1">{pawTokens ?? 0}</span>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5">
-            <PawCoin className="w-5 h-5" />
-            <span className="text-sm text-gold-deep font-semibold">{pawTokens ?? 0}</span>
-            <span className="text-xs text-ink-300">pawcoins</span>
-          </div>
-        )}
-
-        <div className="w-px h-12 bg-paper-200 flex-shrink-0 self-center" />
-
-        {/* Attack staging area */}
-        {isMe && (
-          <div className="flex flex-col gap-1">
-            <div className="text-[10px] text-ink-300 uppercase tracking-wide font-bold">Attacks</div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <button
-                onClick={() => socket.emit("add_attack_token", { type: "attack" })}
-                className="w-8 h-8 rounded-full bg-red border-2 border-red-deep text-white font-bold text-lg flex items-center justify-center shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
-                title="Add attack token"
-              >
-                +
-              </button>
-              <div
-                ref={setStagingRef}
-                className="flex flex-wrap gap-1.5 min-h-[2.5rem] min-w-[4rem] rounded-lg px-2 py-1 border-2 border-dashed border-ink-300/50 bg-paper-200/20"
-              >
-                {(attackTokens ?? []).map((token) => (
-                  <StagingToken key={token.id} token={token} />
-                ))}
-                {(attackTokens ?? []).length === 0 && (
-                  <span className="text-[9px] italic self-center text-ink-300/60">Empty</span>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-        {!isMe && (attackTokens ?? []).length > 0 && (
-          <div className="flex flex-col gap-1">
-            <div className="text-[10px] text-ink-300 uppercase tracking-wide font-bold">Attacks</div>
-            <div className="flex flex-wrap gap-1">
-              {(attackTokens ?? []).map((token) => {
-                const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.attack;
-                return (
-                  <div key={token.id} className={`w-7 h-7 rounded-full border-2 flex items-center justify-center text-sm ${cfg.bg} ${cfg.border}`}>
-                    {cfg.icon}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* End Turn */}
-        {isMe && (
-          <button
-            onClick={handleEndTurn}
-            className="ml-auto self-center bg-moss text-white font-display px-5 py-2 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+      {/* Attack staging area — drag tokens to enemies */}
+      {isMe && (
+        <div className="bg-paper-50 border-t border-ink-border/20 px-4 py-2 flex items-center gap-2">
+          <div className="text-[9px] text-ink-300 uppercase tracking-wide font-bold shrink-0">Staging</div>
+          <div
+            ref={setStagingRef}
+            className="flex flex-wrap gap-1.5 min-h-[2.25rem] flex-1 rounded-lg px-2 py-1 border-2 border-dashed border-ink-300/50 bg-paper-200/20"
           >
-            End Turn →
-          </button>
-        )}
-      </div>
+            {(attackTokens ?? []).map((token) => (
+              <StagingToken key={token.id} token={token} />
+            ))}
+            {(attackTokens ?? []).length === 0 && (
+              <span className="text-[9px] italic self-center text-ink-300/60">Drag attack tokens here, then drag to an enemy</span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Hand area — full-width row: draw pile | hand canvas | discard pile */}
       <HandArea
