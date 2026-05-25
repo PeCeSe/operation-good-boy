@@ -80,15 +80,16 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
+  const { setNodeRef: setDiscardRef, isOver: isOverDiscard } = useDroppable({ id: "inner_discard_pile" });
+
+  const drawCount = drawPile?.length ?? 0;
+  const discardCount = discardPile?.length ?? 0;
+
   const { setNodeRef: setDrawDragRef, listeners: drawListeners, attributes: drawAttributes, isDragging: isDrawDragging } = useDraggable({
     id: "draw_pile_drag",
     data: { draggableType: "draw_pile" },
     disabled: !isMe || drawCount === 0,
   });
-  const { setNodeRef: setDiscardRef, isOver: isOverDiscard } = useDroppable({ id: "inner_discard_pile" });
-
-  const drawCount = drawPile?.length ?? 0;
-  const discardCount = discardPile?.length ?? 0;
   const topDiscard = discardPile?.[discardCount - 1] ?? null;
 
   const handleRetrieve = (cardId) => {
