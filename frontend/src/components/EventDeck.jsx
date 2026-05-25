@@ -113,7 +113,7 @@ function DiscardZone({ count, eventDiscard }) {
               }`}
               style={{ width: 213, height: 213 }}
             >
-              <span className="text-3xl opacity-30">🎴</span>
+              <img src="/cards/event_icon.png" alt="" className="w-10 h-10 object-contain opacity-30" />
               <span className={`text-[9px] font-bold uppercase tracking-wide ${isOver ? "text-plum" : "text-ink-300"}`}>
                 {isOver ? "Drop!" : "Discard"}
               </span>
