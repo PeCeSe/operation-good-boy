@@ -69,12 +69,21 @@ export default function App() {
   return (
     <div className="min-h-screen">
       {/* Alpha banner — flush left edge, behind drawer (z-30 < drawer z-40) */}
-      <div className="fixed left-0 top-1/2 -translate-y-1/2 z-[30] pointer-events-none select-none">
+      <div className="fixed left-0 top-1/2 -translate-y-1/2 z-[30] select-none group">
         <div
-          className="bg-gold text-ink font-bold tracking-widest uppercase"
+          className="bg-gold text-ink font-bold tracking-widest uppercase cursor-default"
           style={{ writingMode: "vertical-lr", transform: "rotate(180deg)", fontSize: 9, padding: "10px 3px", letterSpacing: "0.15em" }}
         >
           Alpha
+        </div>
+        {/* Tooltip */}
+        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 w-56 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="bg-ink text-paper-100 font-body text-xs rounded-lg px-3 py-2.5 shadow-lg leading-relaxed">
+            <div className="font-bold mb-1">🐾 You found the alpha tag!</div>
+            This game is a work in progress — cards, rules, art, and balance are all subject to change at any moment. Things may break. Cats may misbehave. Thanks for playing anyway! 🐱
+          </div>
+          {/* little arrow pointing left */}
+          <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-ink" />
         </div>
       </div>
 
