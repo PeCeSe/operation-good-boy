@@ -12,14 +12,14 @@ const DAY_COLORS = [
 function DifficultySlider({ value, onChange }) {
   return (
     <div className="space-y-2">
-      <div className="text-sm font-semibold text-center text-stone-700">
+      <div className="font-body text-sm font-semibold text-center text-ink-700">
         Difficulty:{" "}
         <span className={`font-bold ${DAY_COLORS[value]}`}>{DAYS[value]}</span>
       </div>
       <div className="relative flex items-center h-6">
-        <div className="absolute left-4 right-4 h-1 bg-stone-200 rounded-full" />
+        <div className="absolute left-4 right-4 h-1 bg-paper-300 rounded-full" />
         <div
-          className="absolute left-4 h-1 bg-amber-400 rounded-full transition-all duration-200"
+          className="absolute left-4 h-1 bg-gold rounded-full transition-all duration-200"
           style={{ width: `calc(${(value / 6) * 100}% - ${(value / 6) * 2}rem)` }}
         />
         <div className="relative w-full flex justify-between px-4">
@@ -33,8 +33,8 @@ function DifficultySlider({ value, onChange }) {
               <div
                 className={`rounded-full border-2 transition-all duration-200 ${
                   i === value
-                    ? "w-4 h-4 bg-amber-500 border-amber-500"
-                    : "w-3 h-3 bg-white border-stone-300 hover:border-amber-400"
+                    ? "w-4 h-4 bg-gold border-gold"
+                    : "w-3 h-3 bg-paper-50 border-ink-300 hover:border-gold"
                 }`}
               />
             </button>
@@ -46,7 +46,7 @@ function DifficultySlider({ value, onChange }) {
           <span
             key={day}
             className={`text-[10px] font-medium cursor-pointer transition-colors ${
-              i === value ? DAY_COLORS[i] : "text-stone-400 hover:text-stone-500"
+              i === value ? DAY_COLORS[i] : "text-ink-300 hover:text-ink-500"
             }`}
             onClick={() => onChange(i)}
           >
@@ -105,11 +105,11 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   if (!roomInfo && needsPassword) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="bg-white border border-stone-200 shadow-sm rounded-xl p-8 w-full max-w-sm flex flex-col gap-4">
+        <div className="bg-paper-50 border-2 border-ink-border shadow-md rounded-xl p-8 w-full max-w-sm flex flex-col gap-4">
           <div className="text-center">
             <div className="text-3xl mb-2">🔒</div>
-            <h2 className="text-xl font-bold text-amber-600">Password required</h2>
-            <p className="text-stone-500 text-sm mt-1">This room is password protected.</p>
+            <h2 className="font-display text-2xl text-ink">Password required</h2>
+            <p className="text-ink-500 font-body text-sm mt-1">This room is password protected.</p>
           </div>
           <input
             type="password"
@@ -117,13 +117,13 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
             onChange={(e) => setPasswordInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && socket.emit("join_room", { code, password: passwordInput })}
             placeholder="Enter room password"
-            className="bg-stone-100 border border-stone-200 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400"
+            className="bg-paper-200 border border-ink-border/30 text-ink font-body rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-moss/40"
             autoFocus
           />
           <button
             onClick={() => socket.emit("join_room", { code, password: passwordInput })}
             disabled={!passwordInput}
-            className="bg-amber-500 hover:bg-amber-400 disabled:opacity-40 text-white font-bold py-2 rounded-lg transition-colors"
+            className="bg-moss hover:bg-moss-deep disabled:opacity-40 text-white font-display py-2 rounded-lg transition-colors"
           >
             Join Room
           </button>
@@ -135,15 +135,15 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   if (!roomInfo) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-stone-500">Connecting to room {code}…</p>
+        <p className="text-ink-500 font-body">Connecting to room {code}…</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col gap-8">
+    <div className="bg-paper-100 min-h-screen max-w-4xl mx-auto px-4 py-8 flex flex-col gap-8">
       {copied && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-stone-800 text-white text-sm font-semibold px-4 py-2 rounded-full shadow-lg anim-slide-up">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-ink text-paper-50 text-sm font-semibold px-4 py-2 rounded-full shadow-lg anim-slide-up">
           Link copied! 🔗
         </div>
       )}
@@ -173,12 +173,12 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
           onKeyDown={(e) => e.key === "Enter" && handleSetName()}
           placeholder={myPlayer?.name || "Your name…"}
           maxLength={20}
-          className="flex-1 bg-stone-100 border border-stone-200 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-amber-400"
+          className="flex-1 bg-paper-200 border border-ink-border/30 text-ink font-body rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-moss/40"
         />
         <button
           onClick={handleSetName}
           disabled={!nameInput.trim()}
-          className="bg-stone-200 hover:bg-stone-300 text-stone-700 disabled:opacity-40 px-4 py-2 rounded text-sm font-semibold transition-colors"
+          className="bg-paper-200 hover:bg-paper-300 text-ink-700 font-body disabled:opacity-40 px-4 py-2 rounded text-sm font-semibold transition-colors"
         >
           {nameSent ? "✓" : "Set"}
         </button>
@@ -186,7 +186,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
 
       {/* Players */}
       <div>
-        <h2 className="text-lg font-semibold text-stone-800 mb-3">
+        <h2 className="font-display text-2xl text-ink mb-3">
           Players ({roomInfo.players.length}/4)
         </h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -195,10 +195,10 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
             return (
               <div
                 key={p.socketId}
-                className="bg-white border border-stone-200 shadow-sm rounded-lg overflow-hidden text-center"
+                className="bg-paper-50 border-2 border-ink-border shadow-sm rounded-lg overflow-hidden text-center"
               >
                 {/* Portrait or placeholder */}
-                <div className="relative h-24 flex items-center justify-center bg-white">
+                <div className="relative h-24 flex items-center justify-center bg-paper-50">
                   {char ? (
                     <img
                       src={char.headshot}
@@ -209,24 +209,24 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                     <span className="text-3xl opacity-40">❓</span>
                   )}
                   {p.isReady && (
-                    <div className="absolute top-1 right-1 bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">✓</div>
+                    <div className="absolute top-1 right-1 bg-moss text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">✓</div>
                   )}
                   {p.socketId === roomInfo.hostSocketId && (
-                    <div className="absolute top-1 left-1 bg-amber-400 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Host</div>
+                    <div className="absolute top-1 left-1 bg-ink-700 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">Host</div>
                   )}
                 </div>
                 {/* Info */}
                 <div className="p-2">
-                  <div className="text-sm font-bold truncate">{p.name}</div>
+                  <div className="text-sm font-bold truncate text-ink">{p.name}</div>
                   {char ? (
                     <>
-                      <div className="text-xs font-semibold text-stone-700 truncate">{char.name}</div>
-                      <div className="text-[10px] text-stone-400 uppercase tracking-wide">{char.subtitle}</div>
+                      <div className="text-xs font-semibold text-ink-700 truncate">{char.name}</div>
+                      <div className="text-[10px] text-ink-300 uppercase tracking-wide">{char.subtitle}</div>
                     </>
                   ) : (
-                    <div className="text-xs text-stone-400 italic">No character</div>
+                    <div className="text-xs text-ink-300 italic">No character</div>
                   )}
-                  <div className={`text-xs mt-1 font-semibold ${p.isReady ? "text-green-500" : "text-stone-400"}`}>
+                  <div className={`text-xs mt-1 font-semibold ${p.isReady ? "text-moss" : "text-ink-300"}`}>
                     {p.isReady ? "Ready!" : "Not ready"}
                   </div>
                 </div>
@@ -236,9 +236,9 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
           {Array.from({ length: 4 - roomInfo.players.length }).map((_, i) => (
             <div
               key={`empty-${i}`}
-              className="bg-stone-100 rounded-lg p-3 text-center border border-dashed border-stone-200"
+              className="bg-paper-200 rounded-lg p-3 text-center border-2 border-dashed border-ink-300"
             >
-              <div className="text-stone-400 text-sm">Waiting…</div>
+              <div className="text-ink-300 text-sm">Waiting…</div>
             </div>
           ))}
         </div>
@@ -246,7 +246,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
 
       {/* Character select */}
       <div>
-        <h2 className="text-lg font-semibold text-stone-800 mb-4">Choose your cat</h2>
+        <h2 className="font-display text-2xl text-ink mb-3">Choose your cat</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {CHARACTERS.map((char) => {
             const isSelected = myPlayer?.characterId === char.id;
@@ -259,10 +259,10 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                 disabled={isTaken}
                 className={`text-left rounded-2xl overflow-hidden border-2 transition-all duration-200 p-0 flex flex-col ${
                   isSelected
-                    ? "border-amber-400 shadow-lg shadow-amber-200/50 scale-[1.02]"
+                    ? "border-gold shadow-lg shadow-gold/20 scale-[1.02]"
                     : isTaken
-                    ? "border-stone-200 opacity-40 cursor-not-allowed"
-                    : "border-transparent hover:border-stone-300 hover:shadow-md hover:scale-[1.01] cursor-pointer"
+                    ? "border-ink-border opacity-40 cursor-not-allowed"
+                    : "border-transparent hover:border-ink-300 hover:shadow-md hover:scale-[1.01] cursor-pointer"
                 }`}
               >
                 {/* Portrait */}
@@ -285,21 +285,21 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                   </div>
 
                   {isSelected && (
-                    <div className="absolute top-2 right-2 bg-amber-400 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+                    <div className="absolute top-2 right-2 bg-gold text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
                       Selected ✓
                     </div>
                   )}
                   {isTaken && (
-                    <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
+                    <div className="absolute top-2 right-2 bg-red text-white text-xs font-bold px-2 py-0.5 rounded-full shadow">
                       Taken
                     </div>
                   )}
                 </div>
 
                 {/* Info */}
-                <div className="bg-white p-4 flex-1 flex flex-col">
-                  <p className="text-xs text-stone-500 leading-relaxed flex-1">{char.backstory}</p>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400 italic mt-3">{char.trait}</div>
+                <div className="bg-paper-50 p-4 flex-1 flex flex-col">
+                  <p className="text-xs text-ink-500 leading-relaxed flex-1">{char.backstory}</p>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-300 italic mt-3">{char.trait}</div>
                 </div>
               </button>
             );
@@ -319,10 +319,10 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
           disabled={!myPlayer?.characterId}
           className={`px-6 py-3 rounded-lg font-bold transition-colors ${
             myPlayer?.isReady
-              ? "bg-green-500 hover:bg-green-400 text-white"
+              ? "bg-moss hover:bg-moss-deep text-white"
               : myPlayer?.characterId
-              ? "bg-stone-300 hover:bg-stone-200 text-stone-700"
-              : "bg-stone-200 text-stone-700 opacity-50 cursor-not-allowed"
+              ? "bg-paper-300 hover:bg-paper-200 text-ink-700"
+              : "bg-paper-200 text-ink-300 opacity-50 cursor-not-allowed"
           }`}
         >
           {myPlayer?.isReady ? "✓ Ready!" : "Ready"}
@@ -334,8 +334,8 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
             disabled={!allReady}
             className={`px-6 py-3 rounded-lg font-bold transition-colors ${
               allReady
-                ? "bg-amber-500 hover:bg-amber-400 text-white"
-                : "bg-stone-200 text-stone-700 opacity-50 cursor-not-allowed"
+                ? "bg-moss hover:bg-moss-deep text-white font-display"
+                : "bg-paper-200 text-ink-300 opacity-50 cursor-not-allowed"
             }`}
           >
             Start Game 🐾
@@ -344,7 +344,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
       </div>
 
       {!allReady && roomInfo.players.length < 2 && (
-        <p className="text-center text-stone-400 text-sm">Select a character and ready up to start.</p>
+        <p className="text-center text-ink-300 text-sm">Select a character and ready up to start.</p>
       )}
     </div>
   );
