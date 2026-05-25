@@ -61,7 +61,7 @@ export default function LocationBar({ currentLocation, lostLocations, totalLocat
             {Array.from({ length: Math.min(eventsToDraw, 4) }).map((_, i) => (
               <div
                 key={i}
-                className="relative w-10 h-10 rounded-lg overflow-hidden border border-plum shadow-sm flex-shrink-0"
+                className="relative w-10 h-10 rounded-sm overflow-hidden border border-plum shadow-sm flex-shrink-0"
               >
                 <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
                 <div className="absolute inset-0 flex items-center justify-center">
