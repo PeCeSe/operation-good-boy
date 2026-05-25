@@ -408,7 +408,7 @@ export default function Game({ gameState, mySocketId }) {
                     : "bg-paper-200/40 border-ink-border/40"
                 }`}>
                   {char?.headshot
-                    ? <img src={char.headshot} alt={p.name} className="w-8 h-8 object-contain shrink-0" />
+                    ? <img src={p.lives === 0 && char.stunned ? char.stunned : char.headshot} alt={p.name} className="w-8 h-8 object-contain shrink-0" />
                     : <span className="w-8 h-8 flex items-center justify-center text-lg">🐱</span>
                   }
                   <div className="flex flex-col gap-0.5 min-w-0">

@@ -76,25 +76,7 @@ export default function PlayerHUD({
           </div>
 
           {/* Center: Lives */}
-          <div className="flex-1 flex justify-center items-center gap-3">
-
-            {/* Stunned headshot — only when knocked out */}
-            {isStunned && charData?.stunned && (
-              <img
-                src={charData.stunned}
-                alt="stunned"
-                className="w-10 h-10 object-contain shrink-0 animate-pulse"
-              />
-            )}
-
-            <div className="flex flex-col items-center gap-0.5">
-              {/* STUNNED label */}
-              {isStunned && (
-                <span className="text-[10px] font-bold tracking-widest uppercase text-red animate-pulse">
-                  STUNNED!
-                </span>
-              )}
-
+          <div className="flex-1 flex justify-center items-center">
             <div className="relative flex gap-0.5 flex-wrap justify-center">
               {/* Slider track behind the hearts — inset-x-4 = half-heart, so track goes center-to-center */}
               <div className="absolute inset-x-4 top-1/2 -translate-y-1/2 h-1 rounded-full bg-ink-300/20 overflow-hidden pointer-events-none">
@@ -124,8 +106,15 @@ export default function PlayerHUD({
                   </button>
                 );
               })}
+              {/* STUNNED overlay — centered on top of the hearts */}
+              {isStunned && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span className="text-[11px] font-bold tracking-widest uppercase text-red bg-paper-50/90 px-2 py-0.5 rounded">
+                    STUNNED!
+                  </span>
+                </div>
+              )}
             </div>
-            </div>{/* end flex-col */}
           </div>
 
           {/* Right: End Turn */}
