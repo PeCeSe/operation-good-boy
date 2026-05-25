@@ -140,6 +140,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
       </div>
 
       {/* ── Hand Canvas ── */}
+      <div className="w-px bg-ink-border/20 self-stretch shrink-0" />
       <div ref={handCanvasRef} className="flex-1 relative" style={{ minHeight: 320 }}>
         {isMe && hand?.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-ink-300/60 text-sm italic select-none pointer-events-none">
@@ -156,6 +157,8 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
           />
         ))}
       </div>
+
+      <div className="w-px bg-ink-border/20 self-stretch shrink-0" />
 
       {/* ── Discard Pile ── */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
