@@ -166,7 +166,7 @@ export default function Game({ gameState, mySocketId }) {
     // Scroll = zoom (plain scroll, no modifier needed)
     const onWheel = (e) => {
       e.preventDefault();
-      setZoom((z) => clampZoom(z + (e.deltaY < 0 ? 0.05 : -0.05)));
+      setZoom((z) => clampZoom(z + (e.deltaY < 0 ? 0.03 : -0.03)));
     };
 
     // WASD / arrow keys = smooth pan via rAF
@@ -219,7 +219,8 @@ export default function Game({ gameState, mySocketId }) {
     const onTouchMove = (e) => {
       if (e.touches.length === 2 && pinch.active) {
         e.preventDefault();
-        setZoom(clampZoom(pinch.zoom * (getDist(e.touches) / pinch.dist)));
+        const ratio = getDist(e.touches) / pinch.dist;
+        setZoom(clampZoom(pinch.zoom * (1 + (ratio - 1) * 0.5)));
       }
     };
     const onTouchEnd = () => { pinch.active = false; };
