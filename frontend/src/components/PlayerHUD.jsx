@@ -74,7 +74,14 @@ export default function PlayerHUD({
 
           {/* Center: Lives */}
           <div className="flex-1 flex justify-center items-center">
-            <div className="flex gap-0.5 flex-wrap justify-center">
+            <div className="relative flex gap-0.5 flex-wrap justify-center">
+              {/* Slider track behind the hearts */}
+              <div className="absolute inset-x-1 top-1/2 -translate-y-1/2 h-2 rounded-full bg-ink-300/20 overflow-hidden pointer-events-none">
+                <div
+                  className="h-full rounded-full bg-red/50 transition-all duration-150"
+                  style={{ width: `${(lives / maxLives) * 100}%`, marginLeft: "auto", marginRight: 0, float: "right" }}
+                />
+              </div>
               {Array.from({ length: maxLives }).map((_, i) => {
                 const num = maxLives - i;          // 9 → 1, left to right
                 const filled = (maxLives - 1 - i) < lives; // "9" goes grey first
