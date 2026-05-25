@@ -24,7 +24,35 @@ function PackBadge({ pack }) {
   );
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
+function CardBack() {
+  return (
+    <div
+      className="rounded-xl border-2 border-brown bg-brown-deep flex items-center justify-center select-none flex-shrink-0"
+      style={{ width: 176, height: 258 }}
+    >
+      <span className="text-5xl opacity-30">🐾</span>
+    </div>
+  );
+}
+
+function EventCardBack() {
+  return (
+    <div
+      className="relative rounded-lg border-2 border-plum overflow-hidden flex-shrink-0"
+      style={{ width: 213, height: 213 }}
+    >
+      <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute w-28 h-28 rounded-full" style={{ background: "rgba(180, 150, 210, 0.6)" }} />
+        <div className="relative w-24 h-24 flex items-center justify-center">
+          <img src="/cards/event_icon.png" className="w-full h-full object-contain" />
+          <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: "rgba(130, 106, 150, 0.55)", mixBlendMode: "color" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 export default function Cards() {
   const [data, setData] = useState(null);
@@ -103,6 +131,10 @@ export default function Cards() {
       <section>
         <SectionHeader>Stupid Hooman Events</SectionHeader>
         <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col gap-1.5">
+            <EventCardBack />
+            <div className="flex justify-center"><span className="text-[9px] text-ink-300 italic">card back</span></div>
+          </div>
           {events.map((event) => (
             <div key={event.id} className="relative flex flex-col gap-1.5">
               <div className="relative">
@@ -140,6 +172,12 @@ export default function Cards() {
       <section>
         <SectionHeader>Starting Decks</SectionHeader>
         <div className="flex flex-col gap-6">
+          <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-1.5">
+              <CardBack />
+              <div className="flex justify-center"><span className="text-[9px] text-ink-300 italic">card back</span></div>
+            </div>
+          </div>
           {startingDecks.map(({ char, cards: deckCards }) => {
             const frontendChar = CHARACTERS.find((c) => c.id === char.id);
             return (
@@ -180,6 +218,10 @@ export default function Cards() {
           <div key={label} className="mb-8">
             <h3 className={`font-bold text-sm uppercase tracking-[0.12em] mb-3 ${color}`}>{label}</h3>
             <div className="flex flex-wrap gap-3">
+              <div className="flex flex-col gap-1.5">
+                <CardBack />
+                <div className="flex justify-center"><span className="text-[9px] text-ink-300 italic">card back</span></div>
+              </div>
               {typeCards.map((card) => (
                 <div key={card.id} className="flex flex-col gap-1.5">
                   <div className="relative">
