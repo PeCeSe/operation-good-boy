@@ -362,7 +362,7 @@ export default function Game({ gameState, mySocketId }) {
         <p className="text-ink-300 text-sm italic font-body">For now.</p>
         <button
           onClick={() => navigate("/")}
-          className="mt-4 bg-moss text-white font-display px-6 py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+          className="mt-4 bg-moss text-white font-display px-6 py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
         >
           Back to Home
         </button>
@@ -378,7 +378,7 @@ export default function Game({ gameState, mySocketId }) {
         <p className="text-ink-500 font-body">The neighborhood is overrun with cucumbers.</p>
         <button
           onClick={() => navigate("/")}
-          className="mt-4 bg-paper-200 text-ink font-display px-6 py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+          className="mt-4 bg-paper-200 text-ink font-display px-6 py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
         >
           Back to Home
         </button>

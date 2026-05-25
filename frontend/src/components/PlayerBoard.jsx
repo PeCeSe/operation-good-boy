@@ -120,7 +120,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
         {isMe && drawCount === 0 && discardCount > 0 && (
           <button
             onClick={() => socket.emit("shuffle_discard")}
-            className="text-[10px] bg-paper-200 text-ink font-display border border-ink-border/40 rounded-lg px-2 py-1 shadow-[0_1px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+            className="text-[10px] bg-paper-200 text-ink font-display border border-ink-border/40 rounded-lg px-2 py-1 shadow-[0_1px_0_#271d14] hover:-translate-y-px hover:shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
           >
             Shuffle ↺
           </button>
@@ -197,13 +197,13 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
             <div className="text-sm font-display text-ink-700">Peeked card</div>
             <CardComponent card={peekCard} isPlayable={false} />
             <div className="flex gap-2 mt-2">
-              <button onClick={() => socket.emit("peek_to_hand")} className="bg-moss text-white font-display text-sm px-3 py-1.5 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]">
+              <button onClick={() => socket.emit("peek_to_hand")} className="bg-moss text-white font-display text-sm px-3 py-1.5 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]">
                 Take to hand
               </button>
-              <button onClick={() => socket.emit("peek_to_top")} className="bg-paper-200 text-ink font-display text-sm px-3 py-1.5 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]">
+              <button onClick={() => socket.emit("peek_to_top")} className="bg-paper-200 text-ink font-display text-sm px-3 py-1.5 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]">
                 Return to top
               </button>
-              <button onClick={() => socket.emit("peek_to_discard")} className="bg-red-soft/30 text-red font-display text-sm px-3 py-1.5 rounded-lg border-2 border-red shadow-[0_2px_0_#6a2128] active:translate-y-px active:shadow-none transition-[transform,box-shadow]">
+              <button onClick={() => socket.emit("peek_to_discard")} className="bg-red-soft/30 text-red font-display text-sm px-3 py-1.5 rounded-lg border-2 border-red shadow-[0_2px_0_#6a2128] hover:-translate-y-px hover:shadow-[0_3px_0_#6a2128] active:translate-y-px active:shadow-none transition-[transform,box-shadow]">
                 Send to discard
               </button>
             </div>
@@ -408,7 +408,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handleGainToken}
-                className="w-8 h-8 rounded-full bg-gold border-2 border-gold-deep text-white font-bold text-lg flex items-center justify-center shadow-[0_2px_0_#9c6621] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+                className="w-8 h-8 rounded-full bg-gold border-2 border-gold-deep text-white font-bold text-lg flex items-center justify-center shadow-[0_2px_0_#9c6621] hover:-translate-y-px hover:shadow-[0_3px_0_#9c6621] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
                 title="Gain 1 pawcoin"
               >
                 +
@@ -448,7 +448,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => socket.emit("add_attack_token", { type: "attack" })}
-                className="w-8 h-8 rounded-full bg-red border-2 border-red-deep text-white font-bold text-lg flex items-center justify-center shadow-[0_2px_0_#6a2128] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+                className="w-8 h-8 rounded-full bg-red border-2 border-red-deep text-white font-bold text-lg flex items-center justify-center shadow-[0_2px_0_#6a2128] hover:-translate-y-px hover:shadow-[0_3px_0_#6a2128] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
                 title="Add attack token"
               >
                 +
@@ -487,7 +487,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
         {isMe && (
           <button
             onClick={handleEndTurn}
-            className="ml-auto self-center bg-moss text-white font-display px-5 py-2 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+            className="ml-auto self-center bg-moss text-white font-display px-5 py-2 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
           >
             End Turn →
           </button>
