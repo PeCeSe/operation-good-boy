@@ -417,7 +417,7 @@ export default function Game({ gameState, mySocketId }) {
             background: "#f3e3bf",
             borderRadius: 16,
             border: "2px solid #362c28",
-            boxShadow: "0 4px 0 #362c28",
+            boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)",
             overflow: "hidden",
           }}
         >
