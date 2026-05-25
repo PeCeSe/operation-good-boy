@@ -76,7 +76,7 @@ function DraggableHandCard({ card, position, isTop, onBringToFront }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, topCardId, onBringToFront, isMe }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, topCardId, onBringToFront, isMe, handCanvasRef }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -140,7 +140,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
       </div>
 
       {/* ── Hand Canvas ── */}
-      <div className="flex-1 relative" style={{ minHeight: 320 }}>
+      <div ref={handCanvasRef} className="flex-1 relative" style={{ minHeight: 320 }}>
         {isMe && hand?.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-ink-300/60 text-sm italic select-none pointer-events-none">
             No cards in hand
@@ -252,6 +252,8 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   const [cardPositions, setCardPositions] = useState({});
   const [topCardId, setTopCardId] = useState(null);
   const [activeDragType, setActiveDragType] = useState(null);
+  const pendingDropPos = useRef(null);
+  const handCanvasRef = useRef(null);
 
   const handKey = (hand || []).map((c) => c.id).join(",");
   useEffect(() => {
@@ -261,7 +263,12 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
       Object.keys(next).forEach((id) => { if (!handIds.has(id)) delete next[id]; });
       (hand || []).forEach((card, i) => {
         if (!next[card.id]) {
-          next[card.id] = { x: i * 28, y: (i % 2) * 18 };
+          if (pendingDropPos.current) {
+            next[card.id] = pendingDropPos.current;
+            pendingDropPos.current = null;
+          } else {
+            next[card.id] = { x: i * 28, y: (i % 2) * 18 };
+          }
         }
       });
       return next;
@@ -276,6 +283,16 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   const handleDragEnd = ({ active, over, delta }) => {
     setActiveDragType(null);
     if (active?.data?.current?.draggableType === "draw_pile") {
+      // Calculate drop position relative to hand canvas
+      const canvasEl = handCanvasRef.current;
+      const translated = active.rect.current?.translated;
+      if (canvasEl && translated) {
+        const canvasRect = canvasEl.getBoundingClientRect();
+        pendingDropPos.current = {
+          x: Math.max(0, translated.left - canvasRect.left),
+          y: Math.max(0, translated.top  - canvasRect.top),
+        };
+      }
       socket.emit("draw_card");
       return;
     }
@@ -312,6 +329,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
         topCardId={topCardId}
         onBringToFront={setTopCardId}
         isMe={isMe}
+        handCanvasRef={handCanvasRef}
       />
       <DragOverlay dropAnimation={null}>
         {activeDragType === "draw_pile" && (
