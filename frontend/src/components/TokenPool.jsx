@@ -1,7 +1,7 @@
 import { useDraggable } from "@dnd-kit/core";
 
 export const ATTACK_CONFIG = {
-  attack: { bg: "bg-orange-200", border: "border-orange-400", text: "text-orange-700", icon: "⚔️", label: "Attack" },
+  attack: { bg: "bg-red-soft", border: "border-red", text: "text-red-deep", icon: "⚔️", label: "Attack" },
 };
 
 function PoolChip() {
@@ -30,12 +30,12 @@ function PoolChip() {
 
 export default function TokenPool() {
   return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-stone-50 border border-stone-200 rounded-xl">
-      <span className="text-[10px] text-stone-400 uppercase tracking-wide font-bold shrink-0">Attack pool</span>
+    <div className="flex items-center gap-3 px-4 py-2 bg-paper-50 border border-ink-border/20 rounded-xl">
+      <span className="text-[10px] text-ink-500 uppercase tracking-wide font-bold shrink-0">Attack pool</span>
       <div className="flex gap-2">
         <PoolChip />
       </div>
-      <span className="text-[10px] text-stone-300 italic hidden sm:block">Drag to staging → drag staging to enemy</span>
+      <span className="text-[10px] text-ink-300 italic hidden sm:block">Drag to staging → drag staging to enemy</span>
     </div>
   );
 }

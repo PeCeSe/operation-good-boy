@@ -37,7 +37,7 @@ function EnemyDrawPile({ count, canDraw }) {
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold">Villain Deck</div>
+      <div className="text-[9px] text-ink-500 uppercase tracking-[0.12em] font-bold">Villain Deck</div>
       <button
         ref={setNodeRef}
         {...listeners}
@@ -46,15 +46,15 @@ function EnemyDrawPile({ count, canDraw }) {
         disabled={!canDraw}
         className={`relative rounded-xl border-2 flex items-center justify-center select-none transition-all ${
           canDraw
-            ? "border-stone-900 bg-stone-700 hover:bg-stone-600 cursor-pointer active:scale-95"
-            : "border-stone-400 bg-stone-300 cursor-default opacity-60"
+            ? "border-ink bg-ink-700 hover:bg-ink cursor-pointer active:scale-95"
+            : "border-ink-300 bg-paper-300 cursor-default opacity-60"
         } ${isDragging ? "opacity-40" : ""}`}
         style={{ width: 286, height: 213, touchAction: "none" }}
         title={canDraw ? "Click or drag to draw a villain" : count === 0 ? "Deck empty" : "All slots full"}
       >
         <span className="text-6xl">👾</span>
         {count > 0 && (
-          <span className="absolute top-2 right-2 bg-stone-900 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
+          <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
             {count}
           </span>
         )}
@@ -70,34 +70,34 @@ function EnemyDiscardPile({ enemyDiscard }) {
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold">Defeated</div>
+      <div className="text-[9px] text-ink-500 uppercase tracking-[0.12em] font-bold">Defeated</div>
       <div
         ref={setNodeRef}
-        className={`relative rounded-xl transition-all ${isOver ? "ring-2 ring-red-400 ring-offset-2" : ""}`}
+        className={`relative rounded-xl transition-all ${isOver ? "ring-2 ring-red ring-offset-2" : ""}`}
         style={{ width: 286, height: 213 }}
       >
         {/* Stack illusion */}
-        {count > 2 && <div className="absolute rounded-xl border-2 border-stone-400 bg-stone-300" style={{ width: 286, height: 213, top: 6, left: 6 }} />}
-        {count > 1 && <div className="absolute rounded-xl border-2 border-stone-400 bg-stone-300" style={{ width: 286, height: 213, top: 3, left: 3 }} />}
+        {count > 2 && <div className="absolute rounded-xl border-2 border-ink-border/30 bg-paper-300/60" style={{ width: 286, height: 213, top: 6, left: 6 }} />}
+        {count > 1 && <div className="absolute rounded-xl border-2 border-ink-border/30 bg-paper-300/60" style={{ width: 286, height: 213, top: 3, left: 3 }} />}
         <div className="absolute top-0 left-0" style={{ zIndex: 2 }}>
           {topEnemy ? (
             <EnemyCardDisplay enemy={topEnemy} />
           ) : (
             <div
               className={`rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
-                isOver ? "border-red-400 bg-red-50" : "border-stone-400 bg-stone-100/60"
+                isOver ? "border-red bg-red-soft/20" : "border-ink-border/40 bg-paper-100/50"
               }`}
               style={{ width: 286, height: 213 }}
             >
               <span className="text-3xl opacity-40">💀</span>
-              <span className={`text-xs font-semibold ${isOver ? "text-red-500" : "text-stone-400"}`}>
+              <span className={`text-xs font-semibold ${isOver ? "text-red" : "text-ink-300"}`}>
                 {isOver ? "Drop to defeat!" : "Drag defeated villains here"}
               </span>
             </div>
           )}
         </div>
         {count > 0 && (
-          <div className="absolute top-2 right-2 bg-stone-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
+          <div className="absolute top-2 right-2 bg-ink-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
             {count}
           </div>
         )}
@@ -115,18 +115,18 @@ function EmptyEnemySlot({ slotIndex, isDeckBeingDragged }) {
         ref={setNodeRef}
         className={`rounded-xl border-2 border-dashed flex items-center justify-center transition-all ${
           isOver
-            ? "border-violet-400 bg-violet-100/50 ring-2 ring-violet-400"
+            ? "border-brown bg-brown-soft/20 ring-2 ring-brown"
             : highlight
-            ? "border-stone-500 bg-stone-300/40"
-            : "border-stone-400/40 bg-stone-300/30"
+            ? "border-ink-300 bg-paper-300/20"
+            : "border-ink-border/20 bg-paper-200/20"
         }`}
         style={{ height: 213 }}
       >
-        <span className={`text-sm select-none transition-colors ${isOver ? "text-violet-500 font-semibold" : "text-stone-400/50"}`}>
+        <span className={`text-sm select-none transition-colors ${isOver ? "text-brown font-semibold" : "text-ink-border/40"}`}>
           {isOver ? "Drop here!" : "—"}
         </span>
       </div>
-      <div className="h-16 rounded-xl border-2 border-dashed border-stone-300/40 bg-stone-200/20" />
+      <div className="h-16 rounded-xl border-2 border-dashed border-ink-border/20 bg-paper-200/10" />
     </div>
   );
 }
@@ -134,11 +134,11 @@ function EmptyEnemySlot({ slotIndex, isDeckBeingDragged }) {
 function ShopDeckPile({ count }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="w-24 h-32 bg-amber-800 rounded-xl border-2 border-amber-900 flex flex-col items-center justify-center shadow-lg gap-1">
+      <div className="w-24 h-32 bg-brown-deep rounded-xl border-2 border-brown flex flex-col items-center justify-center shadow-lg gap-1">
         <span className="text-4xl">🃏</span>
-        <span className="text-amber-200 font-bold text-sm">{count}</span>
+        <span className="text-brown-soft font-bold text-sm">{count}</span>
       </div>
-      <div className="text-[9px] text-stone-600 uppercase tracking-wide font-bold">Shop Deck</div>
+      <div className="text-[9px] text-ink-500 uppercase tracking-wide font-bold">Shop Deck</div>
     </div>
   );
 }
@@ -355,14 +355,14 @@ export default function Game({ gameState, mySocketId }) {
 
   if (phase === "victory") {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-amber-50">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-paper-100">
         <div className="text-6xl">🎉</div>
-        <h1 className="text-4xl font-bold text-amber-600">Victory!</h1>
-        <p className="text-stone-500">Good Boy has been defeated. The neighborhood is safe.</p>
-        <p className="text-stone-400 text-sm italic">For now.</p>
+        <h1 className="font-display text-4xl text-moss">Victory!</h1>
+        <p className="text-ink-500 font-body">Good Boy has been defeated. The neighborhood is safe.</p>
+        <p className="text-ink-300 text-sm italic font-body">For now.</p>
         <button
           onClick={() => navigate("/")}
-          className="mt-4 bg-amber-500 hover:bg-amber-400 text-white font-bold px-6 py-3 rounded-lg transition-colors"
+          className="mt-4 bg-moss text-white font-display px-6 py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
         >
           Back to Home
         </button>
@@ -375,10 +375,10 @@ export default function Game({ gameState, mySocketId }) {
       <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <div className="text-6xl">🥒</div>
         <h1 className="text-4xl font-bold text-red-400">Defeat</h1>
-        <p className="text-stone-500">The neighborhood is overrun with cucumbers.</p>
+        <p className="text-ink-500 font-body">The neighborhood is overrun with cucumbers.</p>
         <button
           onClick={() => navigate("/")}
-          className="mt-4 bg-stone-300 hover:bg-stone-400 font-bold px-6 py-3 rounded-lg transition-colors"
+          className="mt-4 bg-paper-200 text-ink font-display px-6 py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
         >
           Back to Home
         </button>
@@ -432,14 +432,14 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Header bar ── */}
           <div style={{ position: "absolute", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 2 }}>
-            <div className="flex items-center gap-3 bg-stone-900/75 backdrop-blur-sm rounded-full px-5 py-2 text-white text-sm shadow-lg">
-              <span className="text-amber-400 font-bold tracking-wide">🐾 Operation: Good Boy</span>
-              <span className="text-stone-500">·</span>
-              <span className="text-stone-300">Round {roundNumber}</span>
-              <span className="text-stone-500">·</span>
+            <div className="flex items-center gap-3 bg-ink/80 backdrop-blur-sm rounded-full px-5 py-2 text-white text-sm shadow-lg">
+              <span className="text-gold font-bold tracking-wide">🐾 Operation: Good Boy</span>
+              <span className="text-ink-300">·</span>
+              <span className="text-paper-300">Round {roundNumber}</span>
+              <span className="text-ink-300">·</span>
               {isMyTurn
-                ? <span className="text-amber-300 font-semibold animate-pulse">Your turn!</span>
-                : <span className="text-stone-400">{currentPlayerName}'s turn</span>
+                ? <span className="text-gold font-semibold animate-pulse">Your turn!</span>
+                : <span className="text-paper-300">{currentPlayerName}'s turn</span>
               }
             </div>
           </div>
@@ -450,7 +450,7 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Location (top-left) ── */}
           <div style={{ position: "absolute", top: 60, left: 40, zIndex: 1 }}>
-            <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold mb-2">
+            <div className="text-[9px] text-ink-500 uppercase tracking-[0.12em] font-bold mb-2">
               Location
             </div>
             <LocationBar
@@ -462,7 +462,7 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Events (right of location) ── */}
           <div style={{ position: "absolute", top: 60, left: 360, zIndex: 1 }}>
-            <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold mb-2">
+            <div className="text-[9px] text-ink-500 uppercase tracking-[0.12em] font-bold mb-2">
               Events
             </div>
             <EventDeck
@@ -525,7 +525,7 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Shop cards (2-column grid) ── */}
           <div style={{ position: "absolute", top: 240, left: 1090, zIndex: 1, width: 376 }}>
-            <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold mb-3">
+            <div className="text-[9px] text-ink-500 uppercase tracking-[0.12em] font-bold mb-3">
               Shop
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -535,7 +535,7 @@ export default function Game({ gameState, mySocketId }) {
                 ) : (
                   <div
                     key={`empty-${i}`}
-                    className="rounded-xl border-2 border-dashed border-stone-300 bg-stone-100/40 flex items-center justify-center text-stone-300 text-sm select-none"
+                    className="rounded-xl border-2 border-dashed border-ink-border/30 bg-paper-50/20 flex items-center justify-center text-ink-300/50 text-sm select-none"
                     style={{ width: 176, height: 258 }}
                   >
                     Sold
@@ -543,7 +543,7 @@ export default function Game({ gameState, mySocketId }) {
                 )
               )}
               {(shop ?? []).filter(Boolean).length === 0 && (
-                <p className="text-stone-400 text-sm italic col-span-2">Shop is empty.</p>
+                <p className="text-ink-300 text-sm italic col-span-2">Shop is empty.</p>
               )}
             </div>
           </div>
@@ -618,7 +618,7 @@ export default function Game({ gameState, mySocketId }) {
         })()}
         {activeDrag?.draggableType === "enemy_deck_draw" && (
           <div
-            className="rounded-xl border-2 border-stone-900 bg-stone-700 flex items-center justify-center shadow-2xl pointer-events-none"
+            className="rounded-xl border-2 border-ink bg-ink-700 flex items-center justify-center shadow-2xl pointer-events-none"
             style={{ width: 286, height: 213 }}
           >
             <span className="text-6xl opacity-60">👾</span>
@@ -626,7 +626,7 @@ export default function Game({ gameState, mySocketId }) {
         )}
         {activeDrag?.draggableType === "event_deck_draw" && (
           <div
-            className="rounded-xl border-2 border-violet-400 bg-violet-800 flex items-center justify-center shadow-2xl pointer-events-none"
+            className="rounded-xl border-2 border-plum bg-plum-deep flex items-center justify-center shadow-2xl pointer-events-none"
             style={{ width: 213, height: 213 }}
           >
             <span className="text-6xl opacity-60">🎴</span>
@@ -678,7 +678,7 @@ function PaymentDropZone({ paymentZone }) {
 
   return (
     <div className="flex flex-col gap-2" style={{ width: 290 }}>
-      <div className="text-[9px] text-stone-600 uppercase tracking-[0.12em] font-bold">Payment</div>
+      <div className="text-[9px] text-ink-500 uppercase tracking-[0.12em] font-bold">Payment</div>
       <div
         ref={setNodeRef}
         onPointerDown={(e) => e.stopPropagation()}

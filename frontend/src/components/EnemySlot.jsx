@@ -32,8 +32,8 @@ export default function EnemySlot({ enemy }) {
       <div
         className={`min-h-16 rounded-xl border-2 border-dashed p-2 flex flex-wrap gap-1.5 transition-all ${
           isOver
-            ? "border-amber-400 bg-amber-50 scale-[1.02]"
-            : "border-stone-400/40 bg-stone-900/5"
+            ? "border-red bg-red-soft/20 scale-[1.02]"
+            : "border-ink-border/30 bg-paper-200/10"
         }`}
       >
         {damageTokens.map((t) => (
@@ -42,7 +42,7 @@ export default function EnemySlot({ enemy }) {
         {damageTokens.length === 0 && (
           <span
             className={`text-[10px] italic self-center transition-colors ${
-              isOver ? "text-amber-500" : "text-stone-400"
+              isOver ? "text-red" : "text-ink-300"
             }`}
           >
             {isOver ? "Drop!" : "Attack tokens"}

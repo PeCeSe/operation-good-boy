@@ -51,7 +51,7 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
         {/* ── Illustration — warm sepia tones ── */}
         <div
           className="relative flex-1 flex items-center justify-center overflow-hidden border-l border-ink-border/20"
-          style={{ background: "linear-gradient(to bottom, #ede0c0, #c7a789)" }}
+          style={{ background: "linear-gradient(to bottom, #f3e3bf, #e7cf99)" }}
         >
           {enemy.image
             ? <img src={enemy.image} alt={enemy.name} className="w-full h-full object-cover" />
