@@ -13,6 +13,7 @@ import GameLog from "../components/GameLog";
 import { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import CHARACTERS from "../data/characters";
+import PawCoin from "../components/PawCoin";
 import socket from "../socket";
 
 const BOARD_W = 1700;
@@ -402,10 +403,10 @@ export default function Game({ gameState, mySocketId }) {
             return (
               <div key={p.playerId} className="flex items-center gap-1.5">
                 {i > 0 && <span className="text-ink-300 text-base leading-none">›</span>}
-                <div className={`flex items-center gap-2 px-2 py-1 rounded-lg border transition-all ${
+                <div className={`flex items-center gap-2 px-2 py-1 rounded-lg border-2 transition-all ${
                   isCurrent
                     ? "bg-paper-100 border-gold shadow-sm"
-                    : "bg-paper-200/40 border-ink-border/30"
+                    : "bg-paper-200/40 border-ink-border/40"
                 }`}>
                   {char?.headshot
                     ? <img src={char.headshot} alt={p.name} className="w-8 h-8 object-contain shrink-0" />
@@ -415,15 +416,16 @@ export default function Game({ gameState, mySocketId }) {
                     <span className={`font-body text-[11px] leading-none truncate max-w-[72px] ${
                       isCurrent ? "text-ink" : "text-ink-500"
                     } ${isMe ? "font-bold" : ""}`}>{p.name}</span>
-                    <div className={`flex items-center gap-1.5 text-[10px] leading-none font-mono ${
+                    <div className={`flex items-center gap-1 text-[10px] leading-none font-mono ${
                       isCurrent ? "text-ink-500" : "text-ink-300"
                     }`}>
                       <span className={p.lives <= 3 ? "text-red font-bold" : "text-red/70"}>♥{p.lives}</span>
-                      <span className="text-ink-border">·</span>
-                      <span className="text-gold-deep">🪙{p.pawTokens ?? 0}</span>
-                      <span className="text-ink-border">·</span>
-                      <span>⚔{p.attackTokens?.length ?? 0}</span>
-                      <span className="text-ink-border">·</span>
+                      <span className="text-ink-border mx-0.5">·</span>
+                      <PawCoin className="w-3 h-3 inline" />
+                      <span className="text-gold-deep">{p.pawTokens ?? 0}</span>
+                      <span className="text-ink-border mx-0.5">·</span>
+                      <span>⚔️{p.attackTokens?.length ?? 0}</span>
+                      <span className="text-ink-border mx-0.5">·</span>
                       <span>🃏{p.hand?.length ?? 0}</span>
                     </div>
                   </div>
