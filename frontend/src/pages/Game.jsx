@@ -420,7 +420,7 @@ export default function Game({ gameState, mySocketId }) {
                     }`}>
                       {/* Lives */}
                       <span className={`flex items-center gap-0.5 ${p.lives <= 3 ? "text-red font-bold" : "text-red/70"}`}>
-                        <span className="text-[14px]">♥</span><span>{p.lives}</span>
+                        <span className="text-[17px]">♥</span><span>{p.lives}</span>
                       </span>
                       <span className="text-ink-border">·</span>
                       {/* Coins */}
