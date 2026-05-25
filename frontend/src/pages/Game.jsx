@@ -13,7 +13,6 @@ import GameLog from "../components/GameLog";
 import { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import CHARACTERS from "../data/characters";
-import PawCoin from "../components/PawCoin";
 import socket from "../socket";
 
 const BOARD_W = 1700;
