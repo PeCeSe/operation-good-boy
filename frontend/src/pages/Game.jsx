@@ -163,11 +163,23 @@ export default function Game({ gameState, mySocketId }) {
     const el = containerRef.current;
     if (!el) return;
 
-    // Desktop: ctrl+scroll
+    // Scroll = zoom (plain scroll, no modifier needed)
     const onWheel = (e) => {
-      if (!e.ctrlKey && !e.metaKey) return;
       e.preventDefault();
       setZoom((z) => clampZoom(z + (e.deltaY < 0 ? 0.05 : -0.05)));
+    };
+
+    // WASD / arrow keys = pan
+    const PAN_STEP = 80;
+    const onKeyDown = (e) => {
+      const tag = e.target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
+      switch (e.key) {
+        case "ArrowUp":    case "w": case "W": el.scrollTop  -= PAN_STEP; e.preventDefault(); break;
+        case "ArrowDown":  case "s": case "S": el.scrollTop  += PAN_STEP; e.preventDefault(); break;
+        case "ArrowLeft":  case "a": case "A": el.scrollLeft -= PAN_STEP; e.preventDefault(); break;
+        case "ArrowRight": case "d": case "D": el.scrollLeft += PAN_STEP; e.preventDefault(); break;
+      }
     };
 
     // Mobile: pinch-to-zoom
@@ -195,11 +207,13 @@ export default function Game({ gameState, mySocketId }) {
     const onTouchEnd = () => { pinch.active = false; };
 
     el.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("keydown", onKeyDown);
     el.addEventListener("touchstart", onTouchStart, { passive: true });
     el.addEventListener("touchmove", onTouchMove, { passive: false });
     el.addEventListener("touchend", onTouchEnd);
     return () => {
       el.removeEventListener("wheel", onWheel);
+      window.removeEventListener("keydown", onKeyDown);
       el.removeEventListener("touchstart", onTouchStart);
       el.removeEventListener("touchmove", onTouchMove);
       el.removeEventListener("touchend", onTouchEnd);
