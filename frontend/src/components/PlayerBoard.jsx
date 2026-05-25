@@ -178,7 +178,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, t
           )}
           <div className="absolute top-0 left-0" style={{ zIndex: 2, pointerEvents: "none" }}>
             {topDiscard ? (
-              <CardComponent card={topDiscard} isPlayable={false} />
+              <CardComponent card={topDiscard} isPlayable={false} forceFullOpacity />
             ) : (
               <div
                 className="rounded-xl border-2 border-dashed border-ink-300/50 bg-paper-50 flex items-center justify-center text-ink-300/60 text-sm select-none"

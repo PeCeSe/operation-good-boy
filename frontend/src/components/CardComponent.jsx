@@ -39,7 +39,7 @@ function CostBadge({ cost }) {
   );
 }
 
-export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false, pack }) {
+export default function CardComponent({ card, onClick, isPlayable, isPlaying = false, showCost = false, pack, forceFullOpacity = false }) {
   const cfg = TYPE_CONFIG[card.type] || {
     header:  "bg-ink-700",
     image:   "bg-paper-200",
@@ -61,7 +61,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         transition-all duration-300
         ${isPlaying ? "-translate-y-10 scale-110 opacity-0 pointer-events-none" : ""}
         ${isPlayable && !isPlaying ? "hover:-translate-y-2 hover:shadow-xl cursor-pointer" : ""}
-        ${!isPlayable && !isPlaying ? "opacity-50 cursor-default" : ""}
+        ${!isPlayable && !isPlaying ? `${forceFullOpacity ? "" : "opacity-50"} cursor-default` : ""}
       `}
     >
       {/* ── Coloured header: card name in Patrick Hand SC ── */}
