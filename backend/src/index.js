@@ -318,6 +318,18 @@ io.on("connection", (socket) => {
     });
   });
 
+  // ── Card positions (hand organisation, synced so others can see) ────────────
+
+  socket.on("update_card_positions", ({ cardPositions, zOrder } = {}) => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room?.gameState) return;
+    const p = room.gameState.players.find((pl) => pl.socketId === socket.id);
+    if (!p) return;
+    p.cardPositions = cardPositions ?? {};
+    p.zOrder = zOrder ?? [];
+    emitGameUpdate(room.code);
+  });
+
   // ── Cursors ─────────────────────────────────────────────────────────────────
 
   socket.on("cursor_move", ({ x, y, name, color }) => {

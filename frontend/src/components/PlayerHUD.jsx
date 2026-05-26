@@ -39,7 +39,7 @@ function PlayerTab({ player, isMe, isActive, isTurn, onClick }) {
     <button
       onClick={onClick}
       className={`
-        flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-bold
+        flex items-center gap-2 px-4 py-2 rounded-t-lg text-sm font-bold
         transition-colors select-none shrink-0 border-2 border-b-0
         ${isActive
           ? "bg-paper-100 text-ink-700 border-ink-border/40 relative z-10"
@@ -294,6 +294,7 @@ export default function PlayerHUD({
               isMe={isViewingMe}
               isCurrentTurn={activePlayer.playerId === currentPlayerId}
               paymentZone={isViewingMe ? paymentZone : null}
+              hideHeader={showTabs}
             />
           )}
         </div>

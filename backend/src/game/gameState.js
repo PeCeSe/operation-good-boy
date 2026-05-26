@@ -73,6 +73,8 @@ function initGameState(room) {
       pawTokens: 0,
       attackTokens: [],
       peekCard: null,
+      cardPositions: {},
+      zOrder: [],
     };
   });
 

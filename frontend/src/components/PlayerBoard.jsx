@@ -29,15 +29,16 @@ export function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, zIndex, onBringToFront }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
+    disabled: !isMe,
   });
 
   return (
     <div
-      onPointerDown={() => onBringToFront(card.id)}
+      onPointerDown={() => isMe && onBringToFront(card.id)}
       style={{
         position: "absolute",
         left: position.x + (transform?.x ?? 0),
@@ -47,8 +48,8 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront }) {
         touchAction: "none",
       }}
     >
-      <div ref={setNodeRef} {...listeners} {...attributes} style={{ cursor: isDragging ? "grabbing" : "grab" }}>
-        <CardComponent card={card} isPlayable={true} />
+      <div ref={setNodeRef} {...(isMe ? { ...listeners, ...attributes } : {})} style={{ cursor: isMe ? (isDragging ? "grabbing" : "grab") : "default" }}>
+        <CardComponent card={card} isPlayable={false} forceFullOpacity />
       </div>
     </div>
   );
@@ -132,6 +133,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
             position={cardPositions[card.id] ?? { x: 0, y: 0 }}
             zIndex={zOrder.indexOf(card.id) + 2}
             onBringToFront={onBringToFront}
+            isMe={isMe}
           />
         ))}
       </div>
@@ -229,18 +231,32 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
   );
 }
 
-function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
+function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPositions, serverZOrder }) {
   const [cardPositions, setCardPositions] = useState({});
   const [zOrder, setZOrder] = useState([]);
-  const onBringToFront = (cardId) =>
-    setZOrder(prev => [...prev.filter(id => id !== cardId), cardId]);
   const [activeDragType, setActiveDragType] = useState(null);
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
 
+  const onBringToFront = (cardId) => {
+    if (!isMe) return;
+    setZOrder(prev => {
+      const next = [...prev.filter(id => id !== cardId), cardId];
+      socket.emit("update_card_positions", { cardPositions, zOrder: next });
+      return next;
+    });
+  };
+
+  // When viewing another player, use their server positions directly
+  const displayPositions = isMe ? cardPositions : (serverCardPositions ?? {});
+  const displayZOrder    = isMe ? zOrder        : (serverZOrder ?? []);
+
   const handKey = (hand || []).map((c) => c.id).join(",");
   useEffect(() => {
+    if (!isMe) return; // other players' positions come from server
     setCardPositions((prev) => {
+      // Seed from server positions for cards we haven't placed locally yet
+      const seed = serverCardPositions ?? {};
       const next = { ...prev };
       const handIds = new Set((hand || []).map((c) => c.id));
       Object.keys(next).forEach((id) => { if (!handIds.has(id)) delete next[id]; });
@@ -249,6 +265,8 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
           if (pendingDropPos.current) {
             next[card.id] = pendingDropPos.current;
             pendingDropPos.current = null;
+          } else if (seed[card.id]) {
+            next[card.id] = seed[card.id];
           } else {
             next[card.id] = { x: i * 28, y: (i % 2) * 18 };
           }
@@ -256,6 +274,9 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
       });
       return next;
     });
+    if (serverZOrder?.length && zOrder.length === 0) {
+      setZOrder(serverZOrder);
+    }
   }, [handKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sensors = useSensors(
@@ -266,7 +287,6 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
   const handleDragEnd = ({ active, over, delta }) => {
     setActiveDragType(null);
     if (active?.data?.current?.draggableType === "draw_pile") {
-      // Calculate drop position relative to hand canvas
       const canvasEl = handCanvasRef.current;
       const translated = active.rect.current?.translated;
       if (canvasEl && translated) {
@@ -287,13 +307,17 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
       socket.emit("discard_card", { cardId });
     } else {
       onBringToFront(cardId);
-      setCardPositions((prev) => ({
-        ...prev,
-        [cardId]: {
-          x: (prev[cardId]?.x ?? 0) + delta.x,
-          y: (prev[cardId]?.y ?? 0) + delta.y,
-        },
-      }));
+      setCardPositions((prev) => {
+        const next = {
+          ...prev,
+          [cardId]: {
+            x: (prev[cardId]?.x ?? 0) + delta.x,
+            y: (prev[cardId]?.y ?? 0) + delta.y,
+          },
+        };
+        socket.emit("update_card_positions", { cardPositions: next, zOrder });
+        return next;
+      });
     }
   };
 
@@ -308,8 +332,8 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
         drawPile={drawPile}
         discardPile={discardPile}
         peekCard={peekCard}
-        cardPositions={cardPositions}
-        zOrder={zOrder}
+        cardPositions={displayPositions}
+        zOrder={displayZOrder}
         onBringToFront={onBringToFront}
         isMe={isMe}
         handCanvasRef={handCanvasRef}
@@ -330,7 +354,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe }) {
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
-export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }) {
+export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, hideHeader = false }) {
   const [showCharacter, setShowCharacter] = useState(false);
 
   if (!player) return null;
@@ -354,39 +378,38 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
 
   return (
     <div className={`rounded-xl border-2 shadow-md overflow-visible transition-all ${isCurrentTurn ? "border-gold" : "border-ink-border/20"}`}>
-      {/* Header */}
-      <div className={`flex items-center justify-between px-4 py-2 ${isCurrentTurn ? "bg-gold-soft/20" : "bg-paper-50"}`}>
-        <div className="flex items-center gap-2 flex-wrap">
-          {charData?.headshot
-            ? <img
-                src={(isStunned || (lives ?? 0) === 0) && charData.stunned ? charData.stunned : charData.headshot}
-                alt={name}
-                className="w-9 h-9 object-contain shrink-0"
-              />
-            : <span className="text-xl">{character?.emoji}</span>
-          }
-          <span className="font-bold text-ink">{name}</span>
-          {isMe && <span className="text-ink-300 text-xs">(you)</span>}
-          {isStunned && (
-            <span className="text-xs text-red font-bold bg-red-soft/20 border border-red/30 rounded px-1.5 py-0.5">
-              STUNNED
-            </span>
-          )}
-          {isCurrentTurn && (
-            <span className="text-xs text-gold-deep font-semibold animate-pulse">YOUR TURN</span>
-          )}
-          <button
-            onClick={() => setShowCharacter((v) => !v)}
-            className="ml-1 text-ink-300 hover:text-ink-500 transition-colors"
-            title={showCharacter ? "Hide character" : "Show character"}
-          >
-            <span className="text-xs">{showCharacter ? "▲" : "▼"}</span>
-          </button>
+      {/* Header + collapsible character section — hidden when tabs are shown */}
+      {!hideHeader && <>
+        <div className={`flex items-center justify-between px-4 py-2 ${isCurrentTurn ? "bg-gold-soft/20" : "bg-paper-50"}`}>
+          <div className="flex items-center gap-2 flex-wrap">
+            {charData?.headshot
+              ? <img
+                  src={(isStunned || (lives ?? 0) === 0) && charData.stunned ? charData.stunned : charData.headshot}
+                  alt={name}
+                  className="w-9 h-9 object-contain shrink-0"
+                />
+              : <span className="text-xl">{character?.emoji}</span>
+            }
+            <span className="font-bold text-ink">{name}</span>
+            {isMe && <span className="text-ink-300 text-xs">(you)</span>}
+            {isStunned && (
+              <span className="text-xs text-red font-bold bg-red-soft/20 border border-red/30 rounded px-1.5 py-0.5">
+                STUNNED
+              </span>
+            )}
+            {isCurrentTurn && (
+              <span className="text-xs text-gold-deep font-semibold animate-pulse">YOUR TURN</span>
+            )}
+            <button
+              onClick={() => setShowCharacter((v) => !v)}
+              className="ml-1 text-ink-300 hover:text-ink-500 transition-colors"
+              title={showCharacter ? "Hide character" : "Show character"}
+            >
+              <span className="text-xs">{showCharacter ? "▲" : "▼"}</span>
+            </button>
+          </div>
         </div>
-      </div>
-
-      {/* Collapsible character section */}
-      {showCharacter && (
+        {showCharacter && (
         <div className={`border-t border-ink-border/10 ${isCurrentTurn ? "bg-gold-soft/10" : "bg-paper-50/60"}`}>
           {charData?.image && (
             <div
@@ -411,7 +434,8 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
             <div className="text-xs text-ink-300">Max lives: {maxLives}</div>
           </div>
         </div>
-      )}
+        )}
+      </>}
 
       {/* Hand area — full-width row: draw pile | hand canvas | discard pile */}
       <HandArea
@@ -420,6 +444,8 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone }
         discardPile={discardPile ?? []}
         peekCard={peekCard}
         isMe={isMe}
+        serverCardPositions={player.cardPositions ?? {}}
+        serverZOrder={player.zOrder ?? []}
       />
     </div>
   );
