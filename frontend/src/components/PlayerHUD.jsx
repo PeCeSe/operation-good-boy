@@ -202,13 +202,13 @@ function SettingsPanel({ me }) {
           const isActive = currentLayout === id;
           return (
             <div key={id} className="relative group flex">
-              {i > 0 && <div className="w-px bg-ink/25 shrink-0" />}
+              {i > 0 && <div className="w-0.5 bg-ink shrink-0" />}
               <button
                 onClick={() => handleLayoutChange(id)}
-                className={`flex flex-col items-center gap-0.5 px-6 py-2.5 font-display select-none transition-colors ${
+                className={`flex flex-col items-center gap-0.5 px-6 font-display select-none transition-colors ${
                   isActive
-                    ? "bg-moss text-white"
-                    : "bg-paper-50 text-ink-500 hover:bg-paper-200"
+                    ? "bg-plum-deep text-white pt-3 pb-2 shadow-[inset_0_4px_6px_rgba(0,0,0,0.25)]"
+                    : "bg-plum-lighter text-plum-deep hover:bg-plum-soft py-2.5"
                 }`}
               >
                 <span className="text-sm font-bold">{label}</span>
