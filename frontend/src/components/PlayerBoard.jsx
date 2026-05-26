@@ -500,22 +500,28 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
 
       {/* Character info panel — shown when toggled */}
       {hideHeader && showCharacter && charData && (
-        <div className="border-b border-ink-border/10">
-          <div
-            className="relative w-full h-48 overflow-hidden"
-            style={{ background: `linear-gradient(160deg, ${charData.bgFrom} 0%, ${charData.bgTo} 100%)` }}
-          >
+        <div className="px-5 py-4 border-b border-ink-border/10">
+          <div className="flex gap-5 max-w-xl">
+            {/* Portrait */}
             {charData.image && (
-              <img src={charData.image} alt={charData.name} className="absolute inset-0 w-full h-full object-cover object-center" />
+              <div
+                className="shrink-0 rounded-xl overflow-hidden w-36"
+                style={{ background: `linear-gradient(160deg, ${charData.bgFrom} 0%, ${charData.bgTo} 100%)` }}
+              >
+                <img src={charData.image} alt={charData.name} className="w-full h-full object-contain object-bottom" />
+              </div>
             )}
-            <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-8" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)" }}>
-              <div className="text-white font-bold text-base leading-tight">{charData.name}</div>
-              <div className="text-white/60 text-xs uppercase tracking-wide">{charData.subtitle}</div>
+            {/* Text */}
+            <div className="flex flex-col justify-center gap-2 min-w-0">
+              <div>
+                <div className="font-bold text-base text-ink-700 leading-tight">{charData.name}</div>
+                <div className="text-xs text-ink-400 uppercase tracking-wide mt-0.5">{charData.subtitle}</div>
+              </div>
+              {charData.backstory && (
+                <p className="text-xs text-ink-500 italic leading-snug">{charData.backstory}</p>
+              )}
+              <div className="text-xs text-ink-300">Max lives: {maxLives}</div>
             </div>
-          </div>
-          <div className="px-4 py-3 space-y-2">
-            {charData.backstory && <div className="text-xs text-ink-500 italic leading-snug">{charData.backstory}</div>}
-            <div className="text-xs text-ink-300">Max lives: {maxLives}</div>
           </div>
         </div>
       )}
