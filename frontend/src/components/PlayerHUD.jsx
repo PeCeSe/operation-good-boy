@@ -157,8 +157,7 @@ export default function PlayerHUD({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => socket.emit("set_paw_tokens", { tokens: pawTokens + 1 })}
-                  disabled={!isMyTurn}
-                  className="w-7 h-7 shrink-0 bg-gold border-2 border-gold-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none disabled:opacity-40 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+                  className="w-7 h-7 shrink-0 bg-gold border-2 border-gold-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
                 >+</button>
                 <div
                   className="flex items-center gap-1 overflow-x-auto rounded-lg px-1.5 py-1 border-2 border-dashed border-gold/40 bg-paper-200/20"
@@ -187,8 +186,7 @@ export default function PlayerHUD({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => socket.emit("add_attack_token", { type: "attack" })}
-                  disabled={!isMyTurn}
-                  className="w-7 h-7 shrink-0 bg-red border-2 border-red-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none disabled:opacity-40 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+                  className="w-7 h-7 shrink-0 bg-red border-2 border-red-deep rounded-full text-white font-bold flex items-center justify-center text-sm leading-none shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
                 >+</button>
                 <div
                   ref={setStagingRef}
