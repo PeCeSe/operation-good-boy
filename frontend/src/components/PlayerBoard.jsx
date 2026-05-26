@@ -126,11 +126,11 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
             No cards in hand
           </div>
         )}
-        {hand?.map((card) => (
+        {hand?.map((card, i) => (
           <DraggableHandCard
             key={card.id}
             card={card}
-            position={cardPositions[card.id] ?? { x: 0, y: 0 }}
+            position={cardPositions[card.id] ?? { x: i * 28, y: (i % 2) * 18 }}
             zIndex={zOrder.indexOf(card.id) + 2}
             onBringToFront={onBringToFront}
             isMe={isMe}
