@@ -17,6 +17,7 @@ import socket from "../socket";
 
 const BOARD_W = 1700;
 const BOARD_H = 1300;
+const GUTTER  = 500; // scroll space around the board so edge elements can be centred
 
 function DragChip() {
   const cfg = ATTACK_CONFIG.attack;
@@ -507,12 +508,14 @@ export default function Game({ gameState, mySocketId }) {
           bottom: 0,
           overflow: "auto",
           scrollbarWidth: "none",
-          paddingBottom: 560,
-          display: "flex",
         }}
       >
-        {/* Scroll-space wrapper — margin:auto centers when board < viewport, normal scroll when larger */}
-        <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative", flexShrink: 0, margin: "auto" }}>
+        {/* Centering wrapper — always fills viewport; flex-centres content when board is small */}
+        <div style={{ minWidth: "100%", minHeight: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {/* Gutter — adds GUTTER px of scroll space past every board edge */}
+        <div style={{ padding: GUTTER, paddingBottom: GUTTER + 560, flexShrink: 0 }}>
+        {/* Board size wrapper */}
+        <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative" }}>
         {/* Board surface — scaled */}
         <div
           ref={boardSurfaceRef}
@@ -682,8 +685,9 @@ export default function Game({ gameState, mySocketId }) {
               </div>
             </div>
           ))}
-        </div>
-        </div>{/* end scroll-space wrapper */}
+        </div>{/* end board size wrapper */}
+        </div>{/* end gutter */}
+        </div>{/* end centering wrapper */}
       </div>
 
       {/* ── Fixed player HUD ── */}
