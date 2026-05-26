@@ -166,22 +166,19 @@ function RulesPanel() {
 
 const LAYOUT_OPTIONS = [
   {
-    id: "tidy",
-    label: "Tidy",
-    description: "Cards stay on the same line — drag them left and right to organise.",
-    icon: "➖",
-  },
-  {
     id: "sorted",
     label: "Sorted",
-    description: "Cards in a fixed row with equal spacing. Drag to change the order.",
-    icon: "🔢",
+    description: "Cards in a fixed row. Drag to change the order.",
+  },
+  {
+    id: "tidy",
+    label: "Tidy",
+    description: "Cards stay on the same line — drag left and right to organise.",
   },
   {
     id: "free",
     label: "Free",
     description: "Full chaos. Drag your cards wherever you want.",
-    icon: "🌀",
   },
 ];
 
@@ -195,28 +192,35 @@ function SettingsPanel({ me }) {
   };
 
   return (
-    <div className="px-6 py-5 max-w-xl">
-      <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-4">Hand Layout</h2>
-      <div className="flex flex-col gap-2">
-        {LAYOUT_OPTIONS.map(({ id, label, description, icon }) => {
+    <div className="px-6 py-5">
+      <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-3">Hand Layout</h2>
+      {/* Segmented control */}
+      <div className="inline-flex rounded-xl border-2 border-ink-border/30 overflow-hidden bg-paper-50">
+        {LAYOUT_OPTIONS.map(({ id, label, description }, i) => {
           const isActive = currentLayout === id;
           return (
-            <button
-              key={id}
-              onClick={() => handleLayoutChange(id)}
-              className={`flex items-start gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
-                isActive
-                  ? "bg-ink-700 text-white border-ink-700"
-                  : "bg-paper-50 text-ink-600 border-ink-border/30 hover:border-ink-border/60 hover:bg-paper-100"
-              }`}
-            >
-              <span className="text-xl shrink-0 mt-0.5">{icon}</span>
-              <div>
-                <div className={`font-bold text-sm ${isActive ? "text-white" : "text-ink-700"}`}>{label}</div>
-                <div className={`text-xs mt-0.5 ${isActive ? "text-white/70" : "text-ink-400"}`}>{description}</div>
+            <div key={id} className="relative group flex">
+              {/* Divider between segments */}
+              {i > 0 && <div className="w-px bg-ink-border/30 shrink-0" />}
+              <button
+                onClick={() => handleLayoutChange(id)}
+                className={`px-6 py-2 text-sm font-bold transition-colors select-none ${
+                  isActive
+                    ? "bg-ink-700 text-white"
+                    : "text-ink-400 hover:text-ink-600 hover:bg-paper-200/60"
+                }`}
+              >
+                {label}
+              </button>
+              {/* Tooltip */}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+                <div className="bg-ink text-paper-100 font-body text-xs rounded-lg px-3 py-2 shadow-lg leading-relaxed text-center">
+                  {description}
+                </div>
+                {/* Arrow pointing down */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-ink" />
               </div>
-              {isActive && <span className="ml-auto shrink-0 text-white text-sm mt-1">✓</span>}
-            </button>
+            </div>
           );
         })}
       </div>
