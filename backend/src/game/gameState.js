@@ -75,6 +75,8 @@ function initGameState(room) {
       peekCard: null,
       cardPositions: {},
       zOrder: [],
+      handLayout: "tidy",
+      cardOrder: [],
     };
   });
 

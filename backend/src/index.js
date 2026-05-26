@@ -330,6 +330,18 @@ io.on("connection", (socket) => {
     emitGameUpdate(room.code);
   });
 
+  socket.on("update_hand_layout", ({ handLayout, cardOrder } = {}) => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room?.gameState) return;
+    const p = room.gameState.players.find((pl) => pl.socketId === socket.id);
+    if (!p) return;
+    if (handLayout && ["free", "tidy", "sorted"].includes(handLayout)) {
+      p.handLayout = handLayout;
+    }
+    if (Array.isArray(cardOrder)) p.cardOrder = cardOrder;
+    emitGameUpdate(room.code);
+  });
+
   // ── Cursors ─────────────────────────────────────────────────────────────────
 
   socket.on("cursor_move", ({ x, y, name, color }) => {

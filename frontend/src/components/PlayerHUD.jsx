@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PawCoin from "./PawCoin";
 import PlayerBoard, { StagingToken } from "./PlayerBoard";
@@ -157,6 +157,68 @@ function RulesPanel() {
             </li>
           ))}
         </ul>
+      </div>
+    </div>
+  );
+}
+
+// ── Settings panel ────────────────────────────────────────────────────────────
+
+const LAYOUT_OPTIONS = [
+  {
+    id: "tidy",
+    label: "Tidy",
+    description: "Cards stay on the same line — drag them left and right to organise.",
+    icon: "➖",
+  },
+  {
+    id: "sorted",
+    label: "Sorted",
+    description: "Cards in a fixed row with equal spacing. Drag to change the order.",
+    icon: "🔢",
+  },
+  {
+    id: "free",
+    label: "Free",
+    description: "Full chaos. Drag your cards wherever you want.",
+    icon: "🌀",
+  },
+];
+
+function SettingsPanel({ me }) {
+  const savedLayout = localStorage.getItem("handLayout") ?? "tidy";
+  const currentLayout = me?.handLayout ?? savedLayout;
+
+  const handleLayoutChange = (layoutId) => {
+    localStorage.setItem("handLayout", layoutId);
+    socket.emit("update_hand_layout", { handLayout: layoutId });
+  };
+
+  return (
+    <div className="px-6 py-5 max-w-xl">
+      <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-4">Hand Layout</h2>
+      <div className="flex flex-col gap-2">
+        {LAYOUT_OPTIONS.map(({ id, label, description, icon }) => {
+          const isActive = currentLayout === id;
+          return (
+            <button
+              key={id}
+              onClick={() => handleLayoutChange(id)}
+              className={`flex items-start gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
+                isActive
+                  ? "bg-ink-700 text-white border-ink-700"
+                  : "bg-paper-50 text-ink-600 border-ink-border/30 hover:border-ink-border/60 hover:bg-paper-100"
+              }`}
+            >
+              <span className="text-xl shrink-0 mt-0.5">{icon}</span>
+              <div>
+                <div className={`font-bold text-sm ${isActive ? "text-white" : "text-ink-700"}`}>{label}</div>
+                <div className={`text-xs mt-0.5 ${isActive ? "text-white/70" : "text-ink-400"}`}>{description}</div>
+              </div>
+              {isActive && <span className="ml-auto shrink-0 text-white text-sm mt-1">✓</span>}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

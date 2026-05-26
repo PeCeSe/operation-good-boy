@@ -1,10 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { useDraggable, useDroppable, DndContext, DragOverlay, useSensor, useSensors, PointerSensor, TouchSensor } from "@dnd-kit/core";
+import { useDraggable, useDroppable, DndContext, DragOverlay, useSensor, useSensors, PointerSensor, TouchSensor, closestCenter } from "@dnd-kit/core";
+import { SortableContext, useSortable, horizontalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import CHARACTERS from "../data/characters";
 import CardComponent from "./CardComponent";
 import PawCoin from "./PawCoin";
 import { ATTACK_CONFIG } from "./TokenPool";
 import socket from "../socket";
+
+const CARD_W  = 176;
+const CARD_H  = 258;
+const TIDY_Y  = 30;
+const SORTED_GAP = 12;
 
 export function StagingToken({ token }) {
   const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.attack;
@@ -61,7 +68,33 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef }) {
+function SortableHandCard({ card, isMe }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: card.id,
+    disabled: !isMe,
+  });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        touchAction: "none",
+        flexShrink: 0,
+      }}
+      {...(isMe ? { ...attributes, ...listeners } : {})}
+    >
+      <CardComponent
+        card={card}
+        isPlayable={isMe}
+        forceFullOpacity
+        className={isMe ? (isDragging ? "cursor-grabbing opacity-40" : "cursor-grab") : ""}
+      />
+    </div>
+  );
+}
+
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -132,16 +165,26 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
             No cards in hand
           </div>
         )}
-        {hand?.map((card, i) => (
-          <DraggableHandCard
-            key={card.id}
-            card={card}
-            position={cardPositions[card.id] ?? { x: i * 28, y: (i % 2) * 18 }}
-            zIndex={zOrder.indexOf(card.id) + 2}
-            onBringToFront={onBringToFront}
-            isMe={isMe}
-          />
-        ))}
+        {handLayout === "sorted" ? (
+          <SortableContext items={(sortedCardOrder || []).filter(id => hand?.some(c => c.id === id))} strategy={horizontalListSortingStrategy}>
+            <div className="absolute inset-0 flex items-center gap-3 px-2 overflow-x-auto" style={{ top: TIDY_Y }}>
+              {hand?.map(card => (
+                <SortableHandCard key={card.id} card={card} isMe={isMe} />
+              ))}
+            </div>
+          </SortableContext>
+        ) : (
+          hand?.map((card, i) => (
+            <DraggableHandCard
+              key={card.id}
+              card={card}
+              position={cardPositions[card.id] ?? { x: i * 28, y: TIDY_Y }}
+              zIndex={zOrder.indexOf(card.id) + 2}
+              onBringToFront={onBringToFront}
+              isMe={isMe}
+            />
+          ))
+        )}
       </div>
 
       <div className="w-px bg-ink-border/20 self-stretch shrink-0" />
@@ -237,9 +280,10 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
   );
 }
 
-function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPositions, serverZOrder }) {
+function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPositions, serverZOrder, handLayout = "tidy", serverCardOrder = [] }) {
   const [cardPositions, setCardPositions] = useState({});
   const [zOrder, setZOrder] = useState([]);
+  const [cardOrder, setCardOrder] = useState([]);
   const [activeDragType, setActiveDragType] = useState(null);
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
@@ -253,19 +297,26 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     });
   };
 
-  // When viewing another player, use their server positions directly
+  // For free/tidy: use local positions for self, server positions for others
   const displayPositions = isMe ? cardPositions : (serverCardPositions ?? {});
   const displayZOrder    = isMe ? zOrder        : (serverZOrder ?? []);
 
-  const handKey = (hand || []).map((c) => c.id).join(",");
+  // For sorted: derive display order
+  const handIds = (hand || []).map(c => c.id);
+  const displayCardOrder = isMe
+    ? [...cardOrder.filter(id => handIds.includes(id)), ...handIds.filter(id => !cardOrder.includes(id))]
+    : [...(serverCardOrder ?? []).filter(id => handIds.includes(id)), ...handIds.filter(id => !(serverCardOrder ?? []).includes(id))];
+
+  // Sync when hand changes
+  const handKey = handIds.join(",");
   useEffect(() => {
-    if (!isMe) return; // other players' positions come from server
+    if (!isMe) return;
+    // Sync card positions (free/tidy)
     setCardPositions((prev) => {
-      // Seed from server positions for cards we haven't placed locally yet
       const seed = serverCardPositions ?? {};
       const next = { ...prev };
-      const handIds = new Set((hand || []).map((c) => c.id));
-      Object.keys(next).forEach((id) => { if (!handIds.has(id)) delete next[id]; });
+      const handSet = new Set(handIds);
+      Object.keys(next).forEach(id => { if (!handSet.has(id)) delete next[id]; });
       (hand || []).forEach((card, i) => {
         if (!next[card.id]) {
           if (pendingDropPos.current) {
@@ -274,15 +325,19 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
           } else if (seed[card.id]) {
             next[card.id] = seed[card.id];
           } else {
-            next[card.id] = { x: i * 28, y: (i % 2) * 18 };
+            next[card.id] = { x: i * 28, y: TIDY_Y };
           }
         }
       });
       return next;
     });
-    if (serverZOrder?.length && zOrder.length === 0) {
-      setZOrder(serverZOrder);
-    }
+    if (serverZOrder?.length && zOrder.length === 0) setZOrder(serverZOrder);
+    // Sync cardOrder (sorted)
+    setCardOrder(prev => {
+      const prevFiltered = prev.filter(id => handIds.includes(id));
+      const newCards = handIds.filter(id => !prev.includes(id));
+      return [...prevFiltered, ...newCards];
+    });
   }, [handKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const sensors = useSensors(
@@ -290,6 +345,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
   );
 
+  // ── Free/Tidy drag end ─────────────────────────────────────────────────────
   const handleDragEnd = ({ active, over, delta }) => {
     setActiveDragType(null);
     if (active?.data?.current?.draggableType === "draw_pile") {
@@ -297,9 +353,11 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
       const translated = active.rect.current?.translated;
       if (canvasEl && translated) {
         const canvasRect = canvasEl.getBoundingClientRect();
+        const rawX = Math.max(0, translated.left - canvasRect.left);
+        const rawY = Math.max(0, translated.top  - canvasRect.top);
         pendingDropPos.current = {
-          x: Math.max(0, translated.left - canvasRect.left),
-          y: Math.max(0, translated.top  - canvasRect.top),
+          x: handLayout === "free" ? Math.min(rawX, Math.max(0, canvasEl.clientWidth - CARD_W)) : rawX,
+          y: handLayout === "tidy" ? TIDY_Y : Math.min(rawY, Math.max(0, 320 - CARD_H)),
         };
       }
       socket.emit("draw_card");
@@ -314,11 +372,15 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     } else {
       onBringToFront(cardId);
       setCardPositions((prev) => {
+        const rawX = (prev[cardId]?.x ?? 0) + delta.x;
+        const rawY = (prev[cardId]?.y ?? 0) + delta.y;
+        const canvasW = handCanvasRef.current?.clientWidth ?? 9999;
+        const clampedX = Math.max(0, Math.min(rawX, canvasW - CARD_W));
         const next = {
           ...prev,
           [cardId]: {
-            x: (prev[cardId]?.x ?? 0) + delta.x,
-            y: (prev[cardId]?.y ?? 0) + delta.y,
+            x: clampedX,
+            y: handLayout === "tidy" ? TIDY_Y : Math.max(0, Math.min(rawY, 320 - CARD_H)),
           },
         };
         socket.emit("update_card_positions", { cardPositions: next, zOrder });
@@ -326,6 +388,52 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
       });
     }
   };
+
+  // ── Sorted drag end ────────────────────────────────────────────────────────
+  const handleSortedDragEnd = ({ active, over }) => {
+    if (!over || !isMe) return;
+    if (over.id === "inner_draw_pile") {
+      socket.emit("return_card_to_deck", { cardId: active.id });
+      return;
+    }
+    if (over.id === "inner_discard_pile") {
+      socket.emit("discard_card", { cardId: active.id });
+      return;
+    }
+    if (active.id !== over.id) {
+      setCardOrder(prev => {
+        const oldIndex = prev.indexOf(active.id);
+        const newIndex = prev.indexOf(over.id);
+        if (oldIndex === -1 || newIndex === -1) return prev;
+        const next = arrayMove(prev, oldIndex, newIndex);
+        socket.emit("update_hand_layout", { handLayout: "sorted", cardOrder: next });
+        return next;
+      });
+    }
+  };
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  if (handLayout === "sorted") {
+    const sortedHand = displayCardOrder.map(id => (hand || []).find(c => c.id === id)).filter(Boolean);
+    return (
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSortedDragEnd}>
+        <HandAreaInner
+          hand={sortedHand}
+          drawPile={drawPile}
+          discardPile={discardPile}
+          peekCard={peekCard}
+          cardPositions={null}
+          zOrder={[]}
+          onBringToFront={() => {}}
+          isMe={isMe}
+          handCanvasRef={handCanvasRef}
+          handLayout="sorted"
+          sortedCardOrder={displayCardOrder}
+        />
+        <DragOverlay dropAnimation={null} />
+      </DndContext>
+    );
+  }
 
   return (
     <DndContext
@@ -343,12 +451,14 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
         onBringToFront={onBringToFront}
         isMe={isMe}
         handCanvasRef={handCanvasRef}
+        handLayout={handLayout}
+        sortedCardOrder={null}
       />
       <DragOverlay dropAnimation={null}>
         {activeDragType === "draw_pile" && (
           <div
             className="rounded-xl border-2 border-brown bg-brown-deep flex items-center justify-center shadow-2xl pointer-events-none opacity-90"
-            style={{ width: 176, height: 258 }}
+            style={{ width: CARD_W, height: CARD_H }}
           >
             <span className="text-5xl">🐾</span>
           </div>
@@ -534,6 +644,8 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
         isMe={isMe}
         serverCardPositions={player.cardPositions ?? {}}
         serverZOrder={player.zOrder ?? []}
+        handLayout={player.handLayout ?? "tidy"}
+        serverCardOrder={player.cardOrder ?? []}
       />}
     </div>
   );
