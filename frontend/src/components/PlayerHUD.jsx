@@ -238,6 +238,14 @@ export default function PlayerHUD({
   const [activeTabId,  setActiveTabId]  = useState(null);
   const dragStateRef = useRef(null);
 
+  // Apply saved hand layout preference on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("handLayout");
+    if (saved && me?.playerId) {
+      socket.emit("update_hand_layout", { handLayout: saved });
+    }
+  }, [me?.playerId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const { setNodeRef: setStagingRef, isOver: isOverStaging } = useDroppable({ id: "staging" });
 
   // All players in order — me first, then others
@@ -473,7 +481,7 @@ export default function PlayerHUD({
           {isRulesTab
             ? <RulesPanel />
             : isSettingsTab
-            ? null
+            ? <SettingsPanel me={me} />
             : activePlayer && (
                 <PlayerBoard
                   player={activePlayer}
