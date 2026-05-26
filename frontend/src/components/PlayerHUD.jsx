@@ -72,6 +72,11 @@ const RULES_TAB_ID  = "__rules__";
 
 // ── Turn order / rules tab content ────────────────────────────────────────────
 
+// Inline cucumber icon for use in text
+function CucumberIcon() {
+  return <img src="/cucumber.svg" alt="cucumber" className="inline w-3.5 h-3.5 object-contain mx-0.5 relative -top-px" />;
+}
+
 const STEPS = [
   {
     n: 1,
@@ -86,7 +91,7 @@ const STEPS = [
   {
     n: 3,
     title: "Take actions",
-    body: "Play cards from your hand, spend pawcoins at the shop, place attack tokens on enemies, and take those villains down. You can defeat enemies at any point during this phase.",
+    body: "Play cards from your hand, spend pawcoins at the shop, place attack tokens on enemies, and take those villains down.",
   },
   {
     n: 4,
@@ -97,29 +102,24 @@ const STEPS = [
 
 const REFS = [
   {
-    icon: <img src="/cucumber_token.png" alt="" className="w-4 h-4 object-contain" onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="inline"; }} />,
-    iconFallback: "🥒",
-    text: "Each location can only take so many cucumbers. Fill it up and you'll have to abandon it and fall back to the next one.",
+    icon: <img src="/cucumber.svg" alt="" className="w-4 h-4 object-contain" />,
+    body: <>Each location can only take so many <CucumberIcon />cucumbers. Fill it up and you'll have to abandon it and fall back to the next one.</>,
   },
   {
-    icon: null,
-    iconFallback: "💀",
-    text: "Lose all locations and it's game over. Don't let that happen.",
+    icon: "💀",
+    body: "Lose all locations and it's game over. Don't let that happen.",
   },
   {
-    icon: null,
-    iconFallback: "🏆",
-    text: "Defeat every enemy — that's a win!",
+    icon: "🏆",
+    body: "Defeat every enemy — that's a win!",
   },
   {
-    icon: null,
-    iconFallback: "😵",
-    text: "Hit 0 lives and you're Stunned. Add a cucumber to the location, discard half your draw pile, and you can't heal this round. After your turn ends, you bounce back to full health — tough cat.",
+    icon: "😵",
+    body: <>Hit 0 lives and you're Stunned. Add a <CucumberIcon />cucumber to the location, discard half your draw pile, and you can't heal this round. After your turn ends, you bounce back to full health — tough cat.</>,
   },
   {
-    icon: <img src="/pawcoin.svg" alt="" className="w-4 h-4 object-contain shrink-0" />,
-    iconFallback: null,
-    text: "Pawcoins buy cards from the shop. Pick up whatever looks tastiest for your deck.",
+    icon: <img src="/pawcoin.svg" alt="" className="w-4 h-4 object-contain" />,
+    body: "Pawcoins buy cards from the shop. Pick up whatever looks tastiest for your deck.",
   },
 ];
 
@@ -147,12 +147,12 @@ function RulesPanel() {
       <div>
         <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-4">Good to Know</h2>
         <ul className="space-y-3">
-          {REFS.map(({ icon, iconFallback, text }) => (
-            <li key={text} className="flex gap-2.5 text-xs text-ink-500 leading-snug">
+          {REFS.map(({ icon, body }, i) => (
+            <li key={i} className="flex gap-2.5 text-xs text-ink-500 leading-snug">
               <span className="shrink-0 w-4 flex items-start justify-center mt-0.5">
-                {icon ?? <span>{iconFallback}</span>}
+                {typeof icon === "string" ? <span>{icon}</span> : icon}
               </span>
-              <span>{text}</span>
+              <span>{body}</span>
             </li>
           ))}
         </ul>
