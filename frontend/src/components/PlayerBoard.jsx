@@ -437,7 +437,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
         )}
       </>}
 
-      {/* Compact stats — shown instead of the full header when viewing another player's tab */}
+      {/* Compact stats — shown for other players' tabs */}
       {hideHeader && !isMe && (
         <div className="flex items-center gap-5 px-4 py-2.5 border-b border-ink-border/15">
           {/* Lives */}
@@ -462,11 +462,66 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
               STUNNED
             </span>
           )}
+          {/* Character info toggle */}
+          <button
+            onClick={() => setShowCharacter((v) => !v)}
+            className={`ml-auto flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg border transition-colors ${
+              showCharacter
+                ? "bg-ink-700 text-white border-ink-700"
+                : "text-ink-400 border-ink-border/30 hover:text-ink-600 hover:border-ink-border/60"
+            }`}
+          >
+            {charData?.headshot && (
+              <img src={charData.headshot} alt="" className="w-4 h-4 object-contain rounded-full" />
+            )}
+            {showCharacter ? "← Hand" : "Character"}
+          </button>
         </div>
       )}
 
-      {/* Hand area — full-width row: draw pile | hand canvas | discard pile */}
-      <HandArea
+      {/* My tab header — just the character toggle button, no stats (those live in the HUD strip) */}
+      {hideHeader && isMe && (
+        <div className="flex items-center justify-end px-4 py-2.5 border-b border-ink-border/15">
+          <button
+            onClick={() => setShowCharacter((v) => !v)}
+            className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-lg border transition-colors ${
+              showCharacter
+                ? "bg-ink-700 text-white border-ink-700"
+                : "text-ink-400 border-ink-border/30 hover:text-ink-600 hover:border-ink-border/60"
+            }`}
+          >
+            {charData?.headshot && (
+              <img src={charData.headshot} alt="" className="w-4 h-4 object-contain rounded-full" />
+            )}
+            {showCharacter ? "← Hand" : "Character"}
+          </button>
+        </div>
+      )}
+
+      {/* Character info panel — shown when toggled */}
+      {hideHeader && showCharacter && charData && (
+        <div className="border-b border-ink-border/10">
+          <div
+            className="relative w-full h-48 overflow-hidden"
+            style={{ background: `linear-gradient(160deg, ${charData.bgFrom} 0%, ${charData.bgTo} 100%)` }}
+          >
+            {charData.image && (
+              <img src={charData.image} alt={charData.name} className="absolute inset-0 w-full h-full object-cover object-center" />
+            )}
+            <div className="absolute bottom-0 left-0 right-0 px-4 pb-3 pt-8" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)" }}>
+              <div className="text-white font-bold text-base leading-tight">{charData.name}</div>
+              <div className="text-white/60 text-xs uppercase tracking-wide">{charData.subtitle}</div>
+            </div>
+          </div>
+          <div className="px-4 py-3 space-y-2">
+            {charData.backstory && <div className="text-xs text-ink-500 italic leading-snug">{charData.backstory}</div>}
+            <div className="text-xs text-ink-300">Max lives: {maxLives}</div>
+          </div>
+        </div>
+      )}
+
+      {/* Hand area — hidden when character info is shown */}
+      {(!hideHeader || !showCharacter) && <HandArea
         hand={hand ?? []}
         drawPile={drawPile ?? []}
         discardPile={discardPile ?? []}
