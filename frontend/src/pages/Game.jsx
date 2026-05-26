@@ -711,12 +711,12 @@ export default function Game({ gameState, mySocketId }) {
             <PaymentDropZone paymentZone={paymentZone} />
           </div>
 
-          {/* ── Shop cards (2-column grid) ── */}
-          <div style={{ position: "absolute", top: 240, left: 1090, zIndex: 1, width: 376 }}>
+          {/* ── Shop cards (3-column × 2-row grid) ── */}
+          <div style={{ position: "absolute", top: 240, left: 1090, zIndex: 1, width: 552 }}>
             <div className="text-[9px] text-ink-500 uppercase tracking-[0.12em] font-bold mb-3">
               Shop
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               {(shop ?? []).map((card, i) =>
                 card ? (
                   <ShopCard key={card.id} card={card} paymentZone={paymentZone} onNeedConfirm={setPendingPurchase} />
@@ -731,7 +731,7 @@ export default function Game({ gameState, mySocketId }) {
                 )
               )}
               {(shop ?? []).filter(Boolean).length === 0 && (
-                <p className="text-ink-300 text-sm italic col-span-2">Shop is empty.</p>
+                <p className="text-ink-300 text-sm italic col-span-3">Shop is empty.</p>
               )}
             </div>
           </div>
