@@ -68,7 +68,8 @@ const TAB_BAR_H     = 38; // approximate tab bar height, used for content max-he
 const STAGING_W     = 180;
 const STAGING_H     = 44;
 
-const RULES_TAB_ID  = "__rules__";
+const RULES_TAB_ID    = "__rules__";
+const SETTINGS_TAB_ID = "__settings__";
 
 // ── Turn order / rules tab content ────────────────────────────────────────────
 
@@ -180,10 +181,11 @@ export default function PlayerHUD({
   // All players in order — me first, then others
   const allPlayers   = [me, ...(otherPlayers ?? [])].filter(Boolean);
   const showTabs     = allPlayers.length > 1;
-  const isRulesTab   = activeTabId === RULES_TAB_ID;
+  const isRulesTab    = activeTabId === RULES_TAB_ID;
+  const isSettingsTab = activeTabId === SETTINGS_TAB_ID;
 
   // Active tab defaults to "me"
-  const activePlayer = isRulesTab ? null : (allPlayers.find(p => p.playerId === activeTabId) ?? me ?? allPlayers[0] ?? null);
+  const activePlayer = (isRulesTab || isSettingsTab) ? null : (allPlayers.find(p => p.playerId === activeTabId) ?? me ?? allPlayers[0] ?? null);
   const isViewingMe  = activePlayer?.playerId === me?.playerId;
 
   const lives      = me?.lives ?? 0;
@@ -374,7 +376,7 @@ export default function PlayerHUD({
               onClick={() => setActiveTabId(p.playerId)}
             />
           ))}
-          {/* Rules tab — always at the end */}
+          {/* Instructions tab */}
           <button
             onClick={() => setActiveTabId(RULES_TAB_ID)}
             className={`
@@ -386,7 +388,21 @@ export default function PlayerHUD({
               }
             `}
           >
-            📋 Turn Order
+            📋 Instructions
+          </button>
+          {/* Settings tab */}
+          <button
+            onClick={() => setActiveTabId(SETTINGS_TAB_ID)}
+            className={`
+              flex items-center gap-1.5 px-4 py-2 rounded-t-lg text-sm font-bold
+              transition-colors select-none shrink-0 border-2 border-b-0
+              ${isSettingsTab
+                ? "bg-paper-100 text-ink-700 border-ink-border/20 translate-y-[2px] relative z-10"
+                : "bg-paper-200/60 text-ink-400 border-ink-border/20 hover:text-ink-600 hover:bg-paper-200/80"
+              }
+            `}
+          >
+            ⚙️ Settings
           </button>
         </div>
 
@@ -394,6 +410,8 @@ export default function PlayerHUD({
         <div className="overflow-y-auto flex-1" style={{ maxHeight: MAX_DRAWER_H - TAB_BAR_H }}>
           {isRulesTab
             ? <RulesPanel />
+            : isSettingsTab
+            ? null
             : activePlayer && (
                 <PlayerBoard
                   player={activePlayer}
