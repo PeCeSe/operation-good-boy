@@ -389,34 +389,41 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     }
   };
 
+  // ── Sorted drag over (live reorder during drag) ───────────────────────────
+  const handleSortedDragOver = ({ active, over }) => {
+    if (!over || !isMe || active.id === over.id) return;
+    if (over.id === "inner_draw_pile" || over.id === "inner_discard_pile") return;
+    setCardOrder(prev => {
+      const oldIndex = prev.indexOf(active.id);
+      const newIndex = prev.indexOf(over.id);
+      if (oldIndex === -1 || newIndex === -1) return prev;
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
+
   // ── Sorted drag end ────────────────────────────────────────────────────────
   const handleSortedDragEnd = ({ active, over }) => {
-    if (!over || !isMe) return;
-    if (over.id === "inner_draw_pile") {
+    if (!isMe) return;
+    if (over?.id === "inner_draw_pile") {
       socket.emit("return_card_to_deck", { cardId: active.id });
       return;
     }
-    if (over.id === "inner_discard_pile") {
+    if (over?.id === "inner_discard_pile") {
       socket.emit("discard_card", { cardId: active.id });
       return;
     }
-    if (active.id !== over.id) {
-      setCardOrder(prev => {
-        const oldIndex = prev.indexOf(active.id);
-        const newIndex = prev.indexOf(over.id);
-        if (oldIndex === -1 || newIndex === -1) return prev;
-        const next = arrayMove(prev, oldIndex, newIndex);
-        socket.emit("update_hand_layout", { handLayout: "sorted", cardOrder: next });
-        return next;
-      });
-    }
+    // State already updated live in onDragOver — just sync to server
+    setCardOrder(prev => {
+      socket.emit("update_hand_layout", { handLayout: "sorted", cardOrder: prev });
+      return prev;
+    });
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
   if (handLayout === "sorted") {
     const sortedHand = displayCardOrder.map(id => (hand || []).find(c => c.id === id)).filter(Boolean);
     return (
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSortedDragEnd}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragOver={handleSortedDragOver} onDragEnd={handleSortedDragEnd}>
         <HandAreaInner
           hand={sortedHand}
           drawPile={drawPile}
