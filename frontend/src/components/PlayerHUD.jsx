@@ -68,6 +68,54 @@ const TAB_BAR_H     = 38; // approximate tab bar height, used for content max-he
 const STAGING_W     = 180;
 const STAGING_H     = 44;
 
+const RULES_TAB_ID  = "__rules__";
+
+// ── Turn order / rules tab content ────────────────────────────────────────────
+
+function RulesPanel() {
+  return (
+    <div className="px-6 py-5 max-w-xl">
+      <h2 className="font-display text-base text-ink-700 mb-4 flex items-center gap-2">
+        <span>📋</span> Turn Order
+      </h2>
+      <ol className="space-y-3">
+        {[
+          { n: 1, title: "Draw an event", body: "Reveal the top card of the event deck and resolve its effect." },
+          { n: 2, title: "Take actions", body: "Play cards from your hand and apply their effects manually. Use pawcoins to buy cards from the shop. Add attack tokens and drag them onto enemies." },
+          { n: 3, title: "Defeat enemies", body: "If an enemy has enough damage tokens, drag it to the Defeated pile." },
+          { n: 4, title: "End your turn", body: "Discard remaining cards. Draw 5 new cards. The shop refills automatically." },
+        ].map(({ n, title, body }) => (
+          <li key={n} className="flex gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-ink-700 text-white text-xs font-black flex items-center justify-center mt-0.5">{n}</span>
+            <div>
+              <div className="font-bold text-sm text-ink-700">{title}</div>
+              <div className="text-xs text-ink-500 leading-snug mt-0.5">{body}</div>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <h2 className="font-display text-base text-ink-700 mt-6 mb-3 flex items-center gap-2">
+        <span>⚡</span> Quick Reference
+      </h2>
+      <ul className="space-y-2">
+        {[
+          { icon: "🥒", text: "Cucumbers fill up a location — when it's full, you fall back to the next one." },
+          { icon: "💀", text: "Lose all locations and it's defeat." },
+          { icon: "🎉", text: "Defeat all enemies (including Good Boy at the bottom) and it's victory!" },
+          { icon: "😵", text: "A player at 0 lives is stunned — they can still take actions on their turn." },
+          { icon: "🪙", text: "Pawcoins are spent to buy cards from the shop. Change carries over to your next purchase." },
+        ].map(({ icon, text }) => (
+          <li key={text} className="flex gap-2 text-xs text-ink-500 leading-snug">
+            <span className="shrink-0">{icon}</span>
+            <span>{text}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // ── Main HUD ───────────────────────────────────────────────────────────────────
 
 export default function PlayerHUD({
@@ -85,11 +133,12 @@ export default function PlayerHUD({
   const { setNodeRef: setStagingRef, isOver: isOverStaging } = useDroppable({ id: "staging" });
 
   // All players in order — me first, then others
-  const allPlayers  = [me, ...(otherPlayers ?? [])].filter(Boolean);
-  const showTabs    = allPlayers.length > 1;
+  const allPlayers   = [me, ...(otherPlayers ?? [])].filter(Boolean);
+  const showTabs     = allPlayers.length > 1;
+  const isRulesTab   = activeTabId === RULES_TAB_ID;
 
   // Active tab defaults to "me"
-  const activePlayer = allPlayers.find(p => p.playerId === activeTabId) ?? me ?? allPlayers[0] ?? null;
+  const activePlayer = isRulesTab ? null : (allPlayers.find(p => p.playerId === activeTabId) ?? me ?? allPlayers[0] ?? null);
   const isViewingMe  = activePlayer?.playerId === me?.playerId;
 
   const lives      = me?.lives ?? 0;
@@ -268,33 +317,48 @@ export default function PlayerHUD({
           transition: isDragging ? "none" : "height 200ms ease-out",
         }}
       >
-        {/* Tab bar — only shown when there are multiple players */}
-        {showTabs && (
-          <div className="flex gap-0.5 px-3 pt-2 shrink-0 border-b border-ink-border/30 bg-paper-200/40">
-            {allPlayers.map(p => (
-              <PlayerTab
-                key={p.playerId}
-                player={p}
-                isMe={p.playerId === me?.playerId}
-                isActive={p.playerId === activePlayer?.playerId}
-                isTurn={p.playerId === currentPlayerId}
-                onClick={() => setActiveTabId(p.playerId)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Scrollable board content */}
-        <div className="overflow-y-auto flex-1" style={{ maxHeight: MAX_DRAWER_H - (showTabs ? TAB_BAR_H : 0) }}>
-          {activePlayer && (
-            <PlayerBoard
-              player={activePlayer}
-              isMe={isViewingMe}
-              isCurrentTurn={activePlayer.playerId === currentPlayerId}
-              paymentZone={isViewingMe ? paymentZone : null}
-              hideHeader={showTabs}
+        {/* Tab bar — always shown (rules tab is always available) */}
+        <div className="flex gap-0.5 px-3 pt-2 shrink-0 border-b border-ink-border/30 bg-paper-200/40">
+          {allPlayers.map(p => (
+            <PlayerTab
+              key={p.playerId}
+              player={p}
+              isMe={p.playerId === me?.playerId}
+              isActive={!isRulesTab && p.playerId === activePlayer?.playerId}
+              isTurn={p.playerId === currentPlayerId}
+              onClick={() => setActiveTabId(p.playerId)}
             />
-          )}
+          ))}
+          {/* Rules tab — always at the end */}
+          <button
+            onClick={() => setActiveTabId(RULES_TAB_ID)}
+            className={`
+              flex items-center gap-1.5 px-4 py-2 rounded-t-lg text-sm font-bold
+              transition-colors select-none shrink-0 border-2 border-b-0 ml-auto
+              ${isRulesTab
+                ? "bg-paper-100 text-ink-700 border-ink-border/40 relative z-10"
+                : "bg-paper-200/60 text-ink-400 border-transparent hover:text-ink-600 hover:bg-paper-200"
+              }
+            `}
+          >
+            📋 Turn Order
+          </button>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1" style={{ maxHeight: MAX_DRAWER_H - TAB_BAR_H }}>
+          {isRulesTab
+            ? <RulesPanel />
+            : activePlayer && (
+                <PlayerBoard
+                  player={activePlayer}
+                  isMe={isViewingMe}
+                  isCurrentTurn={activePlayer.playerId === currentPlayerId}
+                  paymentZone={isViewingMe ? paymentZone : null}
+                  hideHeader={true}
+                />
+              )
+          }
         </div>
       </div>
     </div>
