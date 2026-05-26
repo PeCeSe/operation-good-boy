@@ -197,20 +197,21 @@ function SettingsPanel({ me }) {
   return (
     <div className="px-6 py-5">
       <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-3">Hand Layout</h2>
-      <div className="flex gap-2">
-        {LAYOUT_OPTIONS.map(({ id, label, icon, description }) => {
+      <div className="inline-flex rounded-xl border-2 border-ink shadow-[0_3px_0_#271d14] overflow-hidden">
+        {LAYOUT_OPTIONS.map(({ id, label, icon, description }, i) => {
           const isActive = currentLayout === id;
           return (
-            <div key={id} className="relative group">
+            <div key={id} className="relative group flex">
+              {i > 0 && <div className="w-px bg-ink/25 shrink-0" />}
               <button
                 onClick={() => handleLayoutChange(id)}
-                className={`flex flex-col items-center gap-1 px-6 py-2.5 rounded-xl font-display border-2 border-ink select-none transition-[transform,box-shadow] ${
+                className={`flex flex-col items-center gap-0.5 px-6 py-2.5 font-display select-none transition-colors ${
                   isActive
-                    ? "bg-gold text-ink-800 translate-y-px shadow-none"
-                    : "bg-paper-50 text-ink-500 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none"
+                    ? "bg-moss text-white"
+                    : "bg-paper-50 text-ink-500 hover:bg-paper-200"
                 }`}
               >
-                <span className="text-sm">{label}</span>
+                <span className="text-sm font-bold">{label}</span>
                 <span className="text-base leading-none">{icon}</span>
               </button>
               {/* Tooltip */}
