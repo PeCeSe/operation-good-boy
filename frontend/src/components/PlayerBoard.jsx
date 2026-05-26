@@ -383,7 +383,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
   const charData = CHARACTERS.find((c) => c.id === character?.id);
 
   return (
-    <div className={`rounded-xl border-2 shadow-md overflow-visible transition-all ${isCurrentTurn ? "border-gold" : "border-ink-border/20"}`}>
+    <div className={`overflow-visible transition-all ${hideHeader ? "" : `rounded-xl border-2 shadow-md ${isCurrentTurn ? "border-gold" : "border-ink-border/20"}`}`}>
       {/* Header + collapsible character section — hidden when tabs are shown */}
       {!hideHeader && <>
         <div className={`flex items-center justify-between px-4 py-2 ${isCurrentTurn ? "bg-gold-soft/20" : "bg-paper-50"}`}>
