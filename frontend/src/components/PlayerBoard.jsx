@@ -439,7 +439,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
 
       {/* Compact stats — shown instead of the full header when viewing another player's tab */}
       {hideHeader && !isMe && (
-        <div className="flex items-center gap-5 px-4 py-2.5 bg-paper-50 border-b border-ink-border/15">
+        <div className="flex items-center gap-5 px-4 py-2.5 border-b border-ink-border/15">
           {/* Lives */}
           <div className="flex items-center gap-1.5">
             <span className={`text-lg leading-none ${(lives ?? 0) === 0 ? "text-ink-300" : "text-red"}`}>♥</span>

@@ -42,7 +42,7 @@ function PlayerTab({ player, isMe, isActive, isTurn, onClick }) {
         flex items-center gap-2 px-4 py-2 rounded-t-lg text-sm font-bold
         transition-colors select-none shrink-0 border-2 border-b-0
         ${isActive
-          ? "bg-paper-100 text-ink-700 border-ink-border/40 -mb-px relative z-10"
+          ? "bg-paper-100 text-ink-700 border-ink-border/20 translate-y-[2px] relative z-10"
           : "bg-paper-200/60 text-ink-400 border-ink-border/20 hover:text-ink-600 hover:bg-paper-200/80"
         }
       `}
@@ -363,7 +363,7 @@ export default function PlayerHUD({
         }}
       >
         {/* Tab bar — always shown (rules tab is always available) */}
-        <div className="flex gap-0.5 px-3 pt-2 shrink-0 border-b border-ink-border/30 bg-paper-200/40">
+        <div className="flex gap-0.5 px-3 pt-2 shrink-0 border-b-2 border-ink-border/20 bg-paper-200/40">
           {allPlayers.map(p => (
             <PlayerTab
               key={p.playerId}
@@ -381,7 +381,7 @@ export default function PlayerHUD({
               flex items-center gap-1.5 px-4 py-2 rounded-t-lg text-sm font-bold
               transition-colors select-none shrink-0 border-2 border-b-0
               ${isRulesTab
-                ? "bg-paper-100 text-ink-700 border-ink-border/40 -mb-px relative z-10"
+                ? "bg-paper-100 text-ink-700 border-ink-border/20 translate-y-[2px] relative z-10"
                 : "bg-paper-200/60 text-ink-400 border-ink-border/20 hover:text-ink-600 hover:bg-paper-200/80"
               }
             `}
