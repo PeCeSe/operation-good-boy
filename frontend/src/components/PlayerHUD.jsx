@@ -188,6 +188,7 @@ const LAYOUT_OPTIONS = [
 function SettingsPanel({ me }) {
   const savedLayout = localStorage.getItem("handLayout") ?? "tidy";
   const currentLayout = me?.handLayout ?? savedLayout;
+  const [hoveredId, setHoveredId] = useState(null);
 
   const handleLayoutChange = (layoutId) => {
     localStorage.setItem("handLayout", layoutId);
@@ -197,36 +198,45 @@ function SettingsPanel({ me }) {
   return (
     <div className="px-6 py-5">
       <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-3">Hand Layout</h2>
-      <div className="inline-flex rounded-xl border-2 border-ink shadow-[0_3px_0_#271d14] bg-plum-lighter">
-        {LAYOUT_OPTIONS.map(({ id, label, icon, description }, i) => {
-          const isActive = currentLayout === id;
-          const isFirst  = i === 0;
-          const isLast   = i === LAYOUT_OPTIONS.length - 1;
-          return (
-            <div key={id} className="relative group flex">
-              {i > 0 && <div className="w-0.5 bg-ink shrink-0" />}
-              <button
-                onClick={() => handleLayoutChange(id)}
-                className={`flex flex-col items-center gap-0.5 px-6 font-display select-none transition-colors
-                  ${isFirst ? "rounded-l-[10px]" : ""} ${isLast ? "rounded-r-[10px]" : ""}
-                  ${isActive
-                    ? "bg-plum-deep text-white pt-3 pb-2 shadow-[inset_0_4px_6px_rgba(0,0,0,0.25)]"
-                    : "bg-plum-lighter text-plum-deep hover:bg-plum-soft py-2.5"
+      {/* Wrapper is relative so tooltips can escape the overflow-hidden pill */}
+      <div className="relative inline-block">
+        <div className="inline-flex rounded-xl border-2 border-ink shadow-[0_3px_0_#271d14] overflow-hidden bg-plum-lighter">
+          {LAYOUT_OPTIONS.map(({ id, label, icon }, i) => {
+            const isActive = currentLayout === id;
+            return (
+              <div key={id} className="flex">
+                {i > 0 && <div className="w-0.5 bg-ink shrink-0" />}
+                <button
+                  onClick={() => handleLayoutChange(id)}
+                  onMouseEnter={() => setHoveredId(id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  className={`flex flex-col items-center gap-0.5 px-6 font-display select-none transition-colors ${
+                    isActive
+                      ? "bg-plum-deep text-white pt-3 pb-2 shadow-[inset_0_4px_6px_rgba(0,0,0,0.25)]"
+                      : "bg-plum-lighter text-plum-deep hover:bg-plum-soft py-2.5"
                   }`}
-              >
-                <span className="text-sm font-bold">{label}</span>
-                <span className="text-base leading-none">{icon}</span>
-              </button>
-              {/* Tooltip */}
-              <div className={`absolute top-full mt-2 w-44 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 ${
-                isFirst ? "left-0" : isLast ? "right-0" : "left-1/2 -translate-x-1/2"
-              }`}>
-                <div className={`absolute bottom-full border-4 border-transparent border-b-ink ${
-                  isFirst ? "left-4" : isLast ? "right-4" : "left-1/2 -translate-x-1/2"
-                }`} />
-                <div className="bg-ink text-paper-100 font-body text-xs rounded-lg px-3 py-2 shadow-lg leading-relaxed text-center">
-                  {description}
-                </div>
+                >
+                  <span className="text-sm font-bold">{label}</span>
+                  <span className="text-base leading-none">{icon}</span>
+                </button>
+              </div>
+            );
+          })}
+        </div>
+        {/* Tooltips outside overflow-hidden, positioned relative to wrapper */}
+        {LAYOUT_OPTIONS.map(({ id, description }, i) => {
+          if (hoveredId !== id) return null;
+          const isFirst = i === 0;
+          const isLast  = i === LAYOUT_OPTIONS.length - 1;
+          return (
+            <div key={id} className={`absolute top-full mt-2 w-44 z-50 pointer-events-none ${
+              isFirst ? "left-0" : isLast ? "right-0" : "left-1/2 -translate-x-1/2"
+            }`}>
+              <div className={`absolute bottom-full border-4 border-transparent border-b-ink ${
+                isFirst ? "left-4" : isLast ? "right-4" : "left-1/2 -translate-x-1/2"
+              }`} />
+              <div className="bg-ink text-paper-100 font-body text-xs rounded-lg px-3 py-2 shadow-lg leading-relaxed text-center">
+                {description}
               </div>
             </div>
           );
