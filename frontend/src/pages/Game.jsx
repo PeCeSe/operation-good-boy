@@ -164,10 +164,46 @@ export default function Game({ gameState, mySocketId }) {
     const el = containerRef.current;
     if (!el) return;
 
-    // Scroll = zoom (plain scroll, no modifier needed)
+    // Zoom toward cursor (Figma-style)
+    const zoomToward = (cursorX, cursorY, newZoom) => {
+      const c = containerRef.current;
+      if (!c) return;
+      const oldZoom = zoomRef.current;
+      if (newZoom === oldZoom) return;
+
+      // Board's left edge in scroll-space (wrapper centres the board horizontally)
+      const wrapperWidth = Math.max(BOARD_W * oldZoom + GUTTER * 2, c.clientWidth);
+      const boardLeft    = (wrapperWidth - BOARD_W * oldZoom) / 2;
+
+      // Point under cursor in board-space (invariant we want to preserve)
+      const boardX = (c.scrollLeft + cursorX - boardLeft) / oldZoom;
+      const boardY = (c.scrollTop  + cursorY - GUTTER)    / oldZoom;
+
+      // Where that point will be in scroll-space after zoom
+      const newWrapperWidth = Math.max(BOARD_W * newZoom + GUTTER * 2, c.clientWidth);
+      const newBoardLeft    = (newWrapperWidth - BOARD_W * newZoom) / 2;
+      const newScrollX      = newBoardLeft + boardX * newZoom - cursorX;
+      const newScrollY      = GUTTER       + boardY * newZoom - cursorY;
+
+      zoomRef.current = newZoom;
+      setZoom(newZoom);
+
+      // Apply after React re-renders with the new wrapper dimensions
+      requestAnimationFrame(() => {
+        if (!c) return;
+        c.scrollLeft = Math.max(0, newScrollX);
+        c.scrollTop  = Math.max(0, newScrollY);
+      });
+    };
+
+    // Scroll = zoom, aimed at cursor
     const onWheel = (e) => {
       e.preventDefault();
-      setZoom((z) => clampZoom(z + (e.deltaY < 0 ? 0.03 : -0.03)));
+      const c = containerRef.current;
+      if (!c) return;
+      const rect   = c.getBoundingClientRect();
+      const newZoom = clampZoom(zoomRef.current + (e.deltaY < 0 ? 0.03 : -0.03));
+      zoomToward(e.clientX - rect.left, e.clientY - rect.top, newZoom);
     };
 
     // WASD / arrow keys = smooth pan via rAF
@@ -211,8 +247,12 @@ export default function Game({ gameState, mySocketId }) {
     const onTouchStart = (e) => {
       if (e.touches.length === 2) {
         pinch.active = true;
-        pinch.dist = getDist(e.touches);
-        pinch.zoom = zoomRef.current;
+        pinch.dist   = getDist(e.touches);
+        pinch.zoom   = zoomRef.current;
+        const c = containerRef.current;
+        const rect = c ? c.getBoundingClientRect() : { left: 0, top: 0 };
+        pinch.midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        pinch.midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
       } else {
         pinch.active = false;
       }
@@ -220,8 +260,9 @@ export default function Game({ gameState, mySocketId }) {
     const onTouchMove = (e) => {
       if (e.touches.length === 2 && pinch.active) {
         e.preventDefault();
-        const ratio = getDist(e.touches) / pinch.dist;
-        setZoom(clampZoom(pinch.zoom * (1 + (ratio - 1) * 0.5)));
+        const ratio   = getDist(e.touches) / pinch.dist;
+        const newZoom = clampZoom(pinch.zoom * (1 + (ratio - 1) * 0.5));
+        zoomToward(pinch.midX, pinch.midY, newZoom);
       }
     };
     const onTouchEnd = () => { pinch.active = false; };
