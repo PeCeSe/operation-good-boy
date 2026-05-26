@@ -81,6 +81,7 @@ function SortableHandCard({ card, isMe }) {
         transition,
         touchAction: "none",
         flexShrink: 0,
+        opacity: isDragging ? 0.25 : 1,
       }}
       {...(isMe ? { ...attributes, ...listeners } : {})}
     >
@@ -88,7 +89,7 @@ function SortableHandCard({ card, isMe }) {
         card={card}
         isPlayable={isMe}
         forceFullOpacity
-        className={isMe ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}
+        className={isMe ? "cursor-grab" : ""}
       />
     </div>
   );
@@ -285,6 +286,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [zOrder, setZOrder] = useState([]);
   const [cardOrder, setCardOrder] = useState([]);
   const [activeDragType, setActiveDragType] = useState(null);
+  const [activeSortCardId, setActiveSortCardId] = useState(null);
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
 
@@ -401,8 +403,14 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     });
   };
 
+  // ── Sorted drag start ─────────────────────────────────────────────────────
+  const handleSortedDragStart = ({ active }) => {
+    setActiveSortCardId(active.id);
+  };
+
   // ── Sorted drag end ────────────────────────────────────────────────────────
   const handleSortedDragEnd = ({ active, over }) => {
+    setActiveSortCardId(null);
     if (!isMe) return;
     if (over?.id === "inner_draw_pile") {
       socket.emit("return_card_to_deck", { cardId: active.id });
@@ -422,8 +430,9 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   // ── Render ─────────────────────────────────────────────────────────────────
   if (handLayout === "sorted") {
     const sortedHand = displayCardOrder.map(id => (hand || []).find(c => c.id === id)).filter(Boolean);
+    const activeSortCard = activeSortCardId ? (hand || []).find(c => c.id === activeSortCardId) : null;
     return (
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragOver={handleSortedDragOver} onDragEnd={handleSortedDragEnd}>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleSortedDragStart} onDragOver={handleSortedDragOver} onDragEnd={handleSortedDragEnd}>
         <HandAreaInner
           hand={sortedHand}
           drawPile={drawPile}
@@ -436,8 +445,13 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
           handCanvasRef={handCanvasRef}
           handLayout="sorted"
           sortedCardOrder={displayCardOrder}
+          activeSortCardId={activeSortCardId}
         />
-        <DragOverlay dropAnimation={null} />
+        <DragOverlay dropAnimation={null}>
+          {activeSortCard && (
+            <CardComponent card={activeSortCard} isPlayable={false} forceFullOpacity className="cursor-grabbing rotate-2 shadow-2xl" />
+          )}
+        </DragOverlay>
       </DndContext>
     );
   }
