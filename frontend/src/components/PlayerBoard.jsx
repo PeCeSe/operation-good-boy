@@ -54,6 +54,8 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
         zIndex: isDragging ? 1000 : zIndex,
         opacity: 1,
         touchAction: "none",
+        transform: isDragging ? "rotate(2deg)" : undefined,
+        transition: isDragging ? "none" : "transform 150ms ease",
       }}
     >
       <div ref={setNodeRef} {...(isMe ? { ...listeners, ...attributes } : {})}>
