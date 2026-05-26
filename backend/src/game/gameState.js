@@ -65,6 +65,7 @@ function initGameState(room) {
       playerId: `player_${idx + 1}`,
       name: lobbyPlayer.name,
       character,
+      skinId: lobbyPlayer.skinId ?? null,
       lives: character.maxLives,
       isStunned: false,
       hand,

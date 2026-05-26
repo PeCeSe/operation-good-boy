@@ -4,6 +4,8 @@ import PawCoin from "./PawCoin";
 import PlayerBoard, { StagingToken } from "./PlayerBoard";
 import { ATTACK_CONFIG } from "./TokenPool";
 import CHARACTERS from "../data/characters";
+import SKINS from "../data/skins";
+import { getDisplayData } from "../data/getDisplayData";
 import socket from "../socket";
 
 // ── Draggable pawcoin ──────────────────────────────────────────────────────────
@@ -31,7 +33,7 @@ function DraggableCoin({ index, onMove }) {
 // ── Player tab button ──────────────────────────────────────────────────────────
 
 function PlayerTab({ player, isMe, isActive, isTurn, onClick }) {
-  const charData  = CHARACTERS.find(c => c.id === player?.character?.id);
+  const charData  = getDisplayData(player, SKINS, CHARACTERS);
   const isStunned = (player?.lives ?? 1) === 0;
   const headshot  = isStunned && charData?.stunned ? charData.stunned : charData?.headshot;
 

@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 
 const roomManager = require("./game/roomManager");
-const { rejoinRoom, setName } = roomManager;
+const { rejoinRoom, setName, setSkin } = roomManager;
 const { initGameState } = require("./game/gameState");
 const actions = require("./game/actions");
 const { CARDS } = require("./data/cards");
@@ -127,6 +127,12 @@ io.on("connection", (socket) => {
 
   socket.on("select_character", ({ characterId } = {}) => {
     roomManager.setCharacter(socket.id, characterId);
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (room) emitRoomUpdate(room.code);
+  });
+
+  socket.on("select_skin", ({ skinId } = {}) => {
+    setSkin(socket.id, skinId ?? null);
     const room = roomManager.getRoomBySocket(socket.id);
     if (room) emitRoomUpdate(room.code);
   });

@@ -18,7 +18,7 @@ function createRoom(socketId, password = null, playerToken = null) {
     code,
     password,
     hostSocketId: socketId,
-    players: [{ socketId, playerToken, name: `Player 1`, characterId: null, isReady: false }],
+    players: [{ socketId, playerToken, name: `Player 1`, characterId: null, skinId: null, isReady: false }],
     gameState: null,
     lastActivity: Date.now(),
   });
@@ -47,6 +47,7 @@ function joinRoom(socketId, code, password = null, playerToken = null) {
     playerToken,
     name: `Player ${room.players.length + 1}`,
     characterId: null,
+    skinId: null,
     isReady: false,
   });
   room.lastActivity = Date.now();
@@ -122,6 +123,16 @@ function setCharacter(socketId, characterId) {
   }
 }
 
+function setSkin(socketId, skinId) {
+  const room = getRoomBySocket(socketId);
+  if (!room) return;
+  const player = room.players.find((p) => p.socketId === socketId);
+  if (player) {
+    player.skinId = skinId || null;
+    room.lastActivity = Date.now();
+  }
+}
+
 function setReady(socketId) {
   const room = getRoomBySocket(socketId);
   if (!room) return;
@@ -170,6 +181,7 @@ module.exports = {
   getRoom,
   getRoomBySocket,
   setCharacter,
+  setSkin,
   setReady,
   canStart,
   getLobbyState,

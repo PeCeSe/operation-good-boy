@@ -14,6 +14,8 @@ import GameLog from "../components/GameLog";
 import { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import CHARACTERS from "../data/characters";
+import SKINS from "../data/skins";
+import { getDisplayData } from "../data/getDisplayData";
 import socket from "../socket";
 
 const BOARD_W = 1700;
@@ -514,7 +516,7 @@ export default function Game({ gameState, mySocketId }) {
           {players.map((p, i) => {
             const isCurrent = p.playerId === currentPlayerId;
             const isMe = p.playerId === me?.playerId;
-            const char = CHARACTERS.find(c => c.id === p.character?.id);
+            const char = getDisplayData(p, SKINS, CHARACTERS);
             return (
               <div key={p.playerId} className="flex items-center gap-1.5">
                 {i > 0 && <span className="text-ink-300 text-base leading-none">›</span>}

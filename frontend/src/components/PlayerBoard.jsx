@@ -3,6 +3,8 @@ import { useDraggable, useDroppable, DndContext, DragOverlay, useSensor, useSens
 import { SortableContext, useSortable, horizontalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import CHARACTERS from "../data/characters";
+import SKINS from "../data/skins";
+import { getDisplayData } from "../data/getDisplayData";
 import CardComponent from "./CardComponent";
 import PawCoin from "./PawCoin";
 import { ATTACK_CONFIG } from "./TokenPool";
@@ -513,7 +515,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
   } = player;
 
   const maxLives = character?.maxLives ?? 9;
-  const charData = CHARACTERS.find((c) => c.id === character?.id);
+  const charData = getDisplayData(player, SKINS, CHARACTERS);
 
   return (
     <div className={`overflow-visible transition-all ${hideHeader ? "" : `rounded-xl border-2 shadow-md ${isCurrentTurn ? "border-gold" : "border-ink-border/20"}`}`}>

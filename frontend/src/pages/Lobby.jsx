@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socket from "../socket";
 import CHARACTERS from "../data/characters";
+import SKINS from "../data/skins";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const DAY_COLORS = [
@@ -99,6 +100,9 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const handleSelectCharacter = (characterId) => {
     socket.emit("select_character", { characterId });
   };
+  const handleSelectSkin = (skinId) => {
+    socket.emit("select_skin", { skinId: skinId === myPlayer?.skinId ? null : skinId });
+  };
   const handleReady = () => socket.emit("player_ready");
   const handleStart = () => socket.emit("game_start", { difficulty: difficulty + 1 });
 
@@ -193,6 +197,9 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {roomInfo.players.map((p) => {
             const char = CHARACTERS.find((c) => c.id === p.characterId);
+            const skin = p.skinId ? SKINS.find((s) => s.id === p.skinId) : null;
+            const portrait = skin?.headshot ?? char?.headshot;
+            const displayName = skin?.name ?? char?.name;
             return (
               <div
                 key={p.socketId}
@@ -200,10 +207,10 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
               >
                 {/* Portrait or placeholder */}
                 <div className="relative h-24 flex items-center justify-center bg-paper-50">
-                  {char ? (
+                  {portrait ? (
                     <img
-                      src={char.headshot}
-                      alt={char.name}
+                      src={portrait}
+                      alt={displayName}
                       className="absolute inset-0 w-full h-full object-contain"
                     />
                   ) : (
@@ -221,7 +228,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                   <div className="text-sm font-bold truncate text-ink">{p.name}</div>
                   {char ? (
                     <>
-                      <div className="text-xs font-semibold text-ink-700 truncate">{char.name}</div>
+                      <div className="text-xs font-semibold text-ink-700 truncate">{displayName}</div>
                       <div className="text-[10px] text-ink-300 uppercase tracking-wide">{char.subtitle}</div>
                     </>
                   ) : (
@@ -307,6 +314,68 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
           })}
         </div>
       </div>
+
+      {/* Skin selector */}
+      {SKINS.length > 0 && (
+        <div>
+          <h2 className="font-display text-2xl text-ink mb-1">Appearance <span className="text-sm font-body font-normal text-ink-400">(optional)</span></h2>
+          <p className="text-xs text-ink-400 font-body mb-3">Pick a skin to replace your character's portrait — just cosmetic, no gameplay changes.</p>
+          <div className="flex flex-wrap gap-3">
+            {/* Default / no skin */}
+            <button
+              onClick={() => socket.emit("select_skin", { skinId: null })}
+              title="Default (use character artwork)"
+              className={`flex flex-col items-center gap-1.5 group`}
+            >
+              <div className={`w-14 h-14 rounded-full border-2 flex items-center justify-center transition-all ${
+                !myPlayer?.skinId
+                  ? "border-gold shadow-lg shadow-gold/20 bg-paper-100 scale-110"
+                  : "border-ink-border bg-paper-200 hover:border-ink-400 hover:scale-105"
+              }`}>
+                <span className="text-xl">🐱</span>
+              </div>
+              <span className={`text-[10px] font-semibold ${!myPlayer?.skinId ? "text-gold-deep" : "text-ink-400"}`}>
+                Default
+              </span>
+            </button>
+
+            {SKINS.map((skin) => {
+              const isSelected = myPlayer?.skinId === skin.id;
+              const takenBy = (roomInfo?.players || []).find(
+                (p) => p.socketId !== mySocketId && p.skinId === skin.id
+              );
+              return (
+                <button
+                  key={skin.id}
+                  onClick={() => !takenBy && handleSelectSkin(skin.id)}
+                  disabled={!!takenBy}
+                  title={takenBy ? `${takenBy.name} is using this skin` : skin.name}
+                  className={`flex flex-col items-center gap-1.5 group ${takenBy ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <div className={`w-14 h-14 rounded-full border-2 overflow-hidden transition-all ${
+                    isSelected
+                      ? "border-gold shadow-lg shadow-gold/20 scale-110"
+                      : takenBy
+                      ? "border-ink-border"
+                      : "border-ink-border hover:border-ink-400 hover:scale-105"
+                  }`}>
+                    <img
+                      src={skin.headshot}
+                      alt={skin.name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <span className={`text-[10px] font-semibold max-w-[56px] text-center leading-tight ${
+                    isSelected ? "text-gold-deep" : "text-ink-400"
+                  }`}>
+                    {skin.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Difficulty */}
       <div className="max-w-xs mx-auto w-full">
