@@ -520,7 +520,6 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
               {charData.backstory && (
                 <p className="text-xs text-ink-500 italic leading-snug">{charData.backstory}</p>
               )}
-              <div className="text-xs text-ink-300">Max lives: {maxLives}</div>
             </div>
           </div>
         </div>
