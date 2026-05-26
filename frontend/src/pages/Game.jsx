@@ -519,14 +519,18 @@ export default function Game({ gameState, mySocketId }) {
           scrollbarWidth: "none",
         }}
       >
-        {/* Wrapper: max(board+gutter, 100%) on both axes so it always fills the viewport
-            for centering, AND always has GUTTER px of scroll space past every board edge */}
+        {/* Wrapper: always wider/taller than the board + gutter, centred horizontally.
+            paddingTop/Bottom place the board at exactly GUTTER from the scroll origin
+            so scrollTop=GUTTER puts the board flush at the viewport top on load. */}
         <div style={{
-          minWidth:  `max(${BOARD_W * zoom + GUTTER * 2}px, 100%)`,
-          minHeight: `max(${BOARD_H * zoom + GUTTER * 2 + 560}px, 100%)`,
-          display: "flex",
-          alignItems: "center",
+          minWidth:    `max(${BOARD_W * zoom + GUTTER * 2}px, 100%)`,
+          minHeight:   `${BOARD_H * zoom + GUTTER + GUTTER + 560}px`,
+          display:     "flex",
           justifyContent: "center",
+          alignItems:  "flex-start",
+          paddingTop:  GUTTER,
+          paddingBottom: GUTTER + 560,
+          boxSizing:   "border-box",
         }}>
         {/* Board size wrapper */}
         <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative", flexShrink: 0 }}>
