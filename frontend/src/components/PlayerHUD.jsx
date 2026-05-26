@@ -72,46 +72,91 @@ const RULES_TAB_ID  = "__rules__";
 
 // ── Turn order / rules tab content ────────────────────────────────────────────
 
+const STEPS = [
+  {
+    n: 1,
+    title: "Stupid Hooman Event",
+    body: "Flip the top card of the event deck. Hoomans are at it again — read the card and apply the chaos.",
+  },
+  {
+    n: 2,
+    title: "Resolve enemy abilities",
+    body: "Each villain on the board has something to say about it. Check their card and apply any effects.",
+  },
+  {
+    n: 3,
+    title: "Take actions",
+    body: "Play cards from your hand, spend pawcoins at the shop, place attack tokens on enemies, and take those villains down. You can defeat enemies at any point during this phase.",
+  },
+  {
+    n: 4,
+    title: "End your turn",
+    body: 'Hit the "End Turn" button. Any unused cards, pawcoins, and attack tokens are discarded. You\'ll draw a fresh paw of 5.',
+  },
+];
+
+const REFS = [
+  {
+    icon: <img src="/cucumber_token.png" alt="" className="w-4 h-4 object-contain" onError={e => { e.target.style.display="none"; e.target.nextSibling.style.display="inline"; }} />,
+    iconFallback: "🥒",
+    text: "Each location can only take so many cucumbers. Fill it up and you'll have to abandon it and fall back to the next one.",
+  },
+  {
+    icon: null,
+    iconFallback: "💀",
+    text: "Lose all locations and it's game over. Don't let that happen.",
+  },
+  {
+    icon: null,
+    iconFallback: "🏆",
+    text: "Defeat every enemy — that's a win!",
+  },
+  {
+    icon: null,
+    iconFallback: "😵",
+    text: "Hit 0 lives and you're Stunned. Add a cucumber to the location, discard half your draw pile, and you can't heal this round. After your turn ends, you bounce back to full health — tough cat.",
+  },
+  {
+    icon: <img src="/pawcoin.svg" alt="" className="w-4 h-4 object-contain shrink-0" />,
+    iconFallback: null,
+    text: "Pawcoins buy cards from the shop. Pick up whatever looks tastiest for your deck.",
+  },
+];
+
 function RulesPanel() {
   return (
-    <div className="px-6 py-5 max-w-xl">
-      <h2 className="font-display text-base text-ink-700 mb-4 flex items-center gap-2">
-        <span>📋</span> Turn Order
-      </h2>
-      <ol className="space-y-3">
-        {[
-          { n: 1, title: "Draw an event", body: "Reveal the top card of the event deck and resolve its effect." },
-          { n: 2, title: "Take actions", body: "Play cards from your hand and apply their effects manually. Use pawcoins to buy cards from the shop. Add attack tokens and drag them onto enemies." },
-          { n: 3, title: "Defeat enemies", body: "If an enemy has enough damage tokens, drag it to the Defeated pile." },
-          { n: 4, title: "End your turn", body: "Discard remaining cards. Draw 5 new cards. The shop refills automatically." },
-        ].map(({ n, title, body }) => (
-          <li key={n} className="flex gap-3">
-            <span className="shrink-0 w-6 h-6 rounded-full bg-ink-700 text-white text-xs font-black flex items-center justify-center mt-0.5">{n}</span>
-            <div>
-              <div className="font-bold text-sm text-ink-700">{title}</div>
-              <div className="text-xs text-ink-500 leading-snug mt-0.5">{body}</div>
-            </div>
-          </li>
-        ))}
-      </ol>
+    <div className="px-6 py-5 grid grid-cols-2 gap-x-12 gap-y-6 max-w-4xl">
 
-      <h2 className="font-display text-base text-ink-700 mt-6 mb-3 flex items-center gap-2">
-        <span>⚡</span> Quick Reference
-      </h2>
-      <ul className="space-y-2">
-        {[
-          { icon: "🥒", text: "Cucumbers fill up a location — when it's full, you fall back to the next one." },
-          { icon: "💀", text: "Lose all locations and it's defeat." },
-          { icon: "🎉", text: "Defeat all enemies (including Good Boy at the bottom) and it's victory!" },
-          { icon: "😵", text: "A player at 0 lives is stunned — they can still take actions on their turn." },
-          { icon: "🪙", text: "Pawcoins are spent to buy cards from the shop. Change carries over to your next purchase." },
-        ].map(({ icon, text }) => (
-          <li key={text} className="flex gap-2 text-xs text-ink-500 leading-snug">
-            <span className="shrink-0">{icon}</span>
-            <span>{text}</span>
-          </li>
-        ))}
-      </ul>
+      {/* Left: Turn order */}
+      <div>
+        <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-4">Turn Order</h2>
+        <ol className="space-y-4">
+          {STEPS.map(({ n, title, body }) => (
+            <li key={n} className="flex gap-3">
+              <span className="shrink-0 w-6 h-6 rounded-full bg-ink-700 text-white text-xs font-black flex items-center justify-center mt-0.5">{n}</span>
+              <div>
+                <div className="font-bold text-sm text-ink-700 leading-snug">{title}</div>
+                <div className="text-xs text-ink-500 leading-snug mt-0.5">{body}</div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      {/* Right: Quick reference */}
+      <div>
+        <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-4">Good to Know</h2>
+        <ul className="space-y-3">
+          {REFS.map(({ icon, iconFallback, text }) => (
+            <li key={text} className="flex gap-2.5 text-xs text-ink-500 leading-snug">
+              <span className="shrink-0 w-4 flex items-start justify-center mt-0.5">
+                {icon ?? <span>{iconFallback}</span>}
+              </span>
+              <span>{text}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -334,7 +379,7 @@ export default function PlayerHUD({
             onClick={() => setActiveTabId(RULES_TAB_ID)}
             className={`
               flex items-center gap-1.5 px-4 py-2 rounded-t-lg text-sm font-bold
-              transition-colors select-none shrink-0 border-2 border-b-0 ml-auto
+              transition-colors select-none shrink-0 border-2 border-b-0
               ${isRulesTab
                 ? "bg-paper-100 text-ink-700 border-ink-border/40 relative z-10"
                 : "bg-paper-200/60 text-ink-400 border-transparent hover:text-ink-600 hover:bg-paper-200"
