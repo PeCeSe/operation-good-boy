@@ -102,7 +102,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         <div className="flex-1 text-[9px] font-flavor italic text-ink-500 leading-snug line-clamp-2">
           {card.flavorText && `"${card.flavorText}"`}
         </div>
-        {card.cost != null && <CostBadge cost={card.cost} />}
+        {card.cost > 0 && <CostBadge cost={card.cost} />}
       </div>
     </button>
   );
