@@ -153,7 +153,7 @@ export default function Game({ gameState, mySocketId }) {
   const [activeDrag, setActiveDrag] = useState(null);
   const [pendingPurchase, setPendingPurchase] = useState(null);
   const lastOverRef = useRef(null);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(() => Math.max(0.25, Math.min(2, window.innerWidth / BOARD_W)));
   const [otherCursors, setOtherCursors] = useState({});
   const zoomRef = useRef(zoom);
   useEffect(() => { zoomRef.current = zoom; }, [zoom]);
