@@ -197,19 +197,22 @@ function SettingsPanel({ me }) {
   return (
     <div className="px-6 py-5">
       <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-3">Hand Layout</h2>
-      <div className="inline-flex rounded-xl border-2 border-ink shadow-[0_3px_0_#271d14] overflow-hidden">
+      <div className="inline-flex rounded-xl border-2 border-ink shadow-[0_3px_0_#271d14]">
         {LAYOUT_OPTIONS.map(({ id, label, icon, description }, i) => {
           const isActive = currentLayout === id;
+          const isFirst  = i === 0;
+          const isLast   = i === LAYOUT_OPTIONS.length - 1;
           return (
             <div key={id} className="relative group flex">
               {i > 0 && <div className="w-0.5 bg-ink shrink-0" />}
               <button
                 onClick={() => handleLayoutChange(id)}
-                className={`flex flex-col items-center gap-0.5 px-6 font-display select-none transition-colors ${
-                  isActive
+                className={`flex flex-col items-center gap-0.5 px-6 font-display select-none transition-colors
+                  ${isFirst ? "rounded-l-[10px]" : ""} ${isLast ? "rounded-r-[10px]" : ""}
+                  ${isActive
                     ? "bg-plum-deep text-white pt-3 pb-2 shadow-[inset_0_4px_6px_rgba(0,0,0,0.25)]"
                     : "bg-plum-lighter text-plum-deep hover:bg-plum-soft py-2.5"
-                }`}
+                  }`}
               >
                 <span className="text-sm font-bold">{label}</span>
                 <span className="text-base leading-none">{icon}</span>
