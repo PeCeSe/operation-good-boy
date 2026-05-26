@@ -690,6 +690,7 @@ export default function Game({ gameState, mySocketId }) {
               </div>
             </div>
           ))}
+        </div>{/* end board surface */}
         </div>{/* end board size wrapper */}
         </div>{/* end centering+gutter wrapper */}
       </div>
