@@ -168,16 +168,19 @@ const LAYOUT_OPTIONS = [
   {
     id: "sorted",
     label: "Sorted",
+    icon: "🔢",
     description: "Cards in a fixed row. Drag to change the order.",
   },
   {
     id: "tidy",
     label: "Tidy",
+    icon: "➖",
     description: "Cards stay on the same line — drag left and right to organise.",
   },
   {
     id: "free",
     label: "Free",
+    icon: "🌀",
     description: "Full chaos. Drag your cards wherever you want.",
   },
 ];
@@ -194,30 +197,27 @@ function SettingsPanel({ me }) {
   return (
     <div className="px-6 py-5">
       <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-3">Hand Layout</h2>
-      {/* Segmented control */}
-      <div className="inline-flex rounded-xl border-2 border-ink-border/30 overflow-hidden bg-paper-50">
-        {LAYOUT_OPTIONS.map(({ id, label, description }, i) => {
+      <div className="flex gap-2">
+        {LAYOUT_OPTIONS.map(({ id, label, icon, description }) => {
           const isActive = currentLayout === id;
           return (
-            <div key={id} className="relative group flex">
-              {/* Divider between segments */}
-              {i > 0 && <div className="w-px bg-ink-border/30 shrink-0" />}
+            <div key={id} className="relative group">
               <button
                 onClick={() => handleLayoutChange(id)}
-                className={`px-6 py-2 text-sm font-bold transition-colors select-none ${
+                className={`flex flex-col items-center gap-1 px-6 py-2.5 rounded-xl font-display border-2 border-ink select-none transition-[transform,box-shadow] ${
                   isActive
-                    ? "bg-ink-700 text-white"
-                    : "text-ink-400 hover:text-ink-600 hover:bg-paper-200/60"
+                    ? "bg-gold text-ink-800 translate-y-px shadow-none"
+                    : "bg-paper-50 text-ink-500 shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none"
                 }`}
               >
-                {label}
+                <span className="text-sm">{label}</span>
+                <span className="text-base leading-none">{icon}</span>
               </button>
               {/* Tooltip */}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
                 <div className="bg-ink text-paper-100 font-body text-xs rounded-lg px-3 py-2 shadow-lg leading-relaxed text-center">
                   {description}
                 </div>
-                {/* Arrow pointing down */}
                 <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-ink" />
               </div>
             </div>
