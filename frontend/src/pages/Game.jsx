@@ -17,7 +17,7 @@ import CHARACTERS from "../data/characters";
 import socket from "../socket";
 
 const BOARD_W = 1700;
-const BOARD_H = 1300;
+const BOARD_H = 1080;
 const GUTTER  = 500; // scroll space around the board so edge elements can be centred
 
 function DragChip() {
