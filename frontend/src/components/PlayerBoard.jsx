@@ -44,7 +44,7 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
-        opacity: isDragging ? 0.4 : 1,
+        opacity: 1,
         touchAction: "none",
       }}
     >
