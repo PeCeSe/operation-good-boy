@@ -42,8 +42,8 @@ function PlayerTab({ player, isMe, isActive, isTurn, onClick }) {
         flex items-center gap-2 px-4 py-2 rounded-t-lg text-sm font-bold
         transition-colors select-none shrink-0 border-2 border-b-0
         ${isActive
-          ? "bg-paper-100 text-ink-700 border-ink-border/40 relative z-10"
-          : "bg-paper-200/60 text-ink-400 border-transparent hover:text-ink-600 hover:bg-paper-200"
+          ? "bg-paper-100 text-ink-700 border-ink-border/40 -mb-px relative z-10"
+          : "bg-paper-200/60 text-ink-400 border-ink-border/20 hover:text-ink-600 hover:bg-paper-200/80"
         }
       `}
     >
@@ -381,8 +381,8 @@ export default function PlayerHUD({
               flex items-center gap-1.5 px-4 py-2 rounded-t-lg text-sm font-bold
               transition-colors select-none shrink-0 border-2 border-b-0
               ${isRulesTab
-                ? "bg-paper-100 text-ink-700 border-ink-border/40 relative z-10"
-                : "bg-paper-200/60 text-ink-400 border-transparent hover:text-ink-600 hover:bg-paper-200"
+                ? "bg-paper-100 text-ink-700 border-ink-border/40 -mb-px relative z-10"
+                : "bg-paper-200/60 text-ink-400 border-ink-border/20 hover:text-ink-600 hover:bg-paper-200/80"
               }
             `}
           >
