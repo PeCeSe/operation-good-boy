@@ -268,7 +268,31 @@ export default function Game({ gameState, mySocketId }) {
     };
     const onTouchEnd = () => { pinch.active = false; };
 
+    // Drag-to-pan on the gutter (background outside the board)
+    const onGutterPointerDown = (e) => {
+      // If the pointer landed inside the board surface, let the board's own handler deal with it
+      if (boardSurfaceRef.current?.contains(e.target)) return;
+      e.preventDefault();
+      panState.current = { active: true, startX: e.clientX, startY: e.clientY, scrollLeft: el.scrollLeft, scrollTop: el.scrollTop };
+      el.setPointerCapture(e.pointerId);
+      el.style.cursor = "grabbing";
+    };
+    const onGutterPointerMove = (e) => {
+      const p = panState.current;
+      if (!p.active) return;
+      el.scrollLeft = p.scrollLeft - (e.clientX - p.startX);
+      el.scrollTop  = p.scrollTop  - (e.clientY - p.startY);
+    };
+    const onGutterPointerUp = () => {
+      panState.current.active = false;
+      el.style.cursor = "";
+    };
+
     el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("pointerdown",  onGutterPointerDown);
+    el.addEventListener("pointermove",  onGutterPointerMove);
+    el.addEventListener("pointerup",    onGutterPointerUp);
+    el.addEventListener("pointercancel",onGutterPointerUp);
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup",   onKeyUp);
     el.addEventListener("touchstart", onTouchStart, { passive: true });
@@ -276,6 +300,10 @@ export default function Game({ gameState, mySocketId }) {
     el.addEventListener("touchend", onTouchEnd);
     return () => {
       el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("pointerdown",  onGutterPointerDown);
+      el.removeEventListener("pointermove",  onGutterPointerMove);
+      el.removeEventListener("pointerup",    onGutterPointerUp);
+      el.removeEventListener("pointercancel",onGutterPointerUp);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup",   onKeyUp);
       if (raf.id) cancelAnimationFrame(raf.id);
@@ -559,6 +587,7 @@ export default function Game({ gameState, mySocketId }) {
           bottom: 0,
           overflow: "auto",
           scrollbarWidth: "none",
+          cursor: "grab",
         }}
       >
         {/* Wrapper: always wider/taller than the board + gutter, centred horizontally.
