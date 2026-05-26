@@ -10,9 +10,7 @@ const CHARACTERS = [
     bgFrom: "#7c3aed",
     bgTo: "#4c1d95",
     accentColor: "violet",
-    passive: "When taking damage, generate 1 charm attack.",
     backstory: "A tortoiseshell Persian of impeccable breeding and absolutely unquestionable importance. Three weeks of beauty sleep, ruined by that dog's insufferable barking. She arrived on the battlefield not because she was asked — she simply decided.",
-    trait: "Serene. Entitled. Unstoppable.",
   },
   {
     id: "char_streetcat",
@@ -25,9 +23,7 @@ const CHARACTERS = [
     bgFrom: "#0f766e",
     bgTo: "#134e4a",
     accentColor: "teal",
-    passive: "Draw 1 extra card at the start of each turn.",
     backstory: "Scrappy, lean, and weathered in all the right ways. Ace had claimed that sunny patch in Good Boy's garden fair and square. Now that spot is gone. This isn't just a mission — it's personal.",
-    trait: "Resourceful. Cool. Always lands on their feet.",
   },
   {
     id: "char_kitten",
@@ -40,9 +36,7 @@ const CHARACTERS = [
     bgFrom: "#b45309",
     bgTo: "#78350f",
     accentColor: "amber",
-    passive: "When buying a card, gain 1 pawcoin refund.",
     backstory: "Approximately five brain cells, all pointed at one thing: that squeaky toy. Good Boy took it. Noodle does not understand strategy or self-preservation, but she is extremely enthusiastic, and honestly? That might be enough.",
-    trait: "Chaotic. Tiny. Absolutely feral.",
   },
 ];
 

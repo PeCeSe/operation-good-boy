@@ -430,13 +430,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
             </div>
           )}
           <div className="px-4 py-3 space-y-2">
-            {charData?.trait && <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink-300 italic">{charData.trait}</div>}
-            {charData?.passive && (
-              <div className="bg-gold-soft/20 border border-gold/30 rounded-lg px-3 py-2">
-                <div className="text-[9px] font-bold uppercase tracking-[0.12em] text-gold-deep mb-0.5">Passive</div>
-                <div className="text-xs text-ink-700 font-semibold">⚡ {charData.passive}</div>
-              </div>
-            )}
+            {charData?.backstory && <div className="text-xs text-ink-500 italic leading-snug">{charData.backstory}</div>}
             <div className="text-xs text-ink-300">Max lives: {maxLives}</div>
           </div>
         </div>

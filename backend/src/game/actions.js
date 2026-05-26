@@ -295,7 +295,7 @@ function endTurn(state, playerId) {
   // Discard hand, draw new hand
   p.discardPile.push(...p.hand);
   p.hand = [];
-  const drawCount = p.character.id === "char_streetcat" ? 6 : 5;
+  const drawCount = 5;
   for (let i = 0; i < drawCount; i++) {
     if (p.drawPile.length === 0) {
       if (p.discardPile.length === 0) break;

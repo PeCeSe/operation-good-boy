@@ -29,13 +29,14 @@ A co-op browser-based deck-builder for 2–4 players. Players are cats working t
 
 ## Characters (Finalized)
 
-| ID | Name | Subtitle | Passive |
-|----|------|----------|---------|
-| `char_persian` | Lady Fluffington III | The Persian | When taking damage, generate 1 charm attack |
-| `char_streetcat` | Ace | The Street Cat | Draw 1 extra card at the start of each turn (draws 6 instead of 5) |
-| `char_kitten` | Noodle | The Chaos Kitten | When buying a card, gain 1 pawcoin refund |
+| ID | Name | Subtitle |
+|----|------|----------|
+| `char_persian` | Lady Fluffington III | The Persian |
+| `char_streetcat` | Ace | The Street Cat |
+| `char_kitten` | Noodle | The Chaos Kitten |
 
 All characters have 9 max lives. A 4th character slot is planned but not designed yet.
+No passive abilities — these were removed as they were never designed.
 
 **Images** (all in `frontend/public/characters/`):
 - `{name}.png` — full detailed artwork (used in character selection cards)

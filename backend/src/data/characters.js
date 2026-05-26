@@ -128,10 +128,6 @@ const CHARACTERS = [
       "persian_mirror",
       "persian_slave",
     ],
-    passiveAbility: {
-      description: "When taking damage, generate 1 attack token.",
-      trigger: "on_damage",
-    },
     flavorText: "She hasn't slept in three weeks. She is DONE.",
   },
   {
@@ -145,10 +141,6 @@ const CHARACTERS = [
       "streetcat_hidingspot",
       "streetcat_roxy",
     ],
-    passiveAbility: {
-      description: "Draw 1 extra card at the start of each turn.",
-      trigger: "on_turn_start",
-    },
     flavorText: "Just wants to nap in that sunny spot. Is that so much to ask.",
   },
   {
@@ -162,10 +154,6 @@ const CHARACTERS = [
       "kitten_kibble",
       "kitten_mrbear",
     ],
-    passiveAbility: {
-      description: "When buying a card, gain 1 pawcoin refund.",
-      trigger: "on_buy",
-    },
     flavorText: "The squeaky toy. IT'S SO UNFAIR.",
   },
 ];
