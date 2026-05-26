@@ -510,12 +510,17 @@ export default function Game({ gameState, mySocketId }) {
           scrollbarWidth: "none",
         }}
       >
-        {/* Centering wrapper — always fills viewport; flex-centres content when board is small */}
-        <div style={{ minWidth: "100%", minHeight: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {/* Gutter — adds GUTTER px of scroll space past every board edge */}
-        <div style={{ padding: GUTTER, paddingBottom: GUTTER + 560, flexShrink: 0 }}>
+        {/* Wrapper: max(board+gutter, 100%) on both axes so it always fills the viewport
+            for centering, AND always has GUTTER px of scroll space past every board edge */}
+        <div style={{
+          minWidth:  `max(${BOARD_W * zoom + GUTTER * 2}px, 100%)`,
+          minHeight: `max(${BOARD_H * zoom + GUTTER * 2 + 560}px, 100%)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
         {/* Board size wrapper */}
-        <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative" }}>
+        <div style={{ width: BOARD_W * zoom, height: BOARD_H * zoom, position: "relative", flexShrink: 0 }}>
         {/* Board surface — scaled */}
         <div
           ref={boardSurfaceRef}
@@ -686,8 +691,7 @@ export default function Game({ gameState, mySocketId }) {
             </div>
           ))}
         </div>{/* end board size wrapper */}
-        </div>{/* end gutter */}
-        </div>{/* end centering wrapper */}
+        </div>{/* end centering+gutter wrapper */}
       </div>
 
       {/* ── Fixed player HUD ── */}
