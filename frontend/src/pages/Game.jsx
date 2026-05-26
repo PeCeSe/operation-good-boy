@@ -243,6 +243,15 @@ export default function Game({ gameState, mySocketId }) {
     };
   }, []);
 
+  // Initialise scroll so the board sits at the top-left of the viewport
+  // (gutter space exists in all directions for scrolling past edges)
+  useEffect(() => {
+    const c = containerRef.current;
+    if (!c) return;
+    c.scrollLeft = GUTTER;
+    c.scrollTop  = GUTTER;
+  }, []);
+
   const myColorRef = useRef("#f59e0b");
   const myNameRef = useRef("");
 
