@@ -529,7 +529,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
         isMe={isMe}
         serverCardPositions={player.cardPositions ?? {}}
         serverZOrder={player.zOrder ?? []}
-      />
+      />}
     </div>
   );
 }
