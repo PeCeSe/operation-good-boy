@@ -748,20 +748,20 @@ export default function Game({ gameState, mySocketId }) {
           >
             <div className="font-display text-lg text-ink leading-tight mb-1">{pendingPurchase.name}</div>
             <div className="text-sm text-ink-700 mb-4 flex flex-wrap items-center gap-1">
-              Kortet koster <strong className="inline-flex items-center gap-0.5">{pendingPurchase.cost} <PawCoin className="w-4 h-4" /></strong>, men payment zone har bare <strong className="inline-flex items-center gap-0.5">{paymentZone?.tokens ?? 0} <PawCoin className="w-4 h-4" /></strong>. Vil du kjøpe det likevel?
+              This card costs <strong className="inline-flex items-center gap-0.5">{pendingPurchase.cost} <PawCoin className="w-4 h-4" /></strong>, but the payment zone only has <strong className="inline-flex items-center gap-0.5">{paymentZone?.tokens ?? 0} <PawCoin className="w-4 h-4" /></strong>. Buy anyway?
             </div>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setPendingPurchase(null)}
                 className="text-sm text-ink-500 hover:text-ink-700 px-3 py-1.5 transition-colors"
               >
-                Avbryt
+                Cancel
               </button>
               <button
                 onClick={() => { socket.emit("buy_card", { cardId: pendingPurchase.id }); setPendingPurchase(null); }}
                 className="text-sm bg-ink text-white font-bold px-4 py-1.5 rounded-lg hover:bg-ink-700 transition-colors"
               >
-                Kjøp likevel
+                Buy anyway
               </button>
             </div>
           </div>
