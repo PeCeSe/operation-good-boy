@@ -197,7 +197,7 @@ function SettingsPanel({ me }) {
   return (
     <div className="px-6 py-5">
       <h2 className="text-[9px] text-ink-400 uppercase tracking-[0.15em] font-bold mb-3">Hand Layout</h2>
-      <div className="inline-flex rounded-xl border-2 border-ink shadow-[0_3px_0_#271d14]">
+      <div className="inline-flex rounded-xl border-2 border-ink shadow-[0_3px_0_#271d14] bg-plum-lighter">
         {LAYOUT_OPTIONS.map(({ id, label, icon, description }, i) => {
           const isActive = currentLayout === id;
           const isFirst  = i === 0;
@@ -218,8 +218,12 @@ function SettingsPanel({ me }) {
                 <span className="text-base leading-none">{icon}</span>
               </button>
               {/* Tooltip */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50">
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-ink" />
+              <div className={`absolute top-full mt-2 w-44 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-50 ${
+                isFirst ? "left-0" : isLast ? "right-0" : "left-1/2 -translate-x-1/2"
+              }`}>
+                <div className={`absolute bottom-full border-4 border-transparent border-b-ink ${
+                  isFirst ? "left-4" : isLast ? "right-4" : "left-1/2 -translate-x-1/2"
+                }`} />
                 <div className="bg-ink text-paper-100 font-body text-xs rounded-lg px-3 py-2 shadow-lg leading-relaxed text-center">
                   {description}
                 </div>
