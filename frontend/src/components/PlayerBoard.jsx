@@ -88,7 +88,7 @@ function SortableHandCard({ card, isMe }) {
         card={card}
         isPlayable={isMe}
         forceFullOpacity
-        className={isMe ? (isDragging ? "cursor-grabbing opacity-40" : "cursor-grab") : ""}
+        className={isMe ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}
       />
     </div>
   );
