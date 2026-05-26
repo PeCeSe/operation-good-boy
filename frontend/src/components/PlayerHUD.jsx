@@ -28,9 +28,43 @@ function DraggableCoin({ index, onMove }) {
   );
 }
 
+// ── Player tab button ──────────────────────────────────────────────────────────
+
+function PlayerTab({ player, isMe, isActive, isTurn, onClick }) {
+  const charData  = CHARACTERS.find(c => c.id === player?.character?.id);
+  const isStunned = (player?.lives ?? 1) === 0;
+  const headshot  = isStunned && charData?.stunned ? charData.stunned : charData?.headshot;
+
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        flex items-center gap-1.5 px-3 py-1.5 rounded-t-lg text-xs font-bold
+        transition-colors select-none shrink-0 border-2 border-b-0
+        ${isActive
+          ? "bg-paper-100 text-ink-700 border-ink-border/40 relative z-10"
+          : "bg-paper-200/60 text-ink-400 border-transparent hover:text-ink-600 hover:bg-paper-200"
+        }
+      `}
+    >
+      {headshot && (
+        <img src={headshot} alt={player.name} className="w-5 h-5 object-contain rounded-full shrink-0" />
+      )}
+      <span>{player.name}</span>
+      {isMe && (
+        <span className="text-[9px] text-ink-400 font-normal">(YOU)</span>
+      )}
+      {isTurn && (
+        <span className="w-2 h-2 rounded-full bg-moss shrink-0" title="Their turn" />
+      )}
+    </button>
+  );
+}
+
 // ── Constants ──────────────────────────────────────────────────────────────────
 
 const MAX_DRAWER_H  = 480;
+const TAB_BAR_H     = 38; // approximate tab bar height, used for content max-height
 const STAGING_W     = 180;
 const STAGING_H     = 44;
 
@@ -45,16 +79,24 @@ export default function PlayerHUD({
 }) {
   const [drawerHeight, setDrawerHeight] = useState(MAX_DRAWER_H);
   const [isDragging,   setIsDragging]   = useState(false);
+  const [activeTabId,  setActiveTabId]  = useState(null);
   const dragStateRef = useRef(null);
 
   const { setNodeRef: setStagingRef, isOver: isOverStaging } = useDroppable({ id: "staging" });
+
+  // All players in order — me first, then others
+  const allPlayers  = [me, ...(otherPlayers ?? [])].filter(Boolean);
+  const showTabs    = allPlayers.length > 1;
+
+  // Active tab defaults to "me"
+  const activePlayer = allPlayers.find(p => p.playerId === activeTabId) ?? me ?? allPlayers[0] ?? null;
+  const isViewingMe  = activePlayer?.playerId === me?.playerId;
 
   const lives      = me?.lives ?? 0;
   const maxLives   = me?.character?.maxLives ?? 9;
   const pawTokens  = me?.pawTokens ?? 0;
   const atkTokens  = me?.attackTokens ?? [];
   const isStunned  = lives === 0;
-  const charData   = CHARACTERS.find(c => c.id === me?.character?.id);
 
   // ── Handle drag-to-resize ──────────────────────────────────────────────────
 
@@ -66,7 +108,7 @@ export default function PlayerHUD({
     setIsDragging(true);
 
     const onMove = (ev) => {
-      const delta = startY - ev.clientY; // drag up → positive → taller
+      const delta = startY - ev.clientY;
       if (Math.abs(delta) > 4) dragStateRef.current.hasDragged = true;
       setDrawerHeight(Math.max(0, Math.min(MAX_DRAWER_H, startHeight + delta)));
     };
@@ -75,7 +117,6 @@ export default function PlayerHUD({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup",   onUp);
       setIsDragging(false);
-      // No snap — stays wherever released
     };
 
     window.addEventListener("pointermove", onMove);
@@ -83,7 +124,7 @@ export default function PlayerHUD({
   };
 
   const handleClick = () => {
-    if (dragStateRef.current?.hasDragged) return; // was a drag, not a tap
+    if (dragStateRef.current?.hasDragged) return;
     setDrawerHeight(h => h > 0 ? 0 : MAX_DRAWER_H);
   };
 
@@ -221,16 +262,40 @@ export default function PlayerHUD({
         </div>
       </div>
 
-      {/* ── Drawer — height-driven so it can be dragged partially open ── */}
+      {/* ── Drawer ── */}
       <div
-        className="bg-paper-100 border-t border-ink-border/20 overflow-hidden"
+        className="bg-paper-100 border-t border-ink-border/20 overflow-hidden flex flex-col"
         style={{
           height: drawerHeight,
           transition: isDragging ? "none" : "height 200ms ease-out",
         }}
       >
-        <div className="overflow-y-auto" style={{ maxHeight: MAX_DRAWER_H }}>
-          {me && <PlayerBoard player={me} isMe={true} isCurrentTurn={isMyTurn} paymentZone={paymentZone} />}
+        {/* Tab bar — only shown when there are multiple players */}
+        {showTabs && (
+          <div className="flex gap-0.5 px-3 pt-2 shrink-0 border-b border-ink-border/30 bg-paper-200/40">
+            {allPlayers.map(p => (
+              <PlayerTab
+                key={p.playerId}
+                player={p}
+                isMe={p.playerId === me?.playerId}
+                isActive={p.playerId === activePlayer?.playerId}
+                isTurn={p.playerId === currentPlayerId}
+                onClick={() => setActiveTabId(p.playerId)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Scrollable board content */}
+        <div className="overflow-y-auto flex-1" style={{ maxHeight: MAX_DRAWER_H - (showTabs ? TAB_BAR_H : 0) }}>
+          {activePlayer && (
+            <PlayerBoard
+              player={activePlayer}
+              isMe={isViewingMe}
+              isCurrentTurn={activePlayer.playerId === currentPlayerId}
+              paymentZone={isViewingMe ? paymentZone : null}
+            />
+          )}
         </div>
       </div>
     </div>
