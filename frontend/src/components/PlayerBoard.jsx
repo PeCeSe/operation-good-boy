@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useDraggable, useDroppable, DndContext, DragOverlay, useSensor, useSensors, PointerSensor, TouchSensor } from "@dnd-kit/core";
 import CHARACTERS from "../data/characters";
 import CardComponent from "./CardComponent";
+import PawCoin from "./PawCoin";
 import { ATTACK_CONFIG } from "./TokenPool";
 import socket from "../socket";
 
@@ -441,6 +442,34 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
         </div>
         )}
       </>}
+
+      {/* Compact stats — shown instead of the full header when viewing another player's tab */}
+      {hideHeader && !isMe && (
+        <div className="flex items-center gap-5 px-4 py-2.5 bg-paper-50 border-b border-ink-border/15">
+          {/* Lives */}
+          <div className="flex items-center gap-1.5">
+            <span className={`text-lg leading-none ${(lives ?? 0) === 0 ? "text-ink-300" : "text-red"}`}>♥</span>
+            <span className="font-bold text-ink text-sm">{lives ?? 0}</span>
+            <span className="text-ink-300 text-xs">/ {maxLives}</span>
+          </div>
+          {/* Pawcoins */}
+          <div className="flex items-center gap-1.5">
+            <PawCoin className="w-4 h-4" />
+            <span className="font-bold text-gold-deep text-sm">{pawTokens ?? 0}</span>
+          </div>
+          {/* Attack tokens */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-base leading-none">{ATTACK_CONFIG.attack.icon}</span>
+            <span className="font-bold text-ink text-sm">{attackTokens?.length ?? 0}</span>
+          </div>
+          {/* Stunned badge */}
+          {(lives ?? 0) === 0 && (
+            <span className="text-xs text-red font-bold bg-red/10 border border-red/30 rounded px-1.5 py-0.5 ml-1">
+              STUNNED
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Hand area — full-width row: draw pile | hand canvas | discard pile */}
       <HandArea
