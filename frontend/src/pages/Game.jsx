@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { flushSync } from "react-dom";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable } from "@dnd-kit/core";
@@ -185,15 +186,15 @@ export default function Game({ gameState, mySocketId }) {
       const newScrollX      = newBoardLeft + boardX * newZoom - cursorX;
       const newScrollY      = GUTTER       + boardY * newZoom - cursorY;
 
-      zoomRef.current = newZoom;
-      setZoom(newZoom);
-
-      // Apply after React re-renders with the new wrapper dimensions
-      requestAnimationFrame(() => {
-        if (!c) return;
-        c.scrollLeft = Math.max(0, newScrollX);
-        c.scrollTop  = Math.max(0, newScrollY);
+      // flushSync forces React to re-render synchronously (new wrapper dimensions
+      // land in the DOM immediately), so we can set scroll right after with no
+      // intermediate paint — eliminates the zoom-flicker.
+      flushSync(() => {
+        zoomRef.current = newZoom;
+        setZoom(newZoom);
       });
+      c.scrollLeft = Math.max(0, newScrollX);
+      c.scrollTop  = Math.max(0, newScrollY);
     };
 
     // Scroll = zoom, aimed at cursor
