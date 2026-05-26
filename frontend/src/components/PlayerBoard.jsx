@@ -49,7 +49,7 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
       }}
     >
       <div ref={setNodeRef} {...(isMe ? { ...listeners, ...attributes } : {})} style={{ cursor: isMe ? (isDragging ? "grabbing" : "grab") : "default" }}>
-        <CardComponent card={card} isPlayable={false} forceFullOpacity />
+        <CardComponent card={card} isPlayable={isMe} forceFullOpacity />
       </div>
     </div>
   );
