@@ -48,8 +48,13 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
         touchAction: "none",
       }}
     >
-      <div ref={setNodeRef} {...(isMe ? { ...listeners, ...attributes } : {})} style={{ cursor: isMe ? (isDragging ? "grabbing" : "grab") : "default" }}>
-        <CardComponent card={card} isPlayable={isMe} forceFullOpacity />
+      <div ref={setNodeRef} {...(isMe ? { ...listeners, ...attributes } : {})}>
+        <CardComponent
+          card={card}
+          isPlayable={isMe}
+          forceFullOpacity
+          className={isMe ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}
+        />
       </div>
     </div>
   );
