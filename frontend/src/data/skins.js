@@ -6,41 +6,44 @@
 //   headshot  — transparent background portrait, shown in tabs + lobby cards
 //   stunned   — same but for when the player is at 0 lives
 //   image     — full artwork, shown in the character panel
+//
+// Leave headshot/stunned/image as null until photos are ready — the UI will
+// show a coloured initial circle as a placeholder instead.
 
 const SKINS = [
   {
-    id: "skin_placeholder_1",
-    name: "Cat Name",           // ← replace with your cat's name
-    headshot: "/skins/placeholder_headshot.png",
-    stunned:  "/skins/placeholder_stunned.png",
-    image:    "/skins/placeholder.png",
-    backstory: "Coming soon.",  // ← replace with a fun description
-    owner: "Pernille",          // just for reference, not shown in game
+    id: "skin_lulla",
+    name: "Lulla",
+    headshot: null,   // ← add /skins/lulla_headshot.png when ready
+    stunned:  null,
+    image:    null,
+    backstory: "Coming soon.",
+    owner: "Pernille",
   },
   {
-    id: "skin_placeholder_2",
-    name: "Cat Name",
-    headshot: "/skins/placeholder_headshot.png",
-    stunned:  "/skins/placeholder_stunned.png",
-    image:    "/skins/placeholder.png",
+    id: "skin_thermo",
+    name: "Thermo",
+    headshot: null,
+    stunned:  null,
+    image:    null,
     backstory: "Coming soon.",
     owner: "Friend 1",
   },
   {
-    id: "skin_placeholder_3",
-    name: "Cat Name",
-    headshot: "/skins/placeholder_headshot.png",
-    stunned:  "/skins/placeholder_stunned.png",
-    image:    "/skins/placeholder.png",
+    id: "skin_nestor",
+    name: "Nestor",
+    headshot: null,
+    stunned:  null,
+    image:    null,
     backstory: "Coming soon.",
     owner: "Friend 1",
   },
   {
-    id: "skin_placeholder_4",
-    name: "Cat Name & Cat Name", // ← duo skin
-    headshot: "/skins/placeholder_headshot.png",
-    stunned:  "/skins/placeholder_stunned.png",
-    image:    "/skins/placeholder.png",
+    id: "skin_mango_chili",
+    name: "Mango & Chili",
+    headshot: null,
+    stunned:  null,
+    image:    null,
     backstory: "Coming soon.",
     owner: "Friend 2",
   },

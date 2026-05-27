@@ -1,7 +1,8 @@
 /**
  * Resolve visual display data for a player.
  * If the player has a skinId and that skin exists, its name/headshot/stunned/image/backstory
- * override the character's. Gameplay data (cards, mechanics) is unaffected.
+ * override the character's — but only when they're non-null. Null skin images fall back
+ * to the character's artwork so unfinished skins still look reasonable in-game.
  *
  * @param {object} player      - player object from lobby or game state
  * @param {array}  SKINS       - skin definitions (from skins.js)
@@ -19,10 +20,11 @@ export function getDisplayData(player, SKINS, CHARACTERS) {
       return {
         ...char,
         name:      skin.name,
-        headshot:  skin.headshot,
-        stunned:   skin.stunned,
-        image:     skin.image,
         backstory: skin.backstory,
+        // Only override images when the skin actually has them
+        ...(skin.headshot != null && { headshot: skin.headshot }),
+        ...(skin.stunned  != null && { stunned:  skin.stunned  }),
+        ...(skin.image    != null && { image:    skin.image    }),
       };
     }
   }

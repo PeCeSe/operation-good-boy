@@ -339,11 +339,22 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
               </span>
             </button>
 
-            {SKINS.map((skin) => {
+            {SKINS.map((skin, idx) => {
               const isSelected = myPlayer?.skinId === skin.id;
               const takenBy = (roomInfo?.players || []).find(
                 (p) => p.socketId !== mySocketId && p.skinId === skin.id
               );
+              // Cycle through warm palette colours for placeholder avatars
+              const avatarColors = [
+                "bg-[#e8a87c] text-white",   // warm peach
+                "bg-[#7cb8e8] text-white",   // sky blue
+                "bg-[#a8d8a8] text-ink",     // sage green
+                "bg-[#e8c87c] text-ink",     // warm gold
+              ];
+              const avatarColor = avatarColors[idx % avatarColors.length];
+              // Use first letter of first word as initial
+              const initial = skin.name.charAt(0).toUpperCase();
+
               return (
                 <button
                   key={skin.id}
@@ -359,11 +370,17 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
                       ? "border-ink-border"
                       : "border-ink-border hover:border-ink-400 hover:scale-105"
                   }`}>
-                    <img
-                      src={skin.headshot}
-                      alt={skin.name}
-                      className="w-full h-full object-cover"
-                    />
+                    {skin.headshot ? (
+                      <img
+                        src={skin.headshot}
+                        alt={skin.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className={`w-full h-full flex items-center justify-center font-display text-2xl ${avatarColor}`}>
+                        {initial}
+                      </div>
+                    )}
                   </div>
                   <span className={`text-[10px] font-semibold max-w-[56px] text-center leading-tight ${
                     isSelected ? "text-gold-deep" : "text-ink-400"
