@@ -6,7 +6,7 @@ import { ATTACK_CONFIG } from "./TokenPool";
 import CHARACTERS from "../data/characters";
 import SKINS from "../data/skins";
 import { getDisplayData } from "../data/getDisplayData";
-import socket from "../socket";
+import socket, { BACKEND_URL } from "../socket";
 
 // ── Draggable pawcoin ──────────────────────────────────────────────────────────
 
@@ -437,7 +437,7 @@ export default function PlayerHUD({
 
           {/* Right: End Turn */}
           <button
-            onClick={() => socket.emit("end_turn")}
+            onClick={() => { socket.emit("end_turn"); fetch(`${BACKEND_URL}/health`).catch(() => {}); }}
             disabled={!isMyTurn}
             className={`shrink-0 font-display px-5 py-2.5 rounded-lg border-2 transition-[transform,box-shadow] ${
               isMyTurn
