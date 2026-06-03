@@ -256,6 +256,9 @@ export default function PlayerHUD({
   paymentZone,
   currentPlayerId,
   isMyTurn,
+  handCursors,
+  myColor,
+  myName,
 }) {
   const [drawerHeight, setDrawerHeight] = useState(MAX_DRAWER_H);
   const [isDragging,   setIsDragging]   = useState(false);
@@ -513,6 +516,9 @@ export default function PlayerHUD({
                   isCurrentTurn={activePlayer.playerId === currentPlayerId}
                   paymentZone={isViewingMe ? paymentZone : null}
                   hideHeader={true}
+                  viewerCursors={(handCursors ?? {})[activePlayer.playerId] ?? {}}
+                  myColor={myColor}
+                  myName={myName}
                 />
               )
           }

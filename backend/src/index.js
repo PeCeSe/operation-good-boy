@@ -368,6 +368,18 @@ io.on("connection", (socket) => {
     socket.to(room.code).emit("cursor_leave", { socketId: socket.id });
   });
 
+  socket.on("hand_cursor", ({ targetPlayerId, x, y, name, color }) => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room) return;
+    socket.to(room.code).emit("hand_cursor_update", { socketId: socket.id, targetPlayerId, x, y, name, color });
+  });
+
+  socket.on("hand_cursor_leave", ({ targetPlayerId }) => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room) return;
+    socket.to(room.code).emit("hand_cursor_update", { socketId: socket.id, targetPlayerId, gone: true });
+  });
+
   // ── Disconnect ──────────────────────────────────────────────────────────────
 
   socket.on("disconnect", () => {

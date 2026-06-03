@@ -161,6 +161,7 @@ export default function Game({ gameState, mySocketId }) {
   const lastOverRef = useRef(null);
   const [zoom, setZoom] = useState(() => Math.max(0.25, Math.min(2, window.innerWidth / BOARD_W)));
   const [otherCursors, setOtherCursors] = useState({});
+  const [handCursors, setHandCursors] = useState({});
   const zoomRef = useRef(zoom);
   useEffect(() => { zoomRef.current = zoom; }, [zoom]);
 
@@ -429,11 +430,27 @@ export default function Game({ gameState, mySocketId }) {
     socket.on("cursor_update", onCursorUpdate);
     socket.on("cursor_leave", onCursorLeave);
 
+    const onHandCursorUpdate = ({ socketId, targetPlayerId, x, y, name, color, gone }) => {
+      setHandCursors(prev => {
+        const target = { ...(prev[targetPlayerId] ?? {}) };
+        if (gone) delete target[socketId];
+        else target[socketId] = { x, y, name, color };
+        if (Object.keys(target).length === 0) {
+          const next = { ...prev };
+          delete next[targetPlayerId];
+          return next;
+        }
+        return { ...prev, [targetPlayerId]: target };
+      });
+    };
+    socket.on("hand_cursor_update", onHandCursorUpdate);
+
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerleave", onPointerLeave);
       socket.off("cursor_update", onCursorUpdate);
       socket.off("cursor_leave", onCursorLeave);
+      socket.off("hand_cursor_update", onHandCursorUpdate);
       socket.emit("cursor_leave");
     };
   }, []);
@@ -802,6 +819,9 @@ export default function Game({ gameState, mySocketId }) {
         paymentZone={paymentZone}
         currentPlayerId={currentPlayerId}
         isMyTurn={isMyTurn}
+        handCursors={handCursors}
+        myColor={me?.character?.bgFrom ?? "#f59e0b"}
+        myName={me?.name ?? ""}
       />
 
       {/* ── Drag overlay ── */}

@@ -99,7 +99,7 @@ function SortableHandCard({ card, isMe }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -122,7 +122,15 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
 
   return (
     <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
-    <div className="flex gap-3 px-4 py-3 bg-paper-50 border-t border-ink-border/20" style={{ minWidth: 900 }}>
+    <div
+      className="flex gap-3 px-4 py-3 bg-paper-50 border-t border-ink-border/20 relative"
+      style={{ minWidth: 900 }}
+      onPointerMove={onCursorMove ? (e) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        onCursorMove(e.clientX - rect.left, e.clientY - rect.top);
+      } : undefined}
+      onPointerLeave={onCursorLeave}
+    >
       {/* ── Draw Pile ── */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
         <div className="text-[9px] text-ink-300 uppercase tracking-[0.12em] font-bold">Draw</div>
@@ -236,6 +244,32 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
         )}
       </div>
 
+      {/* ── Hand cursor overlays ── */}
+      {Object.entries(viewerCursors).map(([socketId, cursor]) => (
+        <div
+          key={socketId}
+          style={{ position: "absolute", left: cursor.x, top: cursor.y, pointerEvents: "none", zIndex: 9999 }}
+        >
+          <svg width="16" height="20" viewBox="0 0 16 20" fill="none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", display: "block" }}>
+            <path d="M0 0 L0 16 L4.5 12 L7.5 19 L10 18 L7 11 L12 11 Z" fill={cursor.color} stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+          </svg>
+          <div style={{
+            background: cursor.color,
+            color: "white",
+            fontSize: 10,
+            fontWeight: 700,
+            padding: "1px 6px",
+            borderRadius: 4,
+            whiteSpace: "nowrap",
+            marginTop: 1,
+            marginLeft: 2,
+            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+          }}>
+            {cursor.name}
+          </div>
+        </div>
+      ))}
+
       {/* ── Peek modal ── */}
       {isMe && peekCard && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60" onClick={() => socket.emit("peek_to_top")}>
@@ -285,7 +319,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
   );
 }
 
-function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPositions, serverZOrder, handLayout = "tidy", serverCardOrder = [] }) {
+function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPositions, serverZOrder, handLayout = "tidy", serverCardOrder = [], targetPlayerId, viewerCursors = {}, myColor, myName }) {
   const [cardPositions, setCardPositions] = useState({});
   const [zOrder, setZOrder] = useState([]);
   const [cardOrder, setCardOrder] = useState([]);
@@ -294,6 +328,20 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [pendingDiscards, setPendingDiscards] = useState(new Set());
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
+  const lastCursorEmit = useRef(0);
+
+  const handleCursorMove = (x, y) => {
+    if (!targetPlayerId) return;
+    const now = Date.now();
+    if (now - lastCursorEmit.current < 50) return;
+    lastCursorEmit.current = now;
+    socket.emit("hand_cursor", { targetPlayerId, x, y, name: myName ?? "", color: myColor ?? "#f59e0b" });
+  };
+
+  const handleCursorLeave = () => {
+    if (!targetPlayerId) return;
+    socket.emit("hand_cursor_leave", { targetPlayerId });
+  };
 
   // Clear pending discards once the server confirms them (card gone from hand)
   useEffect(() => {
@@ -465,6 +513,9 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
           handLayout="sorted"
           sortedCardOrder={displayCardOrder}
           activeSortCardId={activeSortCardId}
+          viewerCursors={viewerCursors}
+          onCursorMove={handleCursorMove}
+          onCursorLeave={handleCursorLeave}
         />
         <DragOverlay dropAnimation={null}>
           {activeSortCard && (
@@ -493,6 +544,9 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
         handCanvasRef={handCanvasRef}
         handLayout={handLayout}
         sortedCardOrder={null}
+        viewerCursors={viewerCursors}
+        onCursorMove={handleCursorMove}
+        onCursorLeave={handleCursorLeave}
       />
       <DragOverlay dropAnimation={null}>
         {activeDragType === "draw_pile" && (
@@ -510,7 +564,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
-export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, hideHeader = false }) {
+export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, hideHeader = false, viewerCursors = {}, myColor, myName }) {
   const [showCharacter, setShowCharacter] = useState(false);
 
   if (!player) return null;
@@ -686,6 +740,10 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
         serverZOrder={player.zOrder ?? []}
         handLayout={player.handLayout ?? "tidy"}
         serverCardOrder={player.cardOrder ?? []}
+        targetPlayerId={playerId}
+        viewerCursors={viewerCursors}
+        myColor={myColor}
+        myName={myName}
       />}
     </div>
   );
