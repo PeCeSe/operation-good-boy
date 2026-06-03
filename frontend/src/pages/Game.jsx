@@ -916,7 +916,7 @@ function PaymentDropZone({ paymentZone }) {
             onClick={() => socket.emit("clear_payment")}
             className="text-[10px] text-ink-500 hover:text-ink-700 font-semibold transition-colors"
           >
-            Returner ↩
+            Return ↩
           </button>
         </div>
       )}
