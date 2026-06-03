@@ -58,7 +58,7 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
   // renderPrevGhostingRef: detect the ghosting→false transition in the same render (before effects).
   // effectPrevGhostingRef: detect it in the effect to trigger the animation sequence.
   // returnPhase: null → "start" (1 frame: at drop origin, no transition)
-  //           → "animating" (200ms: transform slides to normal, card visible)
+  //           → "animating" (100ms: transform slides to normal, card visible)
   //           → null
   const renderPrevGhostingRef = useRef(ghosting);
   const effectPrevGhostingRef = useRef(ghosting);
@@ -71,13 +71,17 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     const wasGhosting = effectPrevGhostingRef.current;
     effectPrevGhostingRef.current = ghosting;
     if (!wasGhosting || ghosting) return;
-    let raf, timer;
+    let r1, r2, timer;
     setReturnPhase("start");
-    raf = requestAnimationFrame(() => {
-      setReturnPhase("animating");
-      timer = setTimeout(() => setReturnPhase(null), 220);
+    // Double rAF ensures the browser paints "start" (card at drop origin) before
+    // "animating" so the CSS transition sees the transform change and runs.
+    r1 = requestAnimationFrame(() => {
+      r2 = requestAnimationFrame(() => {
+        setReturnPhase("animating");
+        timer = setTimeout(() => setReturnPhase(null), 110);
+      });
     });
-    return () => { cancelAnimationFrame(raf); clearTimeout(timer); };
+    return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); clearTimeout(timer); };
   }, [ghosting]);
 
   // Gathering: card is selected, multi-drag is pending, gatherTarget set by pointer-down
@@ -113,9 +117,9 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         // Pickup gather: slide toward cursor (visible 180ms via opacity delay), then hide
         // Drop return:   no transition to place card at drop origin, then animate to position
         transition: isDragging || ghosting ? "none"
-          : isGathering ? "transform 180ms ease-in, opacity 0ms linear 180ms"
+          : isGathering ? "transform 90ms ease-in, opacity 0ms linear 90ms"
           : justStoppedGhosting || returnPhase === "start" ? "none"
-          : returnPhase === "animating" ? "transform 200ms ease-out"
+          : returnPhase === "animating" ? "transform 100ms ease-out"
           : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
       }}
     >
@@ -602,7 +606,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: isMultiDragReady
-        ? { delay: 200, tolerance: 10 }  // delay lets gather animation play first
+        ? { delay: 200, tolerance: 99999 }  // large tolerance so moving cursor doesn't cancel gather
         : { distance: 6 },
     }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
