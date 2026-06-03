@@ -99,6 +99,7 @@ io.on("connection", (socket) => {
       emitRoomUpdate(leftCode);
     }
     const code = roomManager.createRoom(socket.id, password || null, playerToken);
+    if (playerName) setName(socket.id, playerName);
     socket.join(code);
     socket.emit("room_created", { code });
     emitRoomUpdate(code);
