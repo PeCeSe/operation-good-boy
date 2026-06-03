@@ -155,11 +155,21 @@ export default function Game({ gameState, mySocketId }) {
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
   const [activeDrag, setActiveDrag] = useState(null);
   const [pendingPurchase, setPendingPurchase] = useState(null);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const lastOverRef = useRef(null);
   const [zoom, setZoom] = useState(() => Math.max(0.25, Math.min(2, window.innerWidth / BOARD_W)));
   const [otherCursors, setOtherCursors] = useState({});
   const zoomRef = useRef(zoom);
   useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+
+  useEffect(() => {
+    if (!showLeaveConfirm) return;
+    const handler = (e) => {
+      if (!e.target.closest("[data-leave-confirm]")) setShowLeaveConfirm(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showLeaveConfirm]);
 
   const clampZoom = (z) => Math.max(0.25, Math.min(2, z));
 
@@ -508,8 +518,34 @@ export default function Game({ gameState, mySocketId }) {
 
       {/* ── Top bar ── */}
       <div className="fixed top-0 left-0 right-0 z-[150] h-14 bg-paper-50 border-b-2 border-ink-border flex items-center px-3 gap-3 shadow-sm">
-        {/* Left: logo */}
-        <span className="font-display text-ink-300 text-xs tracking-wide shrink-0 hidden md:block">🐾 Operation: Good Boy</span>
+        {/* Left: logo — click shows leave-game confirmation */}
+        <div className="relative shrink-0 hidden md:block" data-leave-confirm>
+          <button
+            onClick={() => setShowLeaveConfirm(v => !v)}
+            className="font-display text-ink-300 text-xs tracking-wide hover:text-ink-500 transition-colors"
+          >
+            🐾 Operation: Good Boy
+          </button>
+          {showLeaveConfirm && (
+            <div className="absolute top-full left-0 mt-2 bg-paper-50 border-2 border-ink-border rounded-xl shadow-lg p-4 w-56 z-10">
+              <p className="font-body text-sm text-ink mb-3 leading-snug">Leave the game? You can rejoin via the room link.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => navigate("/")}
+                  className="flex-1 bg-red text-white font-display text-sm py-1.5 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+                >
+                  Leave
+                </button>
+                <button
+                  onClick={() => setShowLeaveConfirm(false)}
+                  className="flex-1 bg-paper-200 text-ink font-display text-sm py-1.5 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
+                >
+                  Stay
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Center: player turn-order pills */}
         <div className="flex-1 flex items-center justify-center gap-1.5">
