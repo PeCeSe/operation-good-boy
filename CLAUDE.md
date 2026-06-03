@@ -102,6 +102,7 @@ Defeat all enemies including **Good Boy** (always at the bottom of the enemy dec
 - **4th character**: Slot exists in the game but no character is designed for it yet.
 - **Win/defeat screens**: Exist but are basic. Need visual polish.
 - **Mobile layout**: Works but not optimized for small screens.
+- **Skins (UI hidden, backend ready)**: The full skins system is implemented server-side (`skinId` on players, `select_skin` socket event, `getDisplayData` helper, `skins.js` data file) but the lobby UI is hidden behind `{false && ...}` until cat artwork is ready. Skins defined: Lulla, Thermo, Nestor, Mango & Chili. To re-enable: remove the `{false &&` guard in `Lobby.jsx` around the "Skin selector" block. Each skin needs three images in `/public/skins/` — see comment in that block for details.
 
 ---
 
@@ -116,6 +117,7 @@ Defeat all enemies including **Good Boy** (always at the bottom of the enemy dec
 - [ ] Mobile-optimized layout
 - [ ] Win/defeat screen polish
 - [ ] Spectator mode or reconnection improvements
+- [ ] Skins — cat photo reskins (Lulla, Thermo, Nestor, Mango & Chili); backend done, UI hidden pending artwork
 - [ ] Possibly: player avatars/emotes during other players' turns
 - [ ] Possibly: a tutorial or rules summary in-game
 

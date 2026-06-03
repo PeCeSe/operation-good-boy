@@ -315,8 +315,26 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
         </div>
       </div>
 
-      {/* Skin selector */}
-      {SKINS.length > 0 && (
+      {/*
+        ── Skin selector (temporarily hidden) ──────────────────────────────────
+        The full skin system is implemented (backend stores skinId, select_skin
+        socket event, getDisplayData helper, skins.js data file) but the UI is
+        hidden until cat artwork is ready. To re-enable: remove this comment
+        wrapper and the closing brace below, making the block render normally.
+
+        Skins defined in frontend/src/data/skins.js:
+          - skin_lulla       (Pernille's cat Lulla)
+          - skin_thermo      (Thermo)
+          - skin_nestor      (Nestor)
+          - skin_mango_chili (Mango & Chili, duo skin)
+
+        Each skin needs three images in /public/skins/:
+          {name}_headshot.png  — transparent portrait (tabs + lobby)
+          {name}_stunned.png   — stunned variant
+          {name}.png           — full artwork (character panel)
+        Compress with: pngquant --quality=65-85 --speed 1 --force --output img.png img.png
+      */}
+      {false && SKINS.length > 0 && (
         <div>
           <h2 className="font-display text-2xl text-ink mb-1">Appearance <span className="text-sm font-body font-normal text-ink-400">(optional)</span></h2>
           <p className="text-xs text-ink-400 font-body mb-3">Pick a skin to replace your character's portrait — just cosmetic, no gameplay changes.</p>
