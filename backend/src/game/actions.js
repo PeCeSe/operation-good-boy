@@ -38,7 +38,9 @@ function checkLocationLoss(state) {
 function setLives(state, playerId, lives) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
-  p.lives = Math.max(0, Math.min(p.character.maxLives, lives));
+  const clamped = Math.max(0, Math.min(p.character.maxLives, lives));
+  if (clamped > p.lives) p.stats.livesHealed += clamped - p.lives;
+  p.lives = clamped;
   log(state, `${p.name} now has ${p.lives} life.`);
 }
 
@@ -46,13 +48,16 @@ function toggleStun(state, playerId) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
   p.isStunned = !p.isStunned;
+  if (p.isStunned) p.stats.timesStunned++;
   log(state, `${p.name} is ${p.isStunned ? "now stunned" : "no longer stunned"}.`);
 }
 
 function setPawTokens(state, playerId, tokens) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
-  p.pawTokens = Math.max(0, tokens);
+  const next = Math.max(0, tokens);
+  if (next > p.pawTokens) p.stats.coinsEarned += next - p.pawTokens;
+  p.pawTokens = next;
 }
 
 // ── Attack tokens ─────────────────────────────────────────────────────────────
@@ -64,6 +69,7 @@ function addAttackToken(state, playerId, type) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
   p.attackTokens.push({ id: `tok_${_tokenId++}`, type: "attack" });
+  p.stats.attacksCreated++;
 }
 
 function moveTokenToEnemy(state, enemyId, tokenId) {
@@ -81,6 +87,7 @@ function moveTokenToEnemy(state, enemyId, tokenId) {
   const enemy = state.enemies.find((e) => e && e.id === enemyId);
   if (!enemy) { owner.attackTokens.push(token); return; }
   enemy.damageTokens.push(token);
+  owner.stats.damageDealt++;
   log(state, `${owner.name} places an attack token on ${enemy.name}.`);
 }
 
@@ -205,6 +212,7 @@ function buyCard(state, playerId, cardId) {
   const card = state.shop[idx];
   state.shop[idx] = null;
   p.discardPile.push(card);
+  p.stats.cardsBought++;
 
   const paid = state.paymentZone.tokens;
   const change = Math.max(0, paid - card.cost);
@@ -267,15 +275,22 @@ function defeatEnemy(state, playerId, enemyId) {
   state.enemies[idx] = null;
   state.enemyDiscard = state.enemyDiscard ?? [];
   state.enemyDiscard.push(enemy);
+  if (p) p.stats.enemiesDefeated++;
   log(state, `${enemy.name} defeated! (by ${p?.name ?? "unknown"})`);
   checkWin(state);
 }
 
 // ── Location ──────────────────────────────────────────────────────────────────
 
-function setCucumbers(state, count) {
+function setCucumbers(state, count, playerId) {
   if (!state.currentLocation) return;
-  state.currentLocation.currentCucumbers = Math.max(0, count);
+  const prev = state.currentLocation.currentCucumbers ?? 0;
+  const next = Math.max(0, count);
+  if (playerId && next < prev) {
+    const p = state.players.find((p) => p.playerId === playerId);
+    if (p) p.stats.cucumbersRemoved += prev - next;
+  }
+  state.currentLocation.currentCucumbers = next;
   checkLocationLoss(state);
 }
 

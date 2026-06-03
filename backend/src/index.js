@@ -312,7 +312,10 @@ io.on("connection", (socket) => {
   // ── Location ────────────────────────────────────────────────────────────────
 
   socket.on("set_cucumbers", ({ count } = {}) => {
-    withGame(socket, (gs) => actions.setCucumbers(gs, count));
+    withGame(socket, (gs) => {
+      const playerId = gs.players.find((p) => p.socketId === socket.id)?.playerId;
+      actions.setCucumbers(gs, count, playerId);
+    });
   });
 
   // ── Turn ────────────────────────────────────────────────────────────────────

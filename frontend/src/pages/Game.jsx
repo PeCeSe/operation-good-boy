@@ -13,6 +13,7 @@ import EventDeck, { EventCardDisplay } from "../components/EventDeck";
 import GameLog from "../components/GameLog";
 import { ATTACK_CONFIG } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
+import StatsScreen from "../components/StatsScreen";
 import CHARACTERS from "../data/characters";
 import SKINS from "../data/skins";
 import { getDisplayData } from "../data/getDisplayData";
@@ -480,37 +481,8 @@ export default function Game({ gameState, mySocketId }) {
     }
   }
 
-  if (phase === "victory") {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-paper-100">
-        <div className="text-6xl">🎉</div>
-        <h1 className="font-display text-4xl text-moss">Victory!</h1>
-        <p className="text-ink-500 font-body">Good Boy has been defeated. The neighborhood is safe.</p>
-        <p className="text-ink-300 text-sm italic font-body">For now.</p>
-        <button
-          onClick={() => navigate("/")}
-          className="mt-4 bg-moss text-white font-display px-6 py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
-        >
-          Back to Home
-        </button>
-      </div>
-    );
-  }
-
-  if (phase === "defeat") {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-        <div className="text-6xl">🥒</div>
-        <h1 className="text-4xl font-bold text-red-400">Defeat</h1>
-        <p className="text-ink-500 font-body">The neighborhood is overrun with cucumbers.</p>
-        <button
-          onClick={() => navigate("/")}
-          className="mt-4 bg-paper-200 text-ink font-display px-6 py-3 rounded-lg border-2 border-ink shadow-[0_2px_0_#271d14] hover:-translate-y-px hover:shadow-[0_3px_0_#271d14] active:translate-y-px active:shadow-none transition-[transform,box-shadow]"
-        >
-          Back to Home
-        </button>
-      </div>
-    );
+  if (phase === "victory" || phase === "defeat") {
+    return <StatsScreen gameState={gameState} mySocketId={mySocketId} />;
   }
 
   return (

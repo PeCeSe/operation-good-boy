@@ -78,11 +78,22 @@ function initGameState(room) {
       zOrder: [],
       handLayout: "tidy",
       cardOrder: [],
+      stats: {
+        damageDealt: 0,
+        attacksCreated: 0,
+        coinsEarned: 0,
+        cucumbersRemoved: 0,
+        timesStunned: 0,
+        cardsBought: 0,
+        livesHealed: 0,
+        enemiesDefeated: 0,
+      },
     };
   });
 
   return {
     roomCode: room.code,
+    totalEnemies: enemyDeck.length,
     phase: "playing",
     currentPlayerId: players[0].playerId,
     roundNumber: 1,
