@@ -39,7 +39,7 @@ export function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect, ghosting = false }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -59,10 +59,10 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
-        opacity: 1,
+        // hide original while dragging (DragOverlay shows it); fade non-dragged selected cards
+        opacity: isDragging ? 0 : ghosting ? 0.25 : 1,
         touchAction: "none",
-        transform: isDragging ? "rotate(2deg)" : undefined,
-        transition: isDragging ? "none" : "transform 150ms ease",
+        transition: isDragging ? "none" : "transform 150ms ease, opacity 100ms ease",
       }}
     >
       <div
@@ -74,7 +74,7 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
           card={card}
           isPlayable={isMe}
           forceFullOpacity
-          className={isMe ? (isDragging ? "cursor-grabbing" : "cursor-grab") : ""}
+          className={isMe ? "cursor-grab" : ""}
         />
       </div>
     </div>
@@ -108,7 +108,7 @@ function SortableHandCard({ card, isMe }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), onToggleSelect, marquee, onCanvasPointerDown }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -196,18 +196,27 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
             </div>
           </SortableContext>
         ) : (
-          hand?.map((card, i) => (
-            <DraggableHandCard
-              key={card.id}
-              card={card}
-              position={cardPositions[card.id] ?? { x: i * 28, y: TIDY_Y }}
-              zIndex={zOrder.indexOf(card.id) + 2}
-              onBringToFront={onBringToFront}
-              isMe={isMe}
-              isSelected={selectedCards.has(card.id)}
-              onToggleSelect={onToggleSelect}
-            />
-          ))
+          hand?.map((card, i) => {
+            // Fade selected cards that aren't the one being dragged
+            const ghosting = activeDragCardId != null
+              && selectedCards.size > 1
+              && selectedCards.has(activeDragCardId)
+              && selectedCards.has(card.id)
+              && card.id !== activeDragCardId;
+            return (
+              <DraggableHandCard
+                key={card.id}
+                card={card}
+                position={cardPositions[card.id] ?? { x: i * 28, y: TIDY_Y }}
+                zIndex={zOrder.indexOf(card.id) + 2}
+                onBringToFront={onBringToFront}
+                isMe={isMe}
+                isSelected={selectedCards.has(card.id)}
+                onToggleSelect={onToggleSelect}
+                ghosting={ghosting}
+              />
+            );
+          })
         )}
         {/* Marquee selection rectangle */}
         {marquee && (
@@ -357,6 +366,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [zOrder, setZOrder] = useState([]);
   const [cardOrder, setCardOrder] = useState([]);
   const [activeDragType, setActiveDragType] = useState(null);
+  const [activeDragCardId, setActiveDragCardId] = useState(null);
   const [activeSortCardId, setActiveSortCardId] = useState(null);
   const [pendingDiscards, setPendingDiscards] = useState(new Set());
   const [selectedCards, setSelectedCards] = useState(new Set());
@@ -511,6 +521,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   // ── Free/Tidy drag end ─────────────────────────────────────────────────────
   const handleDragEnd = ({ active, over, delta }) => {
     setActiveDragType(null);
+    setActiveDragCardId(null);
     if (active?.data?.current?.draggableType === "draw_pile") {
       const canvasEl = handCanvasRef.current;
       const translated = active.rect.current?.translated;
@@ -636,10 +647,18 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     );
   }
 
+  const draggedCard = activeDragCardId ? (hand || []).find(c => c.id === activeDragCardId) : null;
+  const isMultiDrag = draggedCard && selectedCards.size > 1 && selectedCards.has(activeDragCardId);
+  const extraCount = isMultiDrag ? Math.min(selectedCards.size - 1, 3) : 0;
+
   return (
     <DndContext
       sensors={sensors}
-      onDragStart={({ active }) => setActiveDragType(active?.data?.current?.draggableType ?? null)}
+      onDragStart={({ active }) => {
+        const type = active?.data?.current?.draggableType ?? null;
+        setActiveDragType(type);
+        if (type === "hand_card") setActiveDragCardId(active?.data?.current?.cardId ?? null);
+      }}
       onDragEnd={handleDragEnd}
     >
       <HandAreaInner
@@ -661,6 +680,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
         onToggleSelect={onToggleSelect}
         marquee={marquee}
         onCanvasPointerDown={onCanvasPointerDown}
+        activeDragCardId={activeDragCardId}
       />
       <DragOverlay dropAnimation={null}>
         {activeDragType === "draw_pile" && (
@@ -669,6 +689,39 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
             style={{ width: CARD_W, height: CARD_H }}
           >
             <span className="text-5xl">🐾</span>
+          </div>
+        )}
+        {activeDragType === "hand_card" && draggedCard && (
+          <div style={{ position: "relative", transform: "rotate(2deg)" }}>
+            {/* Stacked card-backs for multi-select */}
+            {[...Array(extraCount)].map((_, i) => (
+              <div key={i} style={{
+                position: "absolute",
+                top: -(i + 1) * 6,
+                left: (i + 1) * 5,
+                width: CARD_W,
+                height: CARD_H,
+                background: "#c9b398",
+                border: "2px solid #271d14",
+                borderRadius: 12,
+                opacity: 0.75 - i * 0.1,
+                zIndex: -(i + 1),
+              }} />
+            ))}
+            <CardComponent card={draggedCard} isPlayable={false} forceFullOpacity className="cursor-grabbing" />
+            {/* Badge showing total count */}
+            {isMultiDrag && (
+              <div style={{
+                position: "absolute", top: -8, right: -8,
+                background: "#5b8a4a", color: "white",
+                borderRadius: "50%", width: 24, height: 24,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 11, fontWeight: 700, zIndex: 100,
+                border: "2px solid white", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              }}>
+                {selectedCards.size}
+              </div>
+            )}
           </div>
         )}
       </DragOverlay>
