@@ -54,12 +54,19 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); };
   }, []);
 
-  // When drag ends: animate transform from gathered → normal while invisible, then snap visible.
-  // returnPhase: null → "start" (1 frame, no transition, still at gathered pos)
-  //           → "animating" (180ms, transform animates to normal, opacity still 0)
-  //           → "done" (1 frame, transition none, opacity snaps to 1)
+  // Gather on pickup: slide toward drag origin (visible), then instantly hide after 180ms.
+  // Return on drop: stay invisible while transform animates back, then snap visible.
+  //
+  // The tricky part: React renders with new ghosting=false BEFORE the useEffect fires,
+  // so we track ghosting with a render-time ref to detect "just stopped ghosting" in
+  // that intermediate render, keeping the card invisible until returnPhase takes over.
+  //
+  // returnPhase: null → "start" (≤1 frame: at gathered pos, no transition, opacity 0)
+  //           → "animating" (180ms: transform animates to normal, opacity still 0)
+  //           → "done" (≤1 frame: transition none, opacity snaps to 1)
   //           → null (normal)
-  const prevGhostingRef = useRef(ghosting);
+  const renderPrevGhostingRef = useRef(ghosting);   // updated each render
+  const effectPrevGhostingRef = useRef(ghosting);   // updated each effect
   const lastGatherRef = useRef(null);
   const [returnPhase, setReturnPhase] = useState(null);
 
@@ -68,10 +75,14 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
   if (ghosting && dragOriginPos) {
     lastGatherRef.current = `translate(${gatherDx * 0.6}px, ${gatherDy * 0.6}px) scale(0.85)`;
   }
+  // Detect ghosting→false in this render (before the effect fires)
+  const justStoppedGhosting = renderPrevGhostingRef.current && !ghosting;
+  renderPrevGhostingRef.current = ghosting;
 
   useEffect(() => {
-    if (!prevGhostingRef.current || ghosting) { prevGhostingRef.current = ghosting; return; }
-    prevGhostingRef.current = ghosting;
+    const wasGhosting = effectPrevGhostingRef.current;
+    effectPrevGhostingRef.current = ghosting;
+    if (!wasGhosting || ghosting) return;
     let raf1, raf2, timer;
     setReturnPhase("start");
     raf1 = requestAnimationFrame(() => {
@@ -84,10 +95,10 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); clearTimeout(timer); };
   }, [ghosting]);
 
-  const isReturning = returnPhase === "start" || returnPhase === "animating";
+  const isInReturnSequence = justStoppedGhosting || returnPhase === "start" || returnPhase === "animating";
   const cssTransform = !mounted
     ? "translateY(-12px) scale(0.94)"
-    : ghosting || returnPhase === "start"
+    : ghosting || justStoppedGhosting || returnPhase === "start"
       ? lastGatherRef.current
       : undefined;
 
@@ -104,10 +115,14 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
-        opacity: isDragging ? 0 : (ghosting || isReturning) ? 0 : mounted ? 1 : 0,
+        opacity: isDragging ? 0 : (ghosting || isInReturnSequence) ? 0 : mounted ? 1 : 0,
         transform: cssTransform,
         touchAction: "none",
-        transition: isDragging || ghosting || returnPhase === "start" || returnPhase === "done" ? "none"
+        // Pickup: transform slides to gathered pos while card stays visible (opacity delayed 180ms)
+        // Drop:   no transition during setup frames; transform animates back; opacity snaps on "done"
+        transition: isDragging ? "none"
+          : ghosting ? "transform 180ms ease, opacity 0ms linear 180ms"
+          : justStoppedGhosting || returnPhase === "start" || returnPhase === "done" ? "none"
           : returnPhase === "animating" ? "transform 180ms ease"
           : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
       }}
