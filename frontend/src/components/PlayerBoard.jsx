@@ -291,8 +291,19 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [cardOrder, setCardOrder] = useState([]);
   const [activeDragType, setActiveDragType] = useState(null);
   const [activeSortCardId, setActiveSortCardId] = useState(null);
+  const [pendingDiscards, setPendingDiscards] = useState(new Set());
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
+
+  // Clear pending discards once the server confirms them (card gone from hand)
+  useEffect(() => {
+    if (pendingDiscards.size === 0) return;
+    const handIds = new Set((hand || []).map(c => c.id));
+    setPendingDiscards(prev => {
+      const next = new Set([...prev].filter(id => handIds.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [hand]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onBringToFront = (cardId) => {
     if (!isMe) return;
@@ -374,6 +385,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     if (over?.id === "inner_draw_pile") {
       socket.emit("return_card_to_deck", { cardId });
     } else if (over?.id === "inner_discard_pile") {
+      setPendingDiscards(prev => new Set([...prev, cardId]));
       socket.emit("discard_card", { cardId });
     } else {
       onBringToFront(cardId);
@@ -421,6 +433,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
       return;
     }
     if (over?.id === "inner_discard_pile") {
+      setPendingDiscards(prev => new Set([...prev, active.id]));
       socket.emit("discard_card", { cardId: active.id });
       return;
     }
@@ -432,8 +445,10 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
+  const visibleHand = (hand || []).filter(c => !pendingDiscards.has(c.id));
+
   if (handLayout === "sorted") {
-    const sortedHand = displayCardOrder.map(id => (hand || []).find(c => c.id === id)).filter(Boolean);
+    const sortedHand = displayCardOrder.map(id => visibleHand.find(c => c.id === id)).filter(Boolean);
     const activeSortCard = activeSortCardId ? (hand || []).find(c => c.id === activeSortCardId) : null;
     return (
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleSortedDragStart} onDragOver={handleSortedDragOver} onDragEnd={handleSortedDragEnd}>
@@ -467,7 +482,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
       onDragEnd={handleDragEnd}
     >
       <HandAreaInner
-        hand={hand}
+        hand={visibleHand}
         drawPile={drawPile}
         discardPile={discardPile}
         peekCard={peekCard}
