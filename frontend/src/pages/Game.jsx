@@ -154,6 +154,7 @@ export default function Game({ gameState, mySocketId }) {
   const containerRef = useRef(null);
   const boardSurfaceRef = useRef(null);
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
+  const dndActiveRef = useRef(false);
   const [activeDrag, setActiveDrag] = useState(null);
   const [pendingPurchase, setPendingPurchase] = useState(null);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -285,6 +286,8 @@ export default function Game({ gameState, mySocketId }) {
     const onGutterPointerDown = (e) => {
       // If the pointer landed inside the board surface, let the board's own handler deal with it
       if (boardSurfaceRef.current?.contains(e.target)) return;
+      // Don't start panning while a DnD drag is in progress
+      if (dndActiveRef.current) return;
       e.preventDefault();
       panState.current = { active: true, startX: e.clientX, startY: e.clientY, scrollLeft: el.scrollLeft, scrollTop: el.scrollTop };
       el.setPointerCapture(e.pointerId);
@@ -292,7 +295,7 @@ export default function Game({ gameState, mySocketId }) {
     };
     const onGutterPointerMove = (e) => {
       const p = panState.current;
-      if (!p.active) return;
+      if (!p.active || dndActiveRef.current) return;
       el.scrollLeft = p.scrollLeft - (e.clientX - p.startX);
       el.scrollTop  = p.scrollTop  - (e.clientY - p.startY);
     };
@@ -439,6 +442,7 @@ export default function Game({ gameState, mySocketId }) {
   const otherPlayers = players.filter((p) => p.socketId !== mySocketId);
 
   function handleDragStart({ active }) {
+    dndActiveRef.current = true;
     setActiveDrag(active.data.current ?? null);
     lastOverRef.current = null;
   }
@@ -448,6 +452,8 @@ export default function Game({ gameState, mySocketId }) {
   }
 
   function handleDragEnd({ active, over }) {
+    dndActiveRef.current = false;
+    panState.current.active = false;
     // Use last known over as fallback — dnd-kit can lose the droppable
     // at the exact moment of pointerup when targets are in a transformed container
     const effectiveOver = over ?? lastOverRef.current;
