@@ -46,6 +46,14 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     disabled: !isMe,
   });
 
+  // Appear animation: start invisible+shifted, transition to final state after first paint
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    let r1, r2;
+    r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(() => setMounted(true)); });
+    return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); };
+  }, []);
+
   return (
     <div
       onPointerDown={(e) => {
@@ -59,10 +67,10 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
-        // hide original while dragging (DragOverlay shows it); hide other selected cards too
-        opacity: isDragging ? 0 : ghosting ? 0 : 1,
+        opacity: isDragging ? 0 : ghosting ? 0 : mounted ? 1 : 0,
+        transform: mounted ? undefined : "translateY(-12px) scale(0.94)",
         touchAction: "none",
-        transition: isDragging ? "none" : "left 180ms ease, top 180ms ease, opacity 100ms ease",
+        transition: isDragging ? "none" : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
       }}
     >
       <div
