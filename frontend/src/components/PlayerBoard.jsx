@@ -59,8 +59,8 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
-        // hide original while dragging (DragOverlay shows it); fade non-dragged selected cards
-        opacity: isDragging ? 0 : ghosting ? 0.25 : 1,
+        // hide original while dragging (DragOverlay shows it); hide other selected cards too
+        opacity: isDragging ? 0 : ghosting ? 0 : 1,
         touchAction: "none",
         transition: isDragging ? "none" : "transform 150ms ease, opacity 100ms ease",
       }}
