@@ -54,7 +54,18 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); };
   }, []);
 
-  // When ghosting, slide toward the drag origin while fading out
+  // Suppress transition for one frame when ghosting ends so cards snap back instead of animating
+  const prevGhostingRef = useRef(ghosting);
+  const [justUnghosted, setJustUnghosted] = useState(false);
+  useEffect(() => {
+    if (prevGhostingRef.current && !ghosting) {
+      setJustUnghosted(true);
+      const raf = requestAnimationFrame(() => setJustUnghosted(false));
+      return () => cancelAnimationFrame(raf);
+    }
+    prevGhostingRef.current = ghosting;
+  }, [ghosting]);
+
   const gatherDx = dragOriginPos ? dragOriginPos.x - position.x : 0;
   const gatherDy = dragOriginPos ? dragOriginPos.y - position.y : 0;
   const cssTransform = !mounted
@@ -79,7 +90,7 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         opacity: isDragging ? 0 : ghosting ? 0 : mounted ? 1 : 0,
         transform: cssTransform,
         touchAction: "none",
-        transition: isDragging || ghosting ? "none"
+        transition: isDragging || ghosting || justUnghosted ? "none"
           : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
       }}
     >
