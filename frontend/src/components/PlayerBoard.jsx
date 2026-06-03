@@ -54,24 +54,41 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); };
   }, []);
 
-  // Suppress transition for one frame when ghosting ends so cards snap back instead of animating
+  // When drag ends: animate transform from gathered → normal while invisible, then snap visible.
+  // returnPhase: null → "start" (1 frame, no transition, still at gathered pos)
+  //           → "animating" (180ms, transform animates to normal, opacity still 0)
+  //           → "done" (1 frame, transition none, opacity snaps to 1)
+  //           → null (normal)
   const prevGhostingRef = useRef(ghosting);
-  const [justUnghosted, setJustUnghosted] = useState(false);
-  useEffect(() => {
-    if (prevGhostingRef.current && !ghosting) {
-      setJustUnghosted(true);
-      const raf = requestAnimationFrame(() => setJustUnghosted(false));
-      return () => cancelAnimationFrame(raf);
-    }
-    prevGhostingRef.current = ghosting;
-  }, [ghosting]);
+  const lastGatherRef = useRef(null);
+  const [returnPhase, setReturnPhase] = useState(null);
 
   const gatherDx = dragOriginPos ? dragOriginPos.x - position.x : 0;
   const gatherDy = dragOriginPos ? dragOriginPos.y - position.y : 0;
+  if (ghosting && dragOriginPos) {
+    lastGatherRef.current = `translate(${gatherDx * 0.6}px, ${gatherDy * 0.6}px) scale(0.85)`;
+  }
+
+  useEffect(() => {
+    if (!prevGhostingRef.current || ghosting) { prevGhostingRef.current = ghosting; return; }
+    prevGhostingRef.current = ghosting;
+    let raf1, raf2, timer;
+    setReturnPhase("start");
+    raf1 = requestAnimationFrame(() => {
+      setReturnPhase("animating");
+      timer = setTimeout(() => {
+        setReturnPhase("done");
+        raf2 = requestAnimationFrame(() => setReturnPhase(null));
+      }, 180);
+    });
+    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); clearTimeout(timer); };
+  }, [ghosting]);
+
+  const isReturning = returnPhase === "start" || returnPhase === "animating";
   const cssTransform = !mounted
     ? "translateY(-12px) scale(0.94)"
-    : ghosting && dragOriginPos
-      ? `translate(${gatherDx * 0.6}px, ${gatherDy * 0.6}px) scale(0.85)`
+    : ghosting || returnPhase === "start"
+      ? lastGatherRef.current
       : undefined;
 
   return (
@@ -87,10 +104,11 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
-        opacity: isDragging ? 0 : ghosting ? 0 : mounted ? 1 : 0,
+        opacity: isDragging ? 0 : (ghosting || isReturning) ? 0 : mounted ? 1 : 0,
         transform: cssTransform,
         touchAction: "none",
-        transition: isDragging || ghosting || justUnghosted ? "none"
+        transition: isDragging || ghosting || returnPhase === "start" || returnPhase === "done" ? "none"
+          : returnPhase === "animating" ? "transform 180ms ease"
           : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
       }}
     >
