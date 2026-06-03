@@ -138,8 +138,8 @@ All card images live in `frontend/public/cards/` organised by pack and type:
 /characters/   ← character artwork (full, headshot, stunned variants)
 ```
 
-### Compression — ALWAYS compress new images before committing
-Raw AI-generated or exported PNGs are typically 2–3MB each and must be compressed with `pngquant` before being added to the repo. The repo was already bloated to 57MB from uncompressed images; keep it lean.
+### Compression — Claude compresses images after the user adds them
+The user adds raw images to the repo (typically 2–3MB each). Claude must compress them with `pngquant` before committing — never commit uncompressed images. The repo was already bloated to 57MB from uncompressed images once; keep it lean.
 
 Install if needed: `apt-get install -y pngquant`
 
@@ -156,8 +156,8 @@ pngquant --quality=65-85 --speed 1 --force --output image.png image.png
 Target size after compression: ~200–800KB per image. If an image is still over 1MB after compression, flag it.
 
 ### Adding new card images
-1. Compress the image (see above)
-2. Place in the correct `/cards/pack1/{type}/` folder
+1. User places raw image in the correct `/cards/pack1/{type}/` folder
+2. Claude compresses it in place with pngquant (see above)
 3. Add an `image` field to the card entry in `backend/src/data/cards.js` — `Cards.jsx` picks it up automatically via the API
 
 ---
