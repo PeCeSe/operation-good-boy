@@ -341,6 +341,7 @@ export default function Game({ gameState, mySocketId }) {
 
   const myColorRef = useRef("#f59e0b");
   const myNameRef = useRef("");
+  const cursorInHUD = useRef(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -404,6 +405,7 @@ export default function Game({ gameState, mySocketId }) {
   useEffect(() => {
     let lastEmit = 0;
     const onPointerMove = (e) => {
+      if (cursorInHUD.current) return;
       const now = Date.now();
       if (now - lastEmit < 50) return;
       lastEmit = now;
@@ -822,6 +824,8 @@ export default function Game({ gameState, mySocketId }) {
         handCursors={handCursors}
         myColor={me?.character?.bgFrom ?? "#f59e0b"}
         myName={me?.name ?? ""}
+        onHUDPointerEnter={() => { cursorInHUD.current = true; socket.emit("cursor_leave"); }}
+        onHUDPointerLeave={() => { cursorInHUD.current = false; }}
       />
 
       {/* ── Drag overlay ── */}

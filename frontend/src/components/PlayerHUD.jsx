@@ -259,6 +259,8 @@ export default function PlayerHUD({
   handCursors,
   myColor,
   myName,
+  onHUDPointerEnter,
+  onHUDPointerLeave,
 }) {
   const [drawerHeight, setDrawerHeight] = useState(MAX_DRAWER_H);
   const [isDragging,   setIsDragging]   = useState(false);
@@ -324,7 +326,7 @@ export default function PlayerHUD({
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40">
+    <div className="fixed bottom-0 left-0 right-0 z-40" onPointerEnter={onHUDPointerEnter} onPointerLeave={onHUDPointerLeave}>
 
       {/* ── Drawer handle tab ── */}
       <div className="flex justify-center">
