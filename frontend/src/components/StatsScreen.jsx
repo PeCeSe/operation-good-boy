@@ -48,9 +48,9 @@ function getCloseness(phase, gameState) {
 
 const STAT_COLS = [
   { key: "damageDealt",      label: "Damage dealt",       emoji: "⚔️"  },
-  { key: "attacksCreated",   label: "Attacks created",    emoji: "🗡️"  },
   { key: "coinsEarned",      label: "Coins earned",       emoji: "🪙"  },
-  { key: "cucumbersRemoved", label: "Cucumbers removed",  emoji: "🥒"  },
+  { key: "cucumbersAdded",   label: "Cucumbers placed",   emoji: "🥒"  },
+  { key: "cucumbersRemoved", label: "Cucumbers removed",  emoji: "✨"  },
   { key: "cardsBought",      label: "Cards bought",       emoji: "🃏"  },
   { key: "livesHealed",      label: "Lives healed",       emoji: "❤️"  },
   { key: "enemiesDefeated",  label: "Enemies defeated",   emoji: "💀"  },

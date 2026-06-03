@@ -80,8 +80,8 @@ function initGameState(room) {
       cardOrder: [],
       stats: {
         damageDealt: 0,
-        attacksCreated: 0,
         coinsEarned: 0,
+        cucumbersAdded: 0,
         cucumbersRemoved: 0,
         timesStunned: 0,
         cardsBought: 0,

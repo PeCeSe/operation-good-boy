@@ -69,7 +69,6 @@ function addAttackToken(state, playerId, type) {
   const p = state.players.find((p) => p.playerId === playerId);
   if (!p) return;
   p.attackTokens.push({ id: `tok_${_tokenId++}`, type: "attack" });
-  p.stats.attacksCreated++;
 }
 
 function moveTokenToEnemy(state, enemyId, tokenId) {
@@ -286,9 +285,12 @@ function setCucumbers(state, count, playerId) {
   if (!state.currentLocation) return;
   const prev = state.currentLocation.currentCucumbers ?? 0;
   const next = Math.max(0, count);
-  if (playerId && next < prev) {
+  if (playerId) {
     const p = state.players.find((p) => p.playerId === playerId);
-    if (p) p.stats.cucumbersRemoved += prev - next;
+    if (p) {
+      if (next > prev) p.stats.cucumbersAdded   += next - prev;
+      if (next < prev) p.stats.cucumbersRemoved += prev - next;
+    }
   }
   state.currentLocation.currentCucumbers = next;
   checkLocationLoss(state);
