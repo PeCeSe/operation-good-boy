@@ -39,7 +39,7 @@ export function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect, ghosting = false }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect, ghosting = false, dragOriginPos = null }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -53,6 +53,15 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(() => setMounted(true)); });
     return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); };
   }, []);
+
+  // When ghosting, slide toward the drag origin while fading out
+  const gatherDx = dragOriginPos ? dragOriginPos.x - position.x : 0;
+  const gatherDy = dragOriginPos ? dragOriginPos.y - position.y : 0;
+  const cssTransform = !mounted
+    ? "translateY(-12px) scale(0.94)"
+    : ghosting && dragOriginPos
+      ? `translate(${gatherDx * 0.6}px, ${gatherDy * 0.6}px) scale(0.85)`
+      : undefined;
 
   return (
     <div
@@ -68,9 +77,9 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
         opacity: isDragging ? 0 : ghosting ? 0 : mounted ? 1 : 0,
-        transform: mounted ? undefined : "translateY(-12px) scale(0.94)",
+        transform: cssTransform,
         touchAction: "none",
-        transition: isDragging ? "none" : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
+        transition: isDragging ? "none" : "left 180ms ease, top 180ms ease, opacity 220ms ease, transform 220ms ease",
       }}
     >
       <div
@@ -205,12 +214,15 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
           </SortableContext>
         ) : (
           hand?.map((card, i) => {
-            // Fade selected cards that aren't the one being dragged
+            // Slide + fade selected cards that aren't the one being dragged
             const ghosting = activeDragCardId != null
               && selectedCards.size > 1
               && selectedCards.has(activeDragCardId)
               && selectedCards.has(card.id)
               && card.id !== activeDragCardId;
+            const dragOriginPos = ghosting && cardPositions
+              ? (cardPositions[activeDragCardId] ?? null)
+              : null;
             return (
               <DraggableHandCard
                 key={card.id}
@@ -222,6 +234,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
                 isSelected={selectedCards.has(card.id)}
                 onToggleSelect={onToggleSelect}
                 ghosting={ghosting}
+                dragOriginPos={dragOriginPos}
               />
             );
           })
