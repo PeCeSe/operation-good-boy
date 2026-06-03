@@ -79,9 +79,7 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         opacity: isDragging ? 0 : ghosting ? 0 : mounted ? 1 : 0,
         transform: cssTransform,
         touchAction: "none",
-        // ghosting: slide for 180ms (fully visible), then instant-hide; normal: fade+slide in
-        transition: isDragging ? "none"
-          : ghosting ? "transform 180ms ease, opacity 0ms linear 180ms"
+        transition: isDragging || ghosting ? "none"
           : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
       }}
     >
