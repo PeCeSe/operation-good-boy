@@ -141,7 +141,7 @@ All card images live in `frontend/public/cards/` organised by pack and type:
 ### Compression — Claude compresses images after the user adds them
 The user adds raw images to the repo (typically 2–3MB each). Claude must compress them with `pngquant` before committing — never commit uncompressed images. The repo was already bloated to 57MB from uncompressed images once; keep it lean.
 
-**Only compress once.** Check file size first (`ls -lh image.png`) — if it's already under ~1MB it has likely been compressed before and must NOT be run through pngquant again (double-compression destroys quality). Only compress images that are new (i.e. just added by the user in this session) or explicitly flagged as uncompressed.
+**Only compress when the user says they've added new images** — don't proactively check or re-compress existing ones. Double-compression destroys quality.
 
 Install if needed: `apt-get install -y pngquant`
 
