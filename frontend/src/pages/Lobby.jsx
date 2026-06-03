@@ -71,15 +71,15 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const isHost = roomInfo?.hostSocketId === mySocketId;
   const allReady = roomInfo?.players.length >= 1 && roomInfo.players.every((p) => p.isReady);
 
-  // Auto-send cached name when we first appear in the room with a default name
+  // Auto-send cached name as soon as we appear in the room
   useEffect(() => {
     if (!myPlayer) return;
     const saved = localStorage.getItem("ogb_player_name");
-    if (saved && /^Player \d+$/.test(myPlayer.name)) {
+    if (saved) {
       socket.emit("set_name", { name: saved });
       setNameSent(true);
     }
-  }, [myPlayer?.playerId]);
+  }, [myPlayer?.playerId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const takenCharacters = new Set(
     (roomInfo?.players || []).map((p) => p.characterId).filter(Boolean)
