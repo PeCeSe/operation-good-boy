@@ -76,7 +76,7 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
-        opacity: isDragging ? 0 : ghosting ? 0 : mounted ? 1 : 0,
+        opacity: isDragging ? 0 : mounted ? 1 : 0,
         transform: cssTransform,
         touchAction: "none",
         transition: isDragging ? "none" : "left 180ms ease, top 180ms ease, opacity 220ms ease, transform 220ms ease",
