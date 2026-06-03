@@ -26,7 +26,7 @@ export default function App() {
     const roomCodeMatch = window.location.pathname.match(/\/room\/([A-Z0-9-]+)/i);
     const roomCode = roomCodeMatch?.[1]?.toUpperCase() || null;
 
-    socket.auth = { playerToken: token, roomCode };
+    socket.auth = { playerToken: token, roomCode, playerName: localStorage.getItem("ogb_player_name") || null };
     socket.connect();
 
     socket.on("connect", () => setMySocketId(socket.id));

@@ -67,16 +67,18 @@ function getPlayerId(gameState, socketId) {
 io.on("connection", (socket) => {
   console.log(`Connected: ${socket.id}`);
 
-  const { playerToken, roomCode } = socket.handshake.auth || {};
+  const { playerToken, roomCode, playerName } = socket.handshake.auth || {};
   if (playerToken && roomCode) {
     const rejoin = rejoinRoom(socket.id, playerToken, roomCode);
     if (rejoin.success) {
+      if (playerName) setName(socket.id, playerName);
       socket.join(roomCode);
       emitRoomUpdate(roomCode);
       if (rejoin.hasGame) emitGameUpdate(roomCode);
     } else {
       const join = roomManager.joinRoom(socket.id, roomCode, null, playerToken);
       if (join.success) {
+        if (playerName) setName(socket.id, playerName);
         socket.join(roomCode);
         socket.emit("room_joined", { code: roomCode });
         emitRoomUpdate(roomCode);
