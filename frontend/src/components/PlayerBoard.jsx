@@ -39,7 +39,7 @@ export function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -48,7 +48,12 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
 
   return (
     <div
-      onPointerDown={() => isMe && onBringToFront(card.id)}
+      onPointerDown={(e) => {
+        if (!isMe) return;
+        e.stopPropagation(); // prevent marquee start on canvas
+        if (e.shiftKey) { onToggleSelect?.(card.id); return; }
+        onBringToFront(card.id);
+      }}
       style={{
         position: "absolute",
         left: position.x + (transform?.x ?? 0),
@@ -60,7 +65,11 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe }) {
         transition: isDragging ? "none" : "transform 150ms ease",
       }}
     >
-      <div ref={setNodeRef} {...(isMe ? { ...listeners, ...attributes } : {})}>
+      <div
+        ref={setNodeRef}
+        {...(isMe ? { ...listeners, ...attributes } : {})}
+        className={isSelected ? "rounded-xl ring-2 ring-moss ring-offset-1" : ""}
+      >
         <CardComponent
           card={card}
           isPlayable={isMe}
@@ -99,7 +108,7 @@ function SortableHandCard({ card, isMe }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), onToggleSelect, marquee, onCanvasPointerDown }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -172,7 +181,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
 
       {/* ── Hand Canvas ── */}
       <div className="w-px bg-ink-border/20 self-stretch shrink-0" />
-      <div ref={handCanvasRef} className="flex-1 relative" style={{ minHeight: 320 }}>
+      <div ref={handCanvasRef} className="flex-1 relative" style={{ minHeight: 320 }} onPointerDown={onCanvasPointerDown}>
         {isMe && hand?.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-ink-300/60 text-sm italic select-none pointer-events-none">
             No cards in hand
@@ -195,8 +204,27 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
               zIndex={zOrder.indexOf(card.id) + 2}
               onBringToFront={onBringToFront}
               isMe={isMe}
+              isSelected={selectedCards.has(card.id)}
+              onToggleSelect={onToggleSelect}
             />
           ))
+        )}
+        {/* Marquee selection rectangle */}
+        {marquee && (
+          <div
+            style={{
+              position: "absolute",
+              left: Math.min(marquee.x1, marquee.x2),
+              top: Math.min(marquee.y1, marquee.y2),
+              width: Math.abs(marquee.x2 - marquee.x1),
+              height: Math.abs(marquee.y2 - marquee.y1),
+              border: "2px dashed #5b8a4a",
+              background: "rgba(91,138,74,0.08)",
+              pointerEvents: "none",
+              zIndex: 500,
+              borderRadius: 4,
+            }}
+          />
         )}
       </div>
 
@@ -204,12 +232,17 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
 
       {/* ── Discard Pile ── */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
-        <div className="text-[9px] text-ink-300 uppercase tracking-[0.12em] font-bold">Discard</div>
+        <div className="text-[9px] text-ink-300 uppercase tracking-[0.12em] font-bold">
+          {isMe && selectedCards.size > 1
+            ? <span className="text-moss font-bold">{selectedCards.size} selected — drag to discard</span>
+            : "Discard"
+          }
+        </div>
         <div
           ref={setDiscardRef}
           onClick={() => isMe && discardCount > 0 && setShowBrowse(true)}
           className={`relative transition-all ${isMe && discardCount > 0 ? "cursor-pointer hover:opacity-90" : "cursor-default"} ${
-            isOverDiscard ? "ring-2 ring-red ring-offset-1 rounded-xl" : ""
+            isOverDiscard ? "ring-2 ring-red ring-offset-1 rounded-xl" : isMe && selectedCards.size > 1 ? "ring-2 ring-moss/40 ring-offset-1 rounded-xl" : ""
           }`}
           style={{ width: 176, height: 258 }}
           title={isMe ? (discardCount > 0 ? "Click to browse discard pile" : "Discard pile empty") : undefined}
@@ -326,9 +359,74 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [activeDragType, setActiveDragType] = useState(null);
   const [activeSortCardId, setActiveSortCardId] = useState(null);
   const [pendingDiscards, setPendingDiscards] = useState(new Set());
+  const [selectedCards, setSelectedCards] = useState(new Set());
+  const [marquee, setMarquee] = useState(null);
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
   const lastCursorEmit = useRef(0);
+
+  // Clear selection when hand changes (new turn, card discarded by server, etc.)
+  useEffect(() => {
+    setSelectedCards(prev => {
+      if (prev.size === 0) return prev;
+      const ids = new Set((hand || []).map(c => c.id));
+      const next = new Set([...prev].filter(id => ids.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [hand]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onToggleSelect = (cardId) => {
+    setSelectedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(cardId)) next.delete(cardId); else next.add(cardId);
+      return next;
+    });
+  };
+
+  const onCanvasPointerDown = (e) => {
+    if (!isMe || handLayout === "sorted") return;
+    e.preventDefault();
+    const canvas = handCanvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const startX = e.clientX - rect.left;
+    const startY = e.clientY - rect.top;
+    // Snapshot positions at gesture start (avoids stale closure issues)
+    const snapPositions = { ...displayPositions };
+    const snapHand = [...(hand || [])];
+    let curX = startX, curY = startY;
+
+    setMarquee({ x1: startX, y1: startY, x2: startX, y2: startY });
+
+    const onMove = (ev) => {
+      const r = canvas.getBoundingClientRect();
+      curX = ev.clientX - r.left;
+      curY = ev.clientY - r.top;
+      setMarquee({ x1: startX, y1: startY, x2: curX, y2: curY });
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      setMarquee(null);
+      if (Math.abs(curX - startX) < 6 && Math.abs(curY - startY) < 6) {
+        setSelectedCards(new Set()); // click on background = deselect all
+        return;
+      }
+      const minX = Math.min(startX, curX), maxX = Math.max(startX, curX);
+      const minY = Math.min(startY, curY), maxY = Math.max(startY, curY);
+      const hit = new Set();
+      for (const card of snapHand) {
+        const pos = snapPositions[card.id];
+        if (!pos) continue;
+        if (pos.x < maxX && pos.x + CARD_W > minX && pos.y < maxY && pos.y + CARD_H > minY) {
+          hit.add(card.id);
+        }
+      }
+      setSelectedCards(hit);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
 
   const handleCursorMove = (x, y) => {
     if (!targetPlayerId) return;
@@ -433,8 +531,16 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     if (over?.id === "inner_draw_pile") {
       socket.emit("return_card_to_deck", { cardId });
     } else if (over?.id === "inner_discard_pile") {
-      setPendingDiscards(prev => new Set([...prev, cardId]));
-      socket.emit("discard_card", { cardId });
+      if (selectedCards.size > 1 && selectedCards.has(cardId)) {
+        // Multi-discard: discard all selected cards at once
+        const toDiscard = [...selectedCards];
+        setPendingDiscards(prev => new Set([...prev, ...toDiscard]));
+        toDiscard.forEach(id => socket.emit("discard_card", { cardId: id }));
+        setSelectedCards(new Set());
+      } else {
+        setPendingDiscards(prev => new Set([...prev, cardId]));
+        socket.emit("discard_card", { cardId });
+      }
     } else {
       onBringToFront(cardId);
       setCardPositions((prev) => {
@@ -516,6 +622,10 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
           viewerCursors={viewerCursors}
           onCursorMove={handleCursorMove}
           onCursorLeave={handleCursorLeave}
+          selectedCards={selectedCards}
+          onToggleSelect={onToggleSelect}
+          marquee={null}
+          onCanvasPointerDown={null}
         />
         <DragOverlay dropAnimation={null}>
           {activeSortCard && (
@@ -547,6 +657,10 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
         viewerCursors={viewerCursors}
         onCursorMove={handleCursorMove}
         onCursorLeave={handleCursorLeave}
+        selectedCards={selectedCards}
+        onToggleSelect={onToggleSelect}
+        marquee={marquee}
+        onCanvasPointerDown={onCanvasPointerDown}
       />
       <DragOverlay dropAnimation={null}>
         {activeDragType === "draw_pile" && (
