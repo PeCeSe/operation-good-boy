@@ -162,6 +162,7 @@ export default function Game({ gameState, mySocketId }) {
   const [zoom, setZoom] = useState(() => Math.max(0.25, Math.min(2, window.innerWidth / BOARD_W)));
   const [otherCursors, setOtherCursors] = useState({});
   const [handCursors, setHandCursors] = useState({});
+  const [cardDrags, setCardDrags] = useState({}); // { [playerId]: { cardIds, dx, dy } } — other players' live card drags
   const zoomRef = useRef(zoom);
   useEffect(() => { zoomRef.current = zoom; }, [zoom]);
 
@@ -447,12 +448,21 @@ export default function Game({ gameState, mySocketId }) {
     };
     socket.on("hand_cursor_update", onHandCursorUpdate);
 
+    const onCardDragUpdate = ({ playerId, cardIds, dx, dy, gone }) => {
+      setCardDrags(prev => {
+        if (gone) { const n = { ...prev }; delete n[playerId]; return n; }
+        return { ...prev, [playerId]: { cardIds, dx, dy } };
+      });
+    };
+    socket.on("card_drag_update", onCardDragUpdate);
+
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerleave", onPointerLeave);
       socket.off("cursor_update", onCursorUpdate);
       socket.off("cursor_leave", onCursorLeave);
       socket.off("hand_cursor_update", onHandCursorUpdate);
+      socket.off("card_drag_update", onCardDragUpdate);
       socket.emit("cursor_leave");
     };
   }, []);
@@ -822,6 +832,7 @@ export default function Game({ gameState, mySocketId }) {
         currentPlayerId={currentPlayerId}
         isMyTurn={isMyTurn}
         handCursors={handCursors}
+        cardDrags={cardDrags}
         myColor={me?.character?.bgFrom ?? "#f59e0b"}
         myName={me?.name ?? ""}
         onHUDPointerEnter={() => { cursorInHUD.current = true; socket.emit("cursor_leave"); }}

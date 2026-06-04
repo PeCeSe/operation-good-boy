@@ -39,7 +39,7 @@ export function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, isPreview = false, onToggleSelect, following = false, dragDelta = null }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, isPreview = false, onToggleSelect, following = false, dragDelta = null, remoteOffset = null }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -59,9 +59,10 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
   //  - selected sibling of a multi-drag → the same live `dragDelta`
   // On drop the base position is updated by the same delta and the offset clears, so the
   // card stays exactly where it was dropped (a clamp/snap then animates via the transition).
-  const offX = (transform?.x ?? 0) + (following ? (dragDelta?.x ?? 0) : 0);
-  const offY = (transform?.y ?? 0) + (following ? (dragDelta?.y ?? 0) : 0);
+  const offX = (transform?.x ?? 0) + (following ? (dragDelta?.x ?? 0) : 0) + (remoteOffset?.x ?? 0);
+  const offY = (transform?.y ?? 0) + (following ? (dragDelta?.y ?? 0) : 0) + (remoteOffset?.y ?? 0);
   const isMoving = isDragging || following;
+  const isRemoteMoving = remoteOffset != null; // another player is dragging this card
 
   return (
     <div
@@ -75,11 +76,13 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         position: "absolute",
         left: position.x + offX,
         top: position.y + offY,
-        zIndex: isMoving ? 1000 : isPreview ? 900 : zIndex,
+        zIndex: isMoving || isRemoteMoving ? 1000 : isPreview ? 900 : zIndex,
         opacity: mounted ? 1 : 0,
         transform: !mounted ? "translateY(-12px) scale(0.94)" : isPreview ? "scale(1.06)" : undefined,
         touchAction: "none",
+        // Local drag: instant. Remote drag: short linear ease to smooth between throttled samples.
         transition: isMoving ? "none"
+          : isRemoteMoving ? "left 60ms linear, top 60ms linear"
           : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 120ms ease",
       }}
     >
@@ -130,7 +133,8 @@ function SortableHandCard({ card, isMe }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), previewSelected = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId, dragDelta }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), previewSelected = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId, dragDelta, liveDrag = null }) {
+  const liveDragIds = liveDrag?.cardIds ? new Set(liveDrag.cardIds) : null;
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -225,6 +229,10 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
               && selectedCards.has(activeDragCardId)
               && selectedCards.has(card.id)
               && card.id !== activeDragCardId;
+            // Another player is dragging this card right now — mirror their live offset
+            const remoteOffset = liveDragIds?.has(card.id)
+              ? { x: liveDrag.dx ?? 0, y: liveDrag.dy ?? 0 }
+              : null;
             return (
               <DraggableHandCard
                 key={card.id}
@@ -238,6 +246,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
                 onToggleSelect={onToggleSelect}
                 following={following}
                 dragDelta={dragDelta}
+                remoteOffset={remoteOffset}
               />
             );
           })
@@ -385,7 +394,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
   );
 }
 
-function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPositions, serverZOrder, handLayout = "tidy", serverCardOrder = [], targetPlayerId, viewerCursors = {}, myColor, myName }) {
+function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPositions, serverZOrder, handLayout = "tidy", serverCardOrder = [], targetPlayerId, viewerCursors = {}, liveDrag = null, myColor, myName }) {
   const [cardPositions, setCardPositions] = useState({});
   const [zOrder, setZOrder] = useState([]);
   const [cardOrder, setCardOrder] = useState([]);
@@ -397,6 +406,8 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [marquee, setMarquee] = useState(null);
   const [previewSelected, setPreviewSelected] = useState(new Set()); // live marquee hover preview
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 }); // live drag delta, shared with selected siblings
+  const dragGroupRef = useRef([]);   // card ids moving in the current drag (broadcast to others)
+  const lastDragEmit = useRef(0);     // throttle for card_drag broadcast
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
   const lastCursorEmit = useRef(0);
@@ -574,7 +585,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
       return;
     }
     const cardId = active?.data?.current?.cardId;
-    if (!cardId) return;
+    if (!cardId) { if (isMe) socket.emit("card_drag_end"); return; }
 
     // Which cards move/act as a group: the grabbed card + all selected (if it's part of a multi-selection)
     const isMultiDrag = selectedCards.size > 1 && selectedCards.has(cardId);
@@ -588,23 +599,27 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
       groupIds.forEach(id => socket.emit("discard_card", { cardId: id }));
       if (isMultiDrag) setSelectedCards(new Set());
     } else {
-      // Reposition: move every card in the group by the same delta, clamped to the canvas
+      // Reposition: move every card in the group by the same delta, clamped to the canvas.
+      // Compute synchronously from current positions so update_card_positions is emitted
+      // *before* card_drag_end below — that way watchers see the final position land before
+      // the live-drag offset is cleared (no snap-back).
       onBringToFront(cardId);
       const canvasW = handCanvasRef.current?.clientWidth ?? 9999;
-      setCardPositions((prev) => {
-        const next = { ...prev };
-        for (const id of groupIds) {
-          const rawX = (prev[id]?.x ?? 0) + delta.x;
-          const rawY = (prev[id]?.y ?? 0) + delta.y;
-          next[id] = {
-            x: Math.max(0, Math.min(rawX, canvasW - CARD_W)),
-            y: handLayout === "tidy" ? TIDY_Y : Math.max(0, Math.min(rawY, 320 - CARD_H)),
-          };
-        }
-        socket.emit("update_card_positions", { cardPositions: next, zOrder });
-        return next;
-      });
+      const next = { ...cardPositions };
+      for (const id of groupIds) {
+        const rawX = (cardPositions[id]?.x ?? 0) + delta.x;
+        const rawY = (cardPositions[id]?.y ?? 0) + delta.y;
+        next[id] = {
+          x: Math.max(0, Math.min(rawX, canvasW - CARD_W)),
+          y: handLayout === "tidy" ? TIDY_Y : Math.max(0, Math.min(rawY, 320 - CARD_H)),
+        };
+      }
+      setCardPositions(next);
+      socket.emit("update_card_positions", { cardPositions: next, zOrder });
     }
+
+    // Tell watchers the drag is over (after any position update above)
+    if (isMe) socket.emit("card_drag_end");
   };
 
   // ── Sorted drag over (live reorder during drag) ───────────────────────────
@@ -688,12 +703,29 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
       onDragStart={({ active }) => {
         const type = active?.data?.current?.draggableType ?? null;
         setActiveDragType(type);
-        if (type === "hand_card") setActiveDragCardId(active?.data?.current?.cardId ?? null);
         setDragDelta({ x: 0, y: 0 });
+        if (type === "hand_card") {
+          const cardId = active?.data?.current?.cardId ?? null;
+          setActiveDragCardId(cardId);
+          // Group that moves together (broadcast so other players see it move live)
+          const group = (selectedCards.size > 1 && selectedCards.has(cardId)) ? [...selectedCards] : [cardId];
+          dragGroupRef.current = group;
+          lastDragEmit.current = 0;
+          if (isMe) socket.emit("card_drag", { cardIds: group, dx: 0, dy: 0 });
+        }
       }}
-      // Share the live drag delta so selected siblings move together with the grabbed card
+      // Share the live drag delta so selected siblings move together with the grabbed card,
+      // and broadcast it (throttled) so other players watching this hand see the cards move.
       onDragMove={({ active, delta }) => {
-        if (active?.data?.current?.draggableType === "hand_card") setDragDelta({ x: delta.x, y: delta.y });
+        if (active?.data?.current?.draggableType !== "hand_card") return;
+        setDragDelta({ x: delta.x, y: delta.y });
+        if (isMe) {
+          const now = Date.now();
+          if (now - lastDragEmit.current >= 50) {
+            lastDragEmit.current = now;
+            socket.emit("card_drag", { cardIds: dragGroupRef.current, dx: delta.x, dy: delta.y });
+          }
+        }
       }}
       onDragEnd={handleDragEnd}
     >
@@ -719,6 +751,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
         onCanvasPointerDown={onCanvasPointerDown}
         activeDragCardId={activeDragCardId}
         dragDelta={dragDelta}
+        liveDrag={!isMe ? liveDrag : null}
       />
       {/* Hand cards move in their real positions (no overlay) so multi-select groups stay together.
           The draw pile still uses an overlay since it's dragged out as a single token. */}
@@ -738,7 +771,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
 
 // ── Main component ─────────────────────────────────────────────────────────────
 
-export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, hideHeader = false, viewerCursors = {}, myColor, myName }) {
+export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, hideHeader = false, viewerCursors = {}, liveDrag = null, myColor, myName }) {
   const [showCharacter, setShowCharacter] = useState(false);
 
   if (!player) return null;
@@ -916,6 +949,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
         serverCardOrder={player.cardOrder ?? []}
         targetPlayerId={playerId}
         viewerCursors={viewerCursors}
+        liveDrag={liveDrag}
         myColor={myColor}
         myName={myName}
       />}

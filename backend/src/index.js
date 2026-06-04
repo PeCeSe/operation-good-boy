@@ -380,6 +380,24 @@ io.on("connection", (socket) => {
     socket.to(room.code).emit("hand_cursor_update", { socketId: socket.id, targetPlayerId, gone: true });
   });
 
+  // ── Live card dragging (show other players moving cards in real time) ────────
+
+  socket.on("card_drag", ({ cardIds, dx, dy } = {}) => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room?.gameState) return;
+    const playerId = room.gameState.players.find((p) => p.socketId === socket.id)?.playerId;
+    if (!playerId) return;
+    socket.to(room.code).emit("card_drag_update", { playerId, cardIds, dx, dy });
+  });
+
+  socket.on("card_drag_end", () => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room?.gameState) return;
+    const playerId = room.gameState.players.find((p) => p.socketId === socket.id)?.playerId;
+    if (!playerId) return;
+    socket.to(room.code).emit("card_drag_update", { playerId, gone: true });
+  });
+
   // ── Disconnect ──────────────────────────────────────────────────────────────
 
   socket.on("disconnect", () => {
@@ -387,6 +405,9 @@ io.on("connection", (socket) => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (room) {
       socket.to(room.code).emit("cursor_leave", { socketId: socket.id });
+      // Clear any in-progress card drag so a disconnect mid-drag doesn't leave cards stuck
+      const playerId = room.gameState?.players.find((p) => p.socketId === socket.id)?.playerId;
+      if (playerId) socket.to(room.code).emit("card_drag_update", { playerId, gone: true });
       emitRoomUpdate(room.code);
     }
   });

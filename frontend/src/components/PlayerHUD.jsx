@@ -257,6 +257,7 @@ export default function PlayerHUD({
   currentPlayerId,
   isMyTurn,
   handCursors,
+  cardDrags,
   myColor,
   myName,
   onHUDPointerEnter,
@@ -519,6 +520,7 @@ export default function PlayerHUD({
                   paymentZone={isViewingMe ? paymentZone : null}
                   hideHeader={true}
                   viewerCursors={(handCursors ?? {})[activePlayer.playerId] ?? {}}
+                  liveDrag={(cardDrags ?? {})[activePlayer.playerId] ?? null}
                   myColor={myColor}
                   myName={myName}
                 />
