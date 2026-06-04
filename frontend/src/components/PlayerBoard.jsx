@@ -39,7 +39,7 @@ export function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect, ghosting = false, gatherTarget = null, dropOriginPos = null, isMultiDragCandidate = false, onGatherStart }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect, ghosting = false, isGathering = false, gatherTarget = null, dropOriginPos = null }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -84,13 +84,12 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); clearTimeout(timer); };
   }, [ghosting]);
 
-  // Gathering: card is selected, multi-drag is pending, gatherTarget set by pointer-down
-  const isGathering = !isDragging && !ghosting && gatherTarget != null && isSelected && isMe;
-  const isInReturn = justStoppedGhosting || returnPhase === "start" || returnPhase === "animating";
+  // isActiveGather: this card is visible and tracking the drag position during gather phase
+  const isActiveGather = isGathering && isSelected && !isDragging;
 
   const cssTransform = !mounted
     ? "translateY(-12px) scale(0.94)"
-    : isGathering
+    : isActiveGather && gatherTarget
       ? `translate(${gatherTarget.x - position.x}px, ${gatherTarget.y - position.y}px)`
       : (justStoppedGhosting || returnPhase === "start") && dropOriginPos
         ? `translate(${dropOriginPos.x - position.x}px, ${dropOriginPos.y - position.y}px)`
@@ -103,21 +102,20 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         e.stopPropagation();
         if (e.shiftKey) { onToggleSelect?.(card.id); return; }
         onBringToFront(card.id);
-        if (isMultiDragCandidate && isSelected) onGatherStart?.(e);
       }}
       style={{
         position: "absolute",
         left: position.x + (transform?.x ?? 0),
         top: position.y + (transform?.y ?? 0),
         zIndex: isDragging ? 1000 : zIndex,
-        // isGathering opacity=0 (CSS transition delay keeps it visible for 180ms then hides)
-        opacity: isDragging || ghosting || isGathering ? 0 : mounted ? 1 : 0,
+        // During gather: card is visible, tracking drag position. When gather ends, ghosting hides it.
+        opacity: isDragging ? 0 : (ghosting && !isActiveGather) ? 0 : mounted ? 1 : 0,
         transform: cssTransform,
         touchAction: "none",
-        // Pickup gather: slide toward cursor (visible 180ms via opacity delay), then hide
-        // Drop return:   no transition to place card at drop origin, then animate to position
-        transition: isDragging || ghosting ? "none"
-          : isGathering ? "transform 90ms ease-in, opacity 0ms linear 90ms"
+        // Gather: no CSS transition — card position updates live each frame via gatherTarget prop
+        // Drop return: no transition to set card at drop origin, then animate to its position
+        transition: isDragging || (ghosting && !isActiveGather) ? "none"
+          : isActiveGather ? "none"
           : justStoppedGhosting || returnPhase === "start" ? "none"
           : returnPhase === "animating" ? "transform 100ms ease-out"
           : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
@@ -166,7 +164,7 @@ function SortableHandCard({ card, isMe }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId, gatherTarget, dropOriginPos, onGatherStart }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId, isGathering, gatherTarget, dropOriginPos }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -260,7 +258,6 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
               && selectedCards.has(activeDragCardId)
               && selectedCards.has(card.id)
               && card.id !== activeDragCardId;
-            const isMultiDragCandidate = isMe && selectedCards.size > 1 && selectedCards.has(card.id);
             return (
               <DraggableHandCard
                 key={card.id}
@@ -272,10 +269,9 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
                 isSelected={selectedCards.has(card.id)}
                 onToggleSelect={onToggleSelect}
                 ghosting={ghosting}
+                isGathering={isGathering}
                 gatherTarget={gatherTarget}
                 dropOriginPos={dropOriginPos}
-                isMultiDragCandidate={isMultiDragCandidate}
-                onGatherStart={onGatherStart}
               />
             );
           })
@@ -433,12 +429,14 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [pendingDiscards, setPendingDiscards] = useState(new Set());
   const [selectedCards, setSelectedCards] = useState(new Set());
   const [marquee, setMarquee] = useState(null);
-  const [gatherTarget, setGatherTarget] = useState(null);   // canvas-relative cursor pos at pointer-down (multi-drag)
+  const [isGathering, setIsGathering] = useState(false);   // true for first 90ms of a multi-drag
+  const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 }); // live dnd-kit drag delta
   const [dropOriginPos, setDropOriginPos] = useState(null); // canvas-relative cursor pos at drop (multi-drag)
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
   const lastCursorEmit = useRef(0);
   const lastPointerRef = useRef({ x: 0, y: 0 });
+  const gatherTimerRef = useRef(null);
 
   // Clear selection when hand changes (new turn, card discarded by server, etc.)
   useEffect(() => {
@@ -516,23 +514,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     socket.emit("hand_cursor_leave", { targetPlayerId });
   };
 
-  // Gather animation: called from DraggableHandCard on pointer-down when multi-drag is active.
-  // Stores the canvas-relative cursor position so selected cards can animate toward it.
-  const onGatherStart = (e) => {
-    const rect = handCanvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    setGatherTarget({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-  };
-
-  // Cancel gather if pointer released before dnd-kit activates
-  useEffect(() => {
-    if (!gatherTarget) return;
-    const onUp = () => setGatherTarget(null);
-    window.addEventListener("pointerup", onUp, { once: true });
-    return () => window.removeEventListener("pointerup", onUp);
-  }, [gatherTarget]);
-
-  // Track cursor while dragging so we know where to start the drop return animation
+  // Track cursor during drag for the drop-return animation start position
   useEffect(() => {
     if (!activeDragCardId) return;
     const onMove = (e) => { lastPointerRef.current = { x: e.clientX, y: e.clientY }; };
@@ -602,18 +584,16 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     });
   }, [handKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const isMultiDragReady = selectedCards.size > 1;
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: isMultiDragReady
-        ? { delay: 200, tolerance: 99999 }  // large tolerance so moving cursor doesn't cancel gather
-        : { distance: 6 },
-    }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
   );
 
   // ── Free/Tidy drag end ─────────────────────────────────────────────────────
   const handleDragEnd = ({ active, over, delta }) => {
+    clearTimeout(gatherTimerRef.current);
+    setIsGathering(false);
+    setDragDelta({ x: 0, y: 0 });
     setActiveDragType(null);
     setActiveDragCardId(null);
     // For multi-drag drop: record cursor position so ghosted cards can animate back from it
@@ -750,16 +730,31 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const isMultiDrag = draggedCard && selectedCards.size > 1 && selectedCards.has(activeDragCardId);
   const extraCount = isMultiDrag ? Math.min(selectedCards.size - 1, 3) : 0;
 
+  // During gather: the live target position for all selected cards to converge on
+  // (the drag card's original position + current drag delta)
+  const dragCardOriginalPos = activeDragCardId ? (displayPositions[activeDragCardId] ?? null) : null;
+  const liveGatherTarget = isGathering && dragCardOriginalPos
+    ? { x: dragCardOriginalPos.x + dragDelta.x, y: dragCardOriginalPos.y + dragDelta.y }
+    : null;
+
   return (
     <DndContext
       sensors={sensors}
       onDragStart={({ active }) => {
         const type = active?.data?.current?.draggableType ?? null;
         setActiveDragType(type);
-        if (type === "hand_card") setActiveDragCardId(active?.data?.current?.cardId ?? null);
-        setGatherTarget(null); // gather animation complete, drag is live
+        const cardId = active?.data?.current?.cardId ?? null;
+        if (type === "hand_card") setActiveDragCardId(cardId);
+        setDragDelta({ x: 0, y: 0 });
         setDropOriginPos(null);
+        // Multi-drag: suppress DragOverlay for 90ms while cards gather toward drag position
+        if (type === "hand_card" && cardId && selectedCards.size > 1 && selectedCards.has(cardId)) {
+          clearTimeout(gatherTimerRef.current);
+          setIsGathering(true);
+          gatherTimerRef.current = setTimeout(() => setIsGathering(false), 90);
+        }
       }}
+      onDragMove={({ delta }) => { if (isGathering) setDragDelta({ x: delta.x, y: delta.y }); }}
       onDragEnd={handleDragEnd}
     >
       <HandAreaInner
@@ -782,9 +777,9 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
         marquee={marquee}
         onCanvasPointerDown={onCanvasPointerDown}
         activeDragCardId={activeDragCardId}
-        gatherTarget={gatherTarget}
+        isGathering={isGathering}
+        gatherTarget={liveGatherTarget}
         dropOriginPos={dropOriginPos}
-        onGatherStart={onGatherStart}
       />
       <DragOverlay dropAnimation={null}>
         {activeDragType === "draw_pile" && (
@@ -795,7 +790,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
             <span className="text-5xl">🐾</span>
           </div>
         )}
-        {activeDragType === "hand_card" && draggedCard && (
+        {activeDragType === "hand_card" && draggedCard && !isGathering && (
           <div style={{ position: "relative", transform: "rotate(2deg)" }}>
             {/* Stacked card-backs for multi-select */}
             {[...Array(extraCount)].map((_, i) => (
