@@ -10,12 +10,19 @@ const DAY_COLORS = [
   "text-gold-deep", "text-red", "text-red-deep",
 ];
 
-function DifficultySlider({ value, onChange }) {
+const HISTORY_KEY = "ogb_difficulty_history";
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || {}; } catch { return {}; }
+}
+
+// history: { [index]: "win" | "loss" }
+function DifficultySlider({ value, onChange, isHost, history = {} }) {
   return (
     <div className="space-y-2">
       <div className="font-body text-sm font-semibold text-center text-ink-700">
         Difficulty:{" "}
         <span className={`font-bold ${DAY_COLORS[value]}`}>{DAYS[value]}</span>
+        {!isHost && <span className="text-ink-300 text-xs font-normal ml-2">(host chooses)</span>}
       </div>
       <div className="relative flex items-center h-6">
         <div className="absolute left-4 right-4 h-1 bg-paper-300 rounded-full" />
@@ -27,17 +34,29 @@ function DifficultySlider({ value, onChange }) {
           {DAYS.map((day, i) => (
             <button
               key={day}
-              onClick={() => onChange(i)}
-              className="flex items-center justify-center w-4 h-4 -mx-2 focus:outline-none"
+              onClick={() => isHost && onChange(i)}
+              disabled={!isHost}
+              className="flex items-center justify-center w-4 h-4 -mx-2 focus:outline-none relative"
               title={day}
             >
               <div
                 className={`rounded-full border-2 transition-all duration-200 ${
                   i === value
                     ? "w-4 h-4 bg-gold border-gold"
-                    : "w-3 h-3 bg-paper-50 border-ink-300 hover:border-gold"
+                    : isHost
+                    ? "w-3 h-3 bg-paper-50 border-ink-300 hover:border-gold"
+                    : "w-3 h-3 bg-paper-50 border-ink-300"
                 }`}
               />
+              {history[i] && (
+                <span
+                  className={`absolute -top-4 text-[9px] font-bold leading-none ${
+                    history[i] === "win" ? "text-moss" : "text-red"
+                  }`}
+                >
+                  {history[i] === "win" ? "✓" : "✗"}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -46,10 +65,10 @@ function DifficultySlider({ value, onChange }) {
         {DAYS.map((day, i) => (
           <span
             key={day}
-            className={`text-[10px] font-medium cursor-pointer transition-colors ${
-              i === value ? DAY_COLORS[i] : "text-ink-300 hover:text-ink-500"
-            }`}
-            onClick={() => onChange(i)}
+            className={`text-[10px] font-medium transition-colors ${
+              isHost ? "cursor-pointer" : "cursor-default"
+            } ${i === value ? DAY_COLORS[i] : "text-ink-300 hover:text-ink-500"}`}
+            onClick={() => isHost && onChange(i)}
           >
             {day.slice(0, 3)}
           </span>
@@ -65,7 +84,7 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const [nameSent, setNameSent] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [copied, setCopied] = useState(false);
-  const [difficulty, setDifficulty] = useState(0);
+  const [history] = useState(loadHistory);
 
   const myPlayer = roomInfo?.players.find((p) => p.socketId === mySocketId);
   const isHost = roomInfo?.hostSocketId === mySocketId;
@@ -103,8 +122,10 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
   const handleSelectSkin = (skinId) => {
     socket.emit("select_skin", { skinId: skinId === myPlayer?.skinId ? null : skinId });
   };
+  const difficulty = roomInfo?.difficulty ?? 0;
+  const handleDifficultyChange = (i) => socket.emit("set_difficulty", { value: i });
   const handleReady = () => socket.emit("player_ready");
-  const handleStart = () => socket.emit("game_start", { difficulty: difficulty + 1 });
+  const handleStart = () => socket.emit("game_start");
 
   if (!roomInfo && needsPassword) {
     return (
@@ -414,7 +435,12 @@ export default function Lobby({ roomInfo, mySocketId, needsPassword }) {
 
       {/* Difficulty */}
       <div className="max-w-xs mx-auto w-full">
-        <DifficultySlider value={difficulty} onChange={setDifficulty} />
+        <DifficultySlider
+          value={difficulty}
+          onChange={handleDifficultyChange}
+          isHost={isHost}
+          history={history}
+        />
       </div>
 
       {/* Actions */}

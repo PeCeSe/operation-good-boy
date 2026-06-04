@@ -28,7 +28,7 @@ function buildStartingDeck(character, seq) {
   );
 }
 
-function initGameState(room) {
+function initGameState(room, difficulty) {
   // Per-game sequence counter — avoids ID collisions between concurrent games
   const seq = { _next: 1 };
 
@@ -93,6 +93,7 @@ function initGameState(room) {
 
   return {
     roomCode: room.code,
+    difficulty: Math.max(0, Math.min(6, difficulty ?? room.difficulty ?? 0)),
     totalEnemies: enemyDeck.length,
     phase: "playing",
     currentPlayerId: players[0].playerId,

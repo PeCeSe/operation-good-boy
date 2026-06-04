@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 
 const roomManager = require("./game/roomManager");
-const { rejoinRoom, setName, setSkin } = roomManager;
+const { rejoinRoom, setName, setSkin, setDifficulty } = roomManager;
 const { initGameState } = require("./game/gameState");
 const actions = require("./game/actions");
 const { CARDS } = require("./data/cards");
@@ -146,12 +146,17 @@ io.on("connection", (socket) => {
     if (room) emitRoomUpdate(room.code);
   });
 
-  socket.on("game_start", ({ difficulty = 1 } = {}) => {
+  socket.on("set_difficulty", ({ value } = {}) => {
+    const code = setDifficulty(socket.id, value ?? 0);
+    if (code) emitRoomUpdate(code);
+  });
+
+  socket.on("game_start", () => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (!room) return socket.emit("error", { message: "Room not found." });
     if (room.hostSocketId !== socket.id) return socket.emit("error", { message: "Only the host can start." });
     if (!roomManager.canStart(room.code)) return socket.emit("error", { message: "Not all players are ready." });
-    room.gameState = initGameState(room, difficulty);
+    room.gameState = initGameState(room, room.difficulty ?? 0);
     emitGameUpdate(room.code);
   });
 

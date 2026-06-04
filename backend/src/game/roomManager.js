@@ -18,6 +18,7 @@ function createRoom(socketId, password = null, playerToken = null) {
     code,
     password,
     hostSocketId: socketId,
+    difficulty: 0,
     players: [{ socketId, playerToken, name: `Player 1`, characterId: null, skinId: null, isReady: false }],
     gameState: null,
     lastActivity: Date.now(),
@@ -154,12 +155,20 @@ function canStart(code) {
   );
 }
 
+function setDifficulty(socketId, value) {
+  const room = [...rooms.values()].find(r => r.hostSocketId === socketId);
+  if (!room) return false;
+  room.difficulty = Math.max(0, Math.min(6, value));
+  return room.code;
+}
+
 function getLobbyState(code) {
   const room = rooms.get(code);
   if (!room) return null;
   return {
     code: room.code,
     hostSocketId: room.hostSocketId,
+    difficulty: room.difficulty ?? 0,
     players: room.players,
     gameInProgress: !!room.gameState,
   };
@@ -183,6 +192,7 @@ module.exports = {
   setCharacter,
   setSkin,
   setReady,
+  setDifficulty,
   canStart,
   getLobbyState,
   cleanup,

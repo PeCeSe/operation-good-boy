@@ -6,6 +6,7 @@ import { getDisplayData } from "../data/getDisplayData";
 
 const LIFETIME_KEY = "ogb_lifetime_stats";
 const LAST_GAME_KEY = "ogb_last_game_stats";
+const DIFFICULTY_HISTORY_KEY = "ogb_difficulty_history";
 
 function loadLifetime() {
   try { return JSON.parse(localStorage.getItem(LIFETIME_KEY)) || null; } catch { return null; }
@@ -100,6 +101,13 @@ export default function StatsScreen({ gameState, mySocketId }) {
     prev.gamesPlayed++;
     if (isWin) prev.wins++; else prev.losses++;
     saveStats(prev, { ...myStats, isWin, roundNumber });
+    // Record win/loss for this difficulty so the lobby can show history badges
+    const diffIdx = gameState.difficulty ?? 0;
+    try {
+      const hist = JSON.parse(localStorage.getItem(DIFFICULTY_HISTORY_KEY)) || {};
+      hist[diffIdx] = isWin ? "win" : "loss";
+      localStorage.setItem(DIFFICULTY_HISTORY_KEY, JSON.stringify(hist));
+    } catch {}
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const newLifetime = useMemo(() => {
