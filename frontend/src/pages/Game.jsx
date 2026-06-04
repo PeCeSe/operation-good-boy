@@ -448,11 +448,22 @@ export default function Game({ gameState, mySocketId }) {
     };
     socket.on("hand_cursor_update", onHandCursorUpdate);
 
+    const cardDragTimers = {};
     const onCardDragUpdate = ({ playerId, cardIds, dx, dy, gone }) => {
-      setCardDrags(prev => {
-        if (gone) { const n = { ...prev }; delete n[playerId]; return n; }
-        return { ...prev, [playerId]: { cardIds, dx, dy } };
-      });
+      if (gone) {
+        // Keep entry with gone=true so HandArea can predict the final drop position
+        // before game_update arrives. Clear after a short delay.
+        setCardDrags(prev => {
+          if (!prev[playerId]) return prev;
+          return { ...prev, [playerId]: { ...prev[playerId], gone: true } };
+        });
+        clearTimeout(cardDragTimers[playerId]);
+        cardDragTimers[playerId] = setTimeout(() => {
+          setCardDrags(prev => { const n = { ...prev }; delete n[playerId]; return n; });
+        }, 500);
+        return;
+      }
+      setCardDrags(prev => ({ ...prev, [playerId]: { cardIds, dx, dy } }));
     };
     socket.on("card_drag_update", onCardDragUpdate);
 

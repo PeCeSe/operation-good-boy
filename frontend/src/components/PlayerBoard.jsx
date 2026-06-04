@@ -229,8 +229,9 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
               && selectedCards.has(activeDragCardId)
               && selectedCards.has(card.id)
               && card.id !== activeDragCardId;
-            // Another player is dragging this card right now — mirror their live offset
-            const remoteOffset = liveDragIds?.has(card.id)
+            // Another player is dragging this card — mirror their live offset.
+            // When gone=true, offset is cleared so the card transitions to the predicted position.
+            const remoteOffset = (liveDragIds?.has(card.id) && !liveDrag?.gone)
               ? { x: liveDrag.dx ?? 0, y: liveDrag.dy ?? 0 }
               : null;
             return (
@@ -411,6 +412,12 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
   const lastCursorEmit = useRef(0);
+  // Remote drag position prediction: snapshot positions at drag start so we can predict
+  // the final drop position the moment gone=true is received (before game_update arrives).
+  const snapDragKeyRef = useRef(null);
+  const snapPositionsRef = useRef({});
+  const [predictedPositions, setPredictedPositions] = useState(null);
+  const prevGoneRef = useRef(false);
 
   // Clear selection when hand changes (new turn, card discarded by server, etc.)
   useEffect(() => {
@@ -515,8 +522,41 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     });
   };
 
+  // Snapshot base positions when a new remote drag starts, for drop-position prediction
+  if (!isMe && liveDrag?.cardIds && !liveDrag.gone) {
+    const key = liveDrag.cardIds.join(',');
+    if (key !== snapDragKeyRef.current) {
+      snapDragKeyRef.current = key;
+      snapPositionsRef.current = {};
+      for (const id of liveDrag.cardIds) {
+        snapPositionsRef.current[id] = serverCardPositions?.[id] ?? { x: 0, y: 0 };
+      }
+    }
+  }
+
+  // When remote drag ends (gone=true), predict final positions from snapshot + last delta
+  // so there's no snap-back while waiting for game_update to arrive with confirmed positions.
+  useEffect(() => {
+    if (!isMe && liveDrag?.gone && !prevGoneRef.current) {
+      const predicted = {};
+      for (const id of (liveDrag.cardIds ?? [])) {
+        const base = snapPositionsRef.current[id];
+        if (base) predicted[id] = { x: base.x + (liveDrag.dx ?? 0), y: base.y + (liveDrag.dy ?? 0) };
+      }
+      if (Object.keys(predicted).length > 0) setPredictedPositions(predicted);
+      prevGoneRef.current = true;
+    } else if (!liveDrag) {
+      prevGoneRef.current = false;
+      setPredictedPositions(null);
+      snapDragKeyRef.current = null;
+    }
+  }, [liveDrag, isMe]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // For free/tidy: use local positions for self, server positions for others
-  const displayPositions = isMe ? cardPositions : (serverCardPositions ?? {});
+  // (with predicted overlay for the brief window between gone and game_update)
+  const displayPositions = isMe
+    ? cardPositions
+    : { ...(serverCardPositions ?? {}), ...(predictedPositions ?? {}) };
   const displayZOrder    = isMe ? zOrder        : (serverZOrder ?? []);
 
   // For sorted: derive display order
