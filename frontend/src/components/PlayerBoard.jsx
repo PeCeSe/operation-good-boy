@@ -39,7 +39,7 @@ export function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect, following = false, dragDelta = null }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, isPreview = false, onToggleSelect, following = false, dragDelta = null }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -75,18 +75,22 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
         position: "absolute",
         left: position.x + offX,
         top: position.y + offY,
-        zIndex: isMoving ? 1000 : zIndex,
+        zIndex: isMoving ? 1000 : isPreview ? 900 : zIndex,
         opacity: mounted ? 1 : 0,
-        transform: mounted ? undefined : "translateY(-12px) scale(0.94)",
+        transform: !mounted ? "translateY(-12px) scale(0.94)" : isPreview ? "scale(1.06)" : undefined,
         touchAction: "none",
         transition: isMoving ? "none"
-          : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
+          : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 120ms ease",
       }}
     >
       <div
         ref={setNodeRef}
         {...(isMe ? { ...listeners, ...attributes } : {})}
-        className={isSelected ? "rounded-xl ring-2 ring-moss ring-offset-1" : ""}
+        className={
+          isPreview ? "rounded-xl ring-[3px] ring-moss ring-offset-2 shadow-xl"
+          : isSelected ? "rounded-xl ring-2 ring-moss ring-offset-1"
+          : ""
+        }
       >
         <CardComponent
           card={card}
@@ -126,7 +130,7 @@ function SortableHandCard({ card, isMe }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId, dragDelta }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), previewSelected = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId, dragDelta }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -230,6 +234,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
                 onBringToFront={onBringToFront}
                 isMe={isMe}
                 isSelected={selectedCards.has(card.id)}
+                isPreview={marquee != null && previewSelected.has(card.id)}
                 onToggleSelect={onToggleSelect}
                 following={following}
                 dragDelta={dragDelta}
@@ -390,6 +395,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [pendingDiscards, setPendingDiscards] = useState(new Set());
   const [selectedCards, setSelectedCards] = useState(new Set());
   const [marquee, setMarquee] = useState(null);
+  const [previewSelected, setPreviewSelected] = useState(new Set()); // live marquee hover preview
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 }); // live drag delta, shared with selected siblings
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
@@ -426,22 +432,8 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     const snapHand = [...(hand || [])];
     let curX = startX, curY = startY;
 
-    setMarquee({ x1: startX, y1: startY, x2: startX, y2: startY });
-
-    const onMove = (ev) => {
-      const r = canvas.getBoundingClientRect();
-      curX = ev.clientX - r.left;
-      curY = ev.clientY - r.top;
-      setMarquee({ x1: startX, y1: startY, x2: curX, y2: curY });
-    };
-    const onUp = () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      setMarquee(null);
-      if (Math.abs(curX - startX) < 6 && Math.abs(curY - startY) < 6) {
-        setSelectedCards(new Set()); // click on background = deselect all
-        return;
-      }
+    // Which cards intersect the current marquee rect
+    const hitTest = () => {
       const minX = Math.min(startX, curX), maxX = Math.max(startX, curX);
       const minY = Math.min(startY, curY), maxY = Math.max(startY, curY);
       const hit = new Set();
@@ -452,7 +444,29 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
           hit.add(card.id);
         }
       }
-      setSelectedCards(hit);
+      return hit;
+    };
+
+    setMarquee({ x1: startX, y1: startY, x2: startX, y2: startY });
+    setPreviewSelected(new Set());
+
+    const onMove = (ev) => {
+      const r = canvas.getBoundingClientRect();
+      curX = ev.clientX - r.left;
+      curY = ev.clientY - r.top;
+      setMarquee({ x1: startX, y1: startY, x2: curX, y2: curY });
+      setPreviewSelected(hitTest()); // live preview of what will be selected
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      setMarquee(null);
+      setPreviewSelected(new Set());
+      if (Math.abs(curX - startX) < 6 && Math.abs(curY - startY) < 6) {
+        setSelectedCards(new Set()); // click on background = deselect all
+        return;
+      }
+      setSelectedCards(hitTest());
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
@@ -699,6 +713,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
         onCursorMove={handleCursorMove}
         onCursorLeave={handleCursorLeave}
         selectedCards={selectedCards}
+        previewSelected={previewSelected}
         onToggleSelect={onToggleSelect}
         marquee={marquee}
         onCanvasPointerDown={onCanvasPointerDown}
