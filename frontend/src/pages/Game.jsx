@@ -34,6 +34,48 @@ function DragChip() {
   );
 }
 
+// Shared visual for a dragged board item — used both in the active player's DragOverlay
+// and as the ghost shown to other players, so the two always look identical.
+function DragGhostContent({ type, enemy }) {
+  if (type === "paw_coin") {
+    return <PawCoin className="w-6 h-6 pointer-events-none drop-shadow-lg" />;
+  }
+  if (type === "pool_token" || type === "staging_token") {
+    return <DragChip />;
+  }
+  if (type === "enemy_card") {
+    return enemy ? <EnemyCardDisplay enemy={enemy} /> : null;
+  }
+  if (type === "enemy_deck_draw") {
+    return (
+      <div
+        className="rounded-xl border-2 border-ink bg-ink-700 flex items-center justify-center shadow-2xl pointer-events-none"
+        style={{ width: 286, height: 213 }}
+      >
+        <span className="text-6xl opacity-60">👾</span>
+      </div>
+    );
+  }
+  if (type === "event_deck_draw") {
+    return (
+      <div
+        className="relative rounded-lg border-2 border-plum overflow-hidden shadow-2xl pointer-events-none"
+        style={{ width: 213, height: 213 }}
+      >
+        <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute w-28 h-28 rounded-full" style={{ background: "rgba(180, 150, 210, 0.6)" }} />
+          <div className="relative w-24 h-24 flex items-center justify-center">
+            <img src="/cards/event_icon.png" className="w-full h-full object-contain" />
+            <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: "rgba(130, 106, 150, 0.55)", mixBlendMode: "color" }} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
 function EnemyDrawPile({ count, canDraw }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: "enemy_deck_draw",
@@ -816,55 +858,45 @@ export default function Game({ gameState, mySocketId }) {
             const dragEnemy = drag?.draggableType === "enemy_card"
               ? (enemies ?? []).find(e => e && e.id === drag.enemyId) ?? null
               : null;
+            // Name label, kept at constant on-screen size (counter the board zoom)
+            const nameLabel = (
+              <div style={{
+                background: cursor.color,
+                color: "white",
+                fontSize: 10,
+                fontWeight: 700,
+                padding: "1px 6px",
+                borderRadius: 4,
+                whiteSpace: "nowrap",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              }}>
+                {cursor.name}
+              </div>
+            );
             return (
               <div
                 key={id}
                 style={{ position: "absolute", left: cursor.x, top: cursor.y, pointerEvents: "none", zIndex: 9999 }}
               >
-                <div style={{ transform: `scale(${1 / zoom})`, transformOrigin: "top left" }}>
-                  {drag ? (
-                    // Show a ghost of whatever they're dragging, offset so it sits under the cursor
-                    <div style={{ opacity: 0.75, transform: "translate(-8px, -8px)" }}>
-                      {drag.draggableType === "paw_coin" && (
-                        <PawCoin className="w-6 h-6 drop-shadow-lg" />
-                      )}
-                      {(drag.draggableType === "staging_token" || drag.draggableType === "pool_token") && (
-                        <DragChip />
-                      )}
-                      {drag.draggableType === "enemy_card" && dragEnemy && (
-                        <EnemyCardDisplay enemy={dragEnemy} />
-                      )}
-                      {drag.draggableType === "enemy_deck_draw" && (
-                        <div className="rounded-xl border-2 border-ink bg-ink-700 flex items-center justify-center shadow-xl" style={{ width: 72, height: 54 }}>
-                          <span className="text-2xl">👾</span>
-                        </div>
-                      )}
-                      {drag.draggableType === "event_deck_draw" && (
-                        <div className="relative rounded-lg border-2 border-plum overflow-hidden shadow-xl" style={{ width: 54, height: 54 }}>
-                          <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
-                        </div>
-                      )}
+                {drag ? (
+                  // Ghost rendered at full board scale (no counter-scale) so it matches exactly
+                  // what the dragging player sees in their DragOverlay.
+                  <>
+                    <div style={{ opacity: 0.8 }}>
+                      <DragGhostContent type={drag.draggableType} enemy={dragEnemy} />
                     </div>
-                  ) : (
+                    <div style={{ position: "absolute", top: 0, left: 0, transform: `scale(${1 / zoom})`, transformOrigin: "top left" }}>
+                      <div style={{ transform: "translateY(-100%)" }}>{nameLabel}</div>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ transform: `scale(${1 / zoom})`, transformOrigin: "top left" }}>
                     <svg width="16" height="20" viewBox="0 0 16 20" fill="none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", display: "block" }}>
                       <path d="M0 0 L0 16 L4.5 12 L7.5 19 L10 18 L7 11 L12 11 Z" fill={cursor.color} stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
                     </svg>
-                  )}
-                  <div style={{
-                    background: cursor.color,
-                    color: "white",
-                    fontSize: 10,
-                    fontWeight: 700,
-                    padding: "1px 6px",
-                    borderRadius: 4,
-                    whiteSpace: "nowrap",
-                    marginTop: drag ? 2 : 1,
-                    marginLeft: 2,
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-                  }}>
-                    {cursor.name}
+                    <div style={{ marginTop: 1, marginLeft: 2 }}>{nameLabel}</div>
                   </div>
-                </div>
+                )}
               </div>
             );
           })}
@@ -892,40 +924,12 @@ export default function Game({ gameState, mySocketId }) {
       <DragOverlay dropAnimation={null}>
         {activeDrag && (
           <div style={{ transform: `scale(${zoom})`, transformOrigin: "top left" }}>
-            {activeDrag.draggableType === "paw_coin" && (
-              <PawCoin className="w-6 h-6 pointer-events-none drop-shadow-lg" />
-            )}
-            {(activeDrag.draggableType === "pool_token" ||
-              activeDrag.draggableType === "staging_token") && (
-              <DragChip />
-            )}
-            {activeDrag.draggableType === "enemy_card" && (() => {
-              const enemy = (enemies ?? []).find((e) => e && e.id === activeDrag.enemyId);
-              return enemy ? <EnemyCardDisplay enemy={enemy} /> : null;
-            })()}
-            {activeDrag.draggableType === "enemy_deck_draw" && (
-              <div
-                className="rounded-xl border-2 border-ink bg-ink-700 flex items-center justify-center shadow-2xl pointer-events-none"
-                style={{ width: 286, height: 213 }}
-              >
-                <span className="text-6xl opacity-60">👾</span>
-              </div>
-            )}
-            {activeDrag.draggableType === "event_deck_draw" && (
-              <div
-                className="relative rounded-lg border-2 border-plum overflow-hidden shadow-2xl pointer-events-none"
-                style={{ width: 213, height: 213 }}
-              >
-                <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="absolute w-28 h-28 rounded-full" style={{ background: "rgba(180, 150, 210, 0.6)" }} />
-                  <div className="relative w-24 h-24 flex items-center justify-center">
-                    <img src="/cards/event_icon.png" className="w-full h-full object-contain" />
-                    <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: "rgba(130, 106, 150, 0.55)", mixBlendMode: "color" }} />
-                  </div>
-                </div>
-              </div>
-            )}
+            <DragGhostContent
+              type={activeDrag.draggableType}
+              enemy={activeDrag.draggableType === "enemy_card"
+                ? (enemies ?? []).find((e) => e && e.id === activeDrag.enemyId)
+                : null}
+            />
           </div>
         )}
       </DragOverlay>
