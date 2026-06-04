@@ -39,7 +39,7 @@ export function StagingToken({ token }) {
 
 // ── Hand area ─────────────────────────────────────────────────────────────────
 
-function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect, ghosting = false, isGathering = false, gatherTarget = null, dropOriginPos = null }) {
+function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSelected, onToggleSelect, following = false, dragDelta = null }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `hcard_${card.id}`,
     data: { draggableType: "hand_card", cardId: card.id },
@@ -54,46 +54,14 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
     return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); };
   }, []);
 
-  // Drop return animation: after ghosting ends, card appears at cursor and flies to its position.
-  // renderPrevGhostingRef: detect the ghosting→false transition in the same render (before effects).
-  // effectPrevGhostingRef: detect it in the effect to trigger the animation sequence.
-  // returnPhase: null → "start" (1 frame: at drop origin, no transition)
-  //           → "animating" (100ms: transform slides to normal, card visible)
-  //           → null
-  const renderPrevGhostingRef = useRef(ghosting);
-  const effectPrevGhostingRef = useRef(ghosting);
-  const [returnPhase, setReturnPhase] = useState(null);
-
-  const justStoppedGhosting = renderPrevGhostingRef.current && !ghosting;
-  renderPrevGhostingRef.current = ghosting;
-
-  useEffect(() => {
-    const wasGhosting = effectPrevGhostingRef.current;
-    effectPrevGhostingRef.current = ghosting;
-    if (!wasGhosting || ghosting) return;
-    let r1, r2, timer;
-    setReturnPhase("start");
-    // Double rAF ensures the browser paints "start" (card at drop origin) before
-    // "animating" so the CSS transition sees the transform change and runs.
-    r1 = requestAnimationFrame(() => {
-      r2 = requestAnimationFrame(() => {
-        setReturnPhase("animating");
-        timer = setTimeout(() => setReturnPhase(null), 110);
-      });
-    });
-    return () => { cancelAnimationFrame(r1); cancelAnimationFrame(r2); clearTimeout(timer); };
-  }, [ghosting]);
-
-  // isActiveGather: this card is visible and tracking the drag position during gather phase
-  const isActiveGather = isGathering && isSelected && !isDragging;
-
-  const cssTransform = !mounted
-    ? "translateY(-12px) scale(0.94)"
-    : isActiveGather && gatherTarget
-      ? `translate(${gatherTarget.x - position.x}px, ${gatherTarget.y - position.y}px)`
-      : (justStoppedGhosting || returnPhase === "start") && dropOriginPos
-        ? `translate(${dropOriginPos.x - position.x}px, ${dropOriginPos.y - position.y}px)`
-        : undefined;
+  // Drag offset folded into left/top (not transform) so it reconciles cleanly on drop:
+  //  - grabbed card  → dnd-kit's `transform`
+  //  - selected sibling of a multi-drag → the same live `dragDelta`
+  // On drop the base position is updated by the same delta and the offset clears, so the
+  // card stays exactly where it was dropped (a clamp/snap then animates via the transition).
+  const offX = (transform?.x ?? 0) + (following ? (dragDelta?.x ?? 0) : 0);
+  const offY = (transform?.y ?? 0) + (following ? (dragDelta?.y ?? 0) : 0);
+  const isMoving = isDragging || following;
 
   return (
     <div
@@ -105,19 +73,13 @@ function DraggableHandCard({ card, position, zIndex, onBringToFront, isMe, isSel
       }}
       style={{
         position: "absolute",
-        left: position.x + (transform?.x ?? 0),
-        top: position.y + (transform?.y ?? 0),
-        zIndex: isDragging ? 1000 : zIndex,
-        // During gather: card is visible, tracking drag position. When gather ends, ghosting hides it.
-        opacity: isDragging ? 0 : (ghosting && !isActiveGather) ? 0 : mounted ? 1 : 0,
-        transform: cssTransform,
+        left: position.x + offX,
+        top: position.y + offY,
+        zIndex: isMoving ? 1000 : zIndex,
+        opacity: mounted ? 1 : 0,
+        transform: mounted ? undefined : "translateY(-12px) scale(0.94)",
         touchAction: "none",
-        // Gather: no CSS transition — card position updates live each frame via gatherTarget prop
-        // Drop return: no transition to set card at drop origin, then animate to its position
-        transition: isDragging || (ghosting && !isActiveGather) ? "none"
-          : isActiveGather ? "none"
-          : justStoppedGhosting || returnPhase === "start" ? "none"
-          : returnPhase === "animating" ? "transform 100ms ease-out"
+        transition: isMoving ? "none"
           : "left 180ms ease, top 180ms ease, opacity 180ms ease, transform 180ms ease",
       }}
     >
@@ -164,7 +126,7 @@ function SortableHandCard({ card, isMe }) {
   );
 }
 
-function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId, isGathering, gatherTarget, dropOriginPos }) {
+function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, zOrder, onBringToFront, isMe, handCanvasRef, handLayout = "tidy", sortedCardOrder, viewerCursors = {}, onCursorMove, onCursorLeave, selectedCards = new Set(), onToggleSelect, marquee, onCanvasPointerDown, activeDragCardId, dragDelta }) {
   const [showBrowse, setShowBrowse] = useState(false);
 
   const { setNodeRef: setDrawRef, isOver: isOverDraw } = useDroppable({ id: "inner_draw_pile" });
@@ -253,7 +215,8 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
           </SortableContext>
         ) : (
           hand?.map((card, i) => {
-            const ghosting = activeDragCardId != null
+            // A selected sibling of an active multi-drag — follows the grabbed card's delta
+            const following = activeDragCardId != null
               && selectedCards.size > 1
               && selectedCards.has(activeDragCardId)
               && selectedCards.has(card.id)
@@ -268,10 +231,8 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
                 isMe={isMe}
                 isSelected={selectedCards.has(card.id)}
                 onToggleSelect={onToggleSelect}
-                ghosting={ghosting}
-                isGathering={isGathering}
-                gatherTarget={gatherTarget}
-                dropOriginPos={dropOriginPos}
+                following={following}
+                dragDelta={dragDelta}
               />
             );
           })
@@ -429,14 +390,10 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   const [pendingDiscards, setPendingDiscards] = useState(new Set());
   const [selectedCards, setSelectedCards] = useState(new Set());
   const [marquee, setMarquee] = useState(null);
-  const [isGathering, setIsGathering] = useState(false);   // true for first 90ms of a multi-drag
-  const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 }); // live dnd-kit drag delta
-  const [dropOriginPos, setDropOriginPos] = useState(null); // canvas-relative cursor pos at drop (multi-drag)
+  const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 }); // live drag delta, shared with selected siblings
   const pendingDropPos = useRef(null);
   const handCanvasRef = useRef(null);
   const lastCursorEmit = useRef(0);
-  const lastPointerRef = useRef({ x: 0, y: 0 });
-  const gatherTimerRef = useRef(null);
 
   // Clear selection when hand changes (new turn, card discarded by server, etc.)
   useEffect(() => {
@@ -514,14 +471,6 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     socket.emit("hand_cursor_leave", { targetPlayerId });
   };
 
-  // Track cursor during drag for the drop-return animation start position
-  useEffect(() => {
-    if (!activeDragCardId) return;
-    const onMove = (e) => { lastPointerRef.current = { x: e.clientX, y: e.clientY }; };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
-  }, [activeDragCardId]);
-
   // Clear pending discards once the server confirms them (card gone from hand)
   useEffect(() => {
     if (pendingDiscards.size === 0) return;
@@ -591,16 +540,10 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
 
   // ── Free/Tidy drag end ─────────────────────────────────────────────────────
   const handleDragEnd = ({ active, over, delta }) => {
-    clearTimeout(gatherTimerRef.current);
-    setIsGathering(false);
     setDragDelta({ x: 0, y: 0 });
     setActiveDragType(null);
     setActiveDragCardId(null);
-    // For multi-drag drop: record cursor position so ghosted cards can animate back from it
-    if (selectedCards.size > 1 && active?.data?.current?.draggableType === "hand_card") {
-      const rect = handCanvasRef.current?.getBoundingClientRect();
-      if (rect) setDropOriginPos({ x: lastPointerRef.current.x - rect.left, y: lastPointerRef.current.y - rect.top });
-    }
+
     if (active?.data?.current?.draggableType === "draw_pile") {
       const canvasEl = handCanvasRef.current;
       const translated = active.rect.current?.translated;
@@ -618,33 +561,32 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     }
     const cardId = active?.data?.current?.cardId;
     if (!cardId) return;
+
+    // Which cards move/act as a group: the grabbed card + all selected (if it's part of a multi-selection)
+    const isMultiDrag = selectedCards.size > 1 && selectedCards.has(cardId);
+    const groupIds = isMultiDrag ? [...selectedCards] : [cardId];
+
     if (over?.id === "inner_draw_pile") {
-      socket.emit("return_card_to_deck", { cardId });
+      groupIds.forEach(id => socket.emit("return_card_to_deck", { cardId: id }));
+      if (isMultiDrag) setSelectedCards(new Set());
     } else if (over?.id === "inner_discard_pile") {
-      if (selectedCards.size > 1 && selectedCards.has(cardId)) {
-        // Multi-discard: discard all selected cards at once
-        const toDiscard = [...selectedCards];
-        setPendingDiscards(prev => new Set([...prev, ...toDiscard]));
-        toDiscard.forEach(id => socket.emit("discard_card", { cardId: id }));
-        setSelectedCards(new Set());
-      } else {
-        setPendingDiscards(prev => new Set([...prev, cardId]));
-        socket.emit("discard_card", { cardId });
-      }
+      setPendingDiscards(prev => new Set([...prev, ...groupIds]));
+      groupIds.forEach(id => socket.emit("discard_card", { cardId: id }));
+      if (isMultiDrag) setSelectedCards(new Set());
     } else {
+      // Reposition: move every card in the group by the same delta, clamped to the canvas
       onBringToFront(cardId);
+      const canvasW = handCanvasRef.current?.clientWidth ?? 9999;
       setCardPositions((prev) => {
-        const rawX = (prev[cardId]?.x ?? 0) + delta.x;
-        const rawY = (prev[cardId]?.y ?? 0) + delta.y;
-        const canvasW = handCanvasRef.current?.clientWidth ?? 9999;
-        const clampedX = Math.max(0, Math.min(rawX, canvasW - CARD_W));
-        const next = {
-          ...prev,
-          [cardId]: {
-            x: clampedX,
+        const next = { ...prev };
+        for (const id of groupIds) {
+          const rawX = (prev[id]?.x ?? 0) + delta.x;
+          const rawY = (prev[id]?.y ?? 0) + delta.y;
+          next[id] = {
+            x: Math.max(0, Math.min(rawX, canvasW - CARD_W)),
             y: handLayout === "tidy" ? TIDY_Y : Math.max(0, Math.min(rawY, 320 - CARD_H)),
-          },
-        };
+          };
+        }
         socket.emit("update_card_positions", { cardPositions: next, zOrder });
         return next;
       });
@@ -726,35 +668,19 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
     );
   }
 
-  const draggedCard = activeDragCardId ? (hand || []).find(c => c.id === activeDragCardId) : null;
-  const isMultiDrag = draggedCard && selectedCards.size > 1 && selectedCards.has(activeDragCardId);
-  const extraCount = isMultiDrag ? Math.min(selectedCards.size - 1, 3) : 0;
-
-  // During gather: the live target position for all selected cards to converge on
-  // (the drag card's original position + current drag delta)
-  const dragCardOriginalPos = activeDragCardId ? (displayPositions[activeDragCardId] ?? null) : null;
-  const liveGatherTarget = isGathering && dragCardOriginalPos
-    ? { x: dragCardOriginalPos.x + dragDelta.x, y: dragCardOriginalPos.y + dragDelta.y }
-    : null;
-
   return (
     <DndContext
       sensors={sensors}
       onDragStart={({ active }) => {
         const type = active?.data?.current?.draggableType ?? null;
         setActiveDragType(type);
-        const cardId = active?.data?.current?.cardId ?? null;
-        if (type === "hand_card") setActiveDragCardId(cardId);
+        if (type === "hand_card") setActiveDragCardId(active?.data?.current?.cardId ?? null);
         setDragDelta({ x: 0, y: 0 });
-        setDropOriginPos(null);
-        // Multi-drag: suppress DragOverlay for 90ms while cards gather toward drag position
-        if (type === "hand_card" && cardId && selectedCards.size > 1 && selectedCards.has(cardId)) {
-          clearTimeout(gatherTimerRef.current);
-          setIsGathering(true);
-          gatherTimerRef.current = setTimeout(() => setIsGathering(false), 90);
-        }
       }}
-      onDragMove={({ delta }) => { if (isGathering) setDragDelta({ x: delta.x, y: delta.y }); }}
+      // Share the live drag delta so selected siblings move together with the grabbed card
+      onDragMove={({ active, delta }) => {
+        if (active?.data?.current?.draggableType === "hand_card") setDragDelta({ x: delta.x, y: delta.y });
+      }}
       onDragEnd={handleDragEnd}
     >
       <HandAreaInner
@@ -777,10 +703,10 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
         marquee={marquee}
         onCanvasPointerDown={onCanvasPointerDown}
         activeDragCardId={activeDragCardId}
-        isGathering={isGathering}
-        gatherTarget={liveGatherTarget}
-        dropOriginPos={dropOriginPos}
+        dragDelta={dragDelta}
       />
+      {/* Hand cards move in their real positions (no overlay) so multi-select groups stay together.
+          The draw pile still uses an overlay since it's dragged out as a single token. */}
       <DragOverlay dropAnimation={null}>
         {activeDragType === "draw_pile" && (
           <div
@@ -788,39 +714,6 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
             style={{ width: CARD_W, height: CARD_H }}
           >
             <span className="text-5xl">🐾</span>
-          </div>
-        )}
-        {activeDragType === "hand_card" && draggedCard && !isGathering && (
-          <div style={{ position: "relative", transform: "rotate(2deg)" }}>
-            {/* Stacked card-backs for multi-select */}
-            {[...Array(extraCount)].map((_, i) => (
-              <div key={i} style={{
-                position: "absolute",
-                top: -(i + 1) * 6,
-                left: (i + 1) * 5,
-                width: CARD_W,
-                height: CARD_H,
-                background: "#c9b398",
-                border: "2px solid #271d14",
-                borderRadius: 12,
-                opacity: 0.75 - i * 0.1,
-                zIndex: -(i + 1),
-              }} />
-            ))}
-            <CardComponent card={draggedCard} isPlayable={false} forceFullOpacity className="cursor-grabbing" />
-            {/* Badge showing total count */}
-            {isMultiDrag && (
-              <div style={{
-                position: "absolute", top: -8, right: -8,
-                background: "#5b8a4a", color: "white",
-                borderRadius: "50%", width: 24, height: 24,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, fontWeight: 700, zIndex: 100,
-                border: "2px solid white", boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-              }}>
-                {selectedCards.size}
-              </div>
-            )}
           </div>
         )}
       </DragOverlay>
