@@ -398,6 +398,20 @@ io.on("connection", (socket) => {
     socket.to(room.code).emit("card_drag_update", { playerId, gone: true });
   });
 
+  // ── Live board dragging (show other players dragging tokens/cards on the board) ──
+
+  socket.on("board_drag", ({ draggableType, enemyId, attackType } = {}) => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room?.gameState) return;
+    socket.to(room.code).emit("board_drag_update", { socketId: socket.id, draggableType, enemyId, attackType });
+  });
+
+  socket.on("board_drag_end", () => {
+    const room = roomManager.getRoomBySocket(socket.id);
+    if (!room?.gameState) return;
+    socket.to(room.code).emit("board_drag_update", { socketId: socket.id, gone: true });
+  });
+
   // ── Disconnect ──────────────────────────────────────────────────────────────
 
   socket.on("disconnect", () => {
@@ -405,6 +419,7 @@ io.on("connection", (socket) => {
     const room = roomManager.getRoomBySocket(socket.id);
     if (room) {
       socket.to(room.code).emit("cursor_leave", { socketId: socket.id });
+      socket.to(room.code).emit("board_drag_update", { socketId: socket.id, gone: true });
       // Clear any in-progress card drag so a disconnect mid-drag doesn't leave cards stuck
       const playerId = room.gameState?.players.find((p) => p.socketId === socket.id)?.playerId;
       if (playerId) socket.to(room.code).emit("card_drag_update", { playerId, gone: true });

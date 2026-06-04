@@ -163,6 +163,7 @@ export default function Game({ gameState, mySocketId }) {
   const [otherCursors, setOtherCursors] = useState({});
   const [handCursors, setHandCursors] = useState({});
   const [cardDrags, setCardDrags] = useState({}); // { [playerId]: { cardIds, dx, dy } } — other players' live card drags
+  const [boardDrags, setBoardDrags] = useState({}); // { [socketId]: { draggableType, enemyId?, attackType? } }
   const zoomRef = useRef(zoom);
   useEffect(() => { zoomRef.current = zoom; }, [zoom]);
 
@@ -467,6 +468,14 @@ export default function Game({ gameState, mySocketId }) {
     };
     socket.on("card_drag_update", onCardDragUpdate);
 
+    const onBoardDragUpdate = ({ socketId, draggableType, enemyId, attackType, gone }) => {
+      setBoardDrags(prev => {
+        if (gone) { const n = { ...prev }; delete n[socketId]; return n; }
+        return { ...prev, [socketId]: { draggableType, enemyId, attackType } };
+      });
+    };
+    socket.on("board_drag_update", onBoardDragUpdate);
+
     return () => {
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerleave", onPointerLeave);
@@ -474,6 +483,7 @@ export default function Game({ gameState, mySocketId }) {
       socket.off("cursor_leave", onCursorLeave);
       socket.off("hand_cursor_update", onHandCursorUpdate);
       socket.off("card_drag_update", onCardDragUpdate);
+      socket.off("board_drag_update", onBoardDragUpdate);
       socket.emit("cursor_leave");
     };
   }, []);
@@ -485,6 +495,8 @@ export default function Game({ gameState, mySocketId }) {
     dndActiveRef.current = true;
     setActiveDrag(active.data.current ?? null);
     lastOverRef.current = null;
+    const { draggableType, enemyId, attackType } = active.data.current ?? {};
+    socket.emit("board_drag", { draggableType, enemyId, attackType });
   }
 
   function handleDragOver({ over }) {
@@ -499,6 +511,7 @@ export default function Game({ gameState, mySocketId }) {
     const effectiveOver = over ?? lastOverRef.current;
     lastOverRef.current = null;
     setActiveDrag(null);
+    socket.emit("board_drag_end");
     const data = active.data.current ?? {};
     if (data.draggableType === "paw_coin") {
       if (effectiveOver?.id === "payment_zone") {
@@ -797,39 +810,64 @@ export default function Game({ gameState, mySocketId }) {
             <GameLog log={log} />
           </div>
 
-          {/* ── Other players' cursors (board-relative) ── */}
-          {Object.entries(otherCursors).map(([id, cursor]) => (
-            <div
-              key={id}
-              style={{
-                position: "absolute",
-                left: cursor.x,
-                top: cursor.y,
-                pointerEvents: "none",
-                zIndex: 9999,
-              }}
-            >
-              <div style={{ transform: `scale(${1 / zoom})`, transformOrigin: "top left" }}>
-                <svg width="16" height="20" viewBox="0 0 16 20" fill="none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", display: "block" }}>
-                  <path d="M0 0 L0 16 L4.5 12 L7.5 19 L10 18 L7 11 L12 11 Z" fill={cursor.color} stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
-                </svg>
-                <div style={{
-                  background: cursor.color,
-                  color: "white",
-                  fontSize: 10,
-                  fontWeight: 700,
-                  padding: "1px 6px",
-                  borderRadius: 4,
-                  whiteSpace: "nowrap",
-                  marginTop: 1,
-                  marginLeft: 2,
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-                }}>
-                  {cursor.name}
+          {/* ── Other players' cursors and live board drags (board-relative) ── */}
+          {Object.entries(otherCursors).map(([id, cursor]) => {
+            const drag = boardDrags[id];
+            const dragEnemy = drag?.draggableType === "enemy_card"
+              ? (enemies ?? []).find(e => e && e.id === drag.enemyId) ?? null
+              : null;
+            return (
+              <div
+                key={id}
+                style={{ position: "absolute", left: cursor.x, top: cursor.y, pointerEvents: "none", zIndex: 9999 }}
+              >
+                <div style={{ transform: `scale(${1 / zoom})`, transformOrigin: "top left" }}>
+                  {drag ? (
+                    // Show a ghost of whatever they're dragging, offset so it sits under the cursor
+                    <div style={{ opacity: 0.75, transform: "translate(-8px, -8px)" }}>
+                      {drag.draggableType === "paw_coin" && (
+                        <PawCoin className="w-6 h-6 drop-shadow-lg" />
+                      )}
+                      {(drag.draggableType === "staging_token" || drag.draggableType === "pool_token") && (
+                        <DragChip />
+                      )}
+                      {drag.draggableType === "enemy_card" && dragEnemy && (
+                        <EnemyCardDisplay enemy={dragEnemy} />
+                      )}
+                      {drag.draggableType === "enemy_deck_draw" && (
+                        <div className="rounded-xl border-2 border-ink bg-ink-700 flex items-center justify-center shadow-xl" style={{ width: 72, height: 54 }}>
+                          <span className="text-2xl">👾</span>
+                        </div>
+                      )}
+                      {drag.draggableType === "event_deck_draw" && (
+                        <div className="relative rounded-lg border-2 border-plum overflow-hidden shadow-xl" style={{ width: 54, height: 54 }}>
+                          <img src="/cards/event_back.png" className="absolute inset-0 w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <svg width="16" height="20" viewBox="0 0 16 20" fill="none" style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.4))", display: "block" }}>
+                      <path d="M0 0 L0 16 L4.5 12 L7.5 19 L10 18 L7 11 L12 11 Z" fill={cursor.color} stroke="white" strokeWidth="1.5" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                  <div style={{
+                    background: cursor.color,
+                    color: "white",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    padding: "1px 6px",
+                    borderRadius: 4,
+                    whiteSpace: "nowrap",
+                    marginTop: drag ? 2 : 1,
+                    marginLeft: 2,
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+                  }}>
+                    {cursor.name}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>{/* end board surface */}
         </div>{/* end board size wrapper */}
         </div>{/* end centering+gutter wrapper */}
