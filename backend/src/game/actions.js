@@ -11,7 +11,9 @@ function log(state, msg) {
 function checkWin(state) {
   if (state.enemies.every((e) => !e) && state.enemyDeck.length === 0) {
     state.phase = "victory";
-    log(state, "🎉 Victory! Good Boy has been defeated.");
+    // Not every level has a boss — keep this neutral so it reads correctly on
+    // boss-less levels (e.g. level 1). Boss-specific flavor can come later.
+    log(state, "🎉 Victory! All enemies have been defeated.");
   }
 }
 

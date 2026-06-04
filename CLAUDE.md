@@ -65,7 +65,9 @@ Everything else: apply card effects, track lives, place cucumbers, drag attack t
 - Defeat condition: all locations lost
 
 ### Victory Condition
-Defeat all enemies including **Good Boy** (always at the bottom of the enemy deck). When the enemy deck and board are empty, the code auto-triggers victory.
+**Defeat all enemies.** When the enemy deck and the board are both empty, the code auto-triggers victory.
+
+Not every level has a boss. The early levels (including level 1) have **no boss** — winning just means clearing all the regular enemies. Some higher levels include a final boss (**Good Boy**) placed at the bottom of the enemy deck; the boss is detected via `isBoss: true` in the enemy data. Right now no boss exists in `enemies.js` yet (boss content comes with the later levels), so the win logic must not assume a boss is present.
 
 ### Shop
 6 cards visible at a time, refilled automatically at end of each turn. Cards have a pawcoin cost tracked in the payment zone.
@@ -95,7 +97,8 @@ Defeat all enemies including **Good Boy** (always at the bottom of the enemy dec
 - **Pacing and flow**: Still being refined. The per-turn event reveal flow is new and hasn't been extensively playtested.
 - **Card content**: All card names, flavor text, and effects are placeholder. Final card design pass not done.
 - **Event content**: Events are mostly placeholder — names and effects need a full content pass.
-- **Enemy content**: Enemy stats, abilities, and rewards are placeholder.
+- **Enemy content**: Enemy stats, abilities, and rewards are placeholder. Only level-1 enemies exist so far (3 of them, no boss).
+- **Levels / difficulty**: The difficulty slider (Monday–Sunday) is selected by the host and synced to all players, but it has **no mechanical effect yet** — every difficulty currently plays the same setup. Higher levels (different enemy pools, tougher setups, bosses) will be added later. The mechanic is intentionally left inert for now while core gameplay and flow are being nailed down.
 - **Design and colors**: Current UI is functional but unstyled in many places. A full design pass (colors, typography, spacing, visual polish) is planned for later.
 - **Sound and animation**: Minimal animations exist. No sound effects yet.
 - **Card artwork**: Cards show type emoji placeholders. Real card art is not designed yet.
@@ -110,6 +113,7 @@ Defeat all enemies including **Good Boy** (always at the bottom of the enemy dec
 
 - [ ] Full content pass on cards (names, effects, flavor text, artwork)
 - [ ] Full content pass on events and enemies
+- [ ] Difficulty levels — make the Monday–Sunday slider actually change setup (enemy pools, tougher stats, bosses on later levels); currently inert
 - [ ] Design and color system pass — consistent visual identity
 - [ ] 4th playable character
 - [ ] Card artwork (replacing emoji placeholders)
@@ -171,3 +175,4 @@ Target size after compression: ~200–800KB per image. If an image is still over
 - The `CHARACTERS` array in `frontend/src/data/characters.js` is the single source of truth for character display data (names, images, colors). Backend character data lives in `backend/src/data/characters.js`.
 - `pages/Cards.jsx` fetches data from `GET /api/gamedata` — do not add hardcoded game data to this file.
 - Do NOT add automatic game logic (auto-applying card effects, auto-damage, auto-discard, etc.) — the game is intentionally manual.
+- **Difficulty** is stored on the room (`backend/src/game/roomManager.js`), changed only by the host via the `set_difficulty` socket event, and synced to all players through `room_update`. It is copied into `gameState.difficulty` at game start. Per-player win/loss history per difficulty is kept client-side in `localStorage` under `ogb_difficulty_history` (`StatsScreen.jsx` writes it, `Lobby.jsx` reads it for the ✓/✗ badges).
