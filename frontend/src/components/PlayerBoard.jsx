@@ -416,6 +416,7 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   // the final drop position the moment gone=true is received (before game_update arrives).
   const snapDragKeyRef = useRef(null);
   const snapPositionsRef = useRef({});
+  const predBaseRef = useRef({}); // pre-drag base position per predicted card (to detect server catch-up)
   const [predictedPositions, setPredictedPositions] = useState(null);
   const prevGoneRef = useRef(false);
 
@@ -535,22 +536,57 @@ function HandArea({ hand, drawPile, discardPile, peekCard, isMe, serverCardPosit
   }
 
   // When remote drag ends (gone=true), predict final positions from snapshot + last delta
-  // so there's no snap-back while waiting for game_update to arrive with confirmed positions.
+  // and KEEP that override until the server confirms the new position (serverCardPositions
+  // catches up). We can't rely on a fixed timer: the game_update carrying the new positions
+  // may arrive late or after the live-drag entry is cleared, which would otherwise make the
+  // card snap back to its origin. Predicted entries are pruned per-card once the server matches.
   useEffect(() => {
-    if (!isMe && liveDrag?.gone && !prevGoneRef.current) {
-      const predicted = {};
-      for (const id of (liveDrag.cardIds ?? [])) {
-        const base = snapPositionsRef.current[id];
-        if (base) predicted[id] = { x: base.x + (liveDrag.dx ?? 0), y: base.y + (liveDrag.dy ?? 0) };
-      }
-      if (Object.keys(predicted).length > 0) setPredictedPositions(predicted);
+    if (isMe) return;
+    if (liveDrag?.gone && !prevGoneRef.current) {
       prevGoneRef.current = true;
+      setPredictedPositions(prev => {
+        const next = { ...(prev ?? {}) };
+        for (const id of (liveDrag.cardIds ?? [])) {
+          const base = snapPositionsRef.current[id];
+          if (base) {
+            next[id] = { x: base.x + (liveDrag.dx ?? 0), y: base.y + (liveDrag.dy ?? 0) };
+            predBaseRef.current[id] = base; // remember origin to detect when server registers the move
+          }
+        }
+        return Object.keys(next).length > 0 ? next : null;
+      });
     } else if (!liveDrag) {
+      // Live-drag entry cleared (cleanup). Reset the snapshot/gone tracking, but do NOT clear
+      // predictedPositions here — that is pruned separately once the server confirms.
       prevGoneRef.current = false;
-      setPredictedPositions(null);
       snapDragKeyRef.current = null;
     }
   }, [liveDrag, isMe]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Prune predicted overrides once the server position catches up (within 1px), or once the
+  // card has left the hand. This is what releases the override after game_update lands.
+  useEffect(() => {
+    if (isMe || !predictedPositions) return;
+    const handIds = new Set((hand || []).map(c => c.id));
+    setPredictedPositions(prev => {
+      if (!prev) return prev;
+      let changed = false;
+      const next = {};
+      for (const id of Object.keys(prev)) {
+        const sp = serverCardPositions?.[id];
+        const base = predBaseRef.current[id];
+        // Server has registered the drop if its position now differs from the pre-drag origin
+        // (handles the canvas clamp making the exact value differ from our prediction), or
+        // already matches our prediction within 1px.
+        const serverMoved = sp && base && (Math.abs(sp.x - base.x) > 1 || Math.abs(sp.y - base.y) > 1);
+        const caughtUp = sp && prev[id] && Math.abs(sp.x - prev[id].x) <= 1 && Math.abs(sp.y - prev[id].y) <= 1;
+        if (serverMoved || caughtUp || !handIds.has(id)) { changed = true; delete predBaseRef.current[id]; continue; }
+        next[id] = prev[id];
+      }
+      if (!changed) return prev;
+      return Object.keys(next).length > 0 ? next : null;
+    });
+  }, [serverCardPositions, hand, isMe]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // For free/tidy: use local positions for self, server positions for others
   // (with predicted overlay for the brief window between gone and game_update)
