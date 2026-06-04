@@ -50,7 +50,7 @@ function DifficultySlider({ value, onChange, isHost, history = {} }) {
               />
               {history[i] && (
                 <span
-                  className={`absolute -top-4 text-[9px] font-bold leading-none ${
+                  className={`absolute -top-4 text-[11px] font-bold leading-none ${
                     history[i] === "win" ? "text-moss" : "text-red"
                   }`}
                 >
