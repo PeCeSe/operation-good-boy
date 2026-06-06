@@ -169,23 +169,23 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
       {/* ── Draw Pile ── */}
       <div className="flex flex-col items-center gap-1.5 shrink-0">
         <div className="text-[9px] text-ink-300 uppercase tracking-[0.12em] font-bold">Draw</div>
-        <div ref={setDrawRef} className="relative" style={{ width: 176, height: 258 }}>
-          {drawCount > 2 && <div className="absolute rounded-xl border-2 border-brown/50 bg-paper-300" style={{ width: 176, height: 258, top: -6, left: -6 }} />}
-          {drawCount > 1 && <div className="absolute rounded-xl border-2 border-brown/50 bg-paper-300" style={{ width: 176, height: 258, top: -3, left: -3 }} />}
+        <div ref={setDrawRef} className="relative" style={{ width: 182, height: 264 }}>
+          {drawCount > 2 && <div className="absolute rounded-xl border-2 border-brown/50 bg-paper-300" style={{ width: 176, height: 258, top: 6, left: 6 }} />}
+          {drawCount > 1 && <div className="absolute rounded-xl border-2 border-brown/50 bg-paper-300" style={{ width: 176, height: 258, top: 3, left: 3 }} />}
           <button
             ref={setDrawDragRef}
             {...drawListeners}
             {...drawAttributes}
             onClick={() => isMe && drawCount > 0 && socket.emit("draw_card")}
             disabled={!isMe || drawCount === 0}
-            className={`absolute top-0 left-0 rounded-xl border-2 flex items-center justify-center select-none overflow-hidden transition-all ${
+            className={`absolute rounded-xl border-2 flex items-center justify-center select-none overflow-hidden transition-all ${
               isOverDraw
                 ? "border-brown-soft ring-2 ring-brown-soft ring-offset-1"
                 : drawCount > 0
                 ? "border-brown"
                 : "border-dashed border-ink-300/50"
             } ${isMe && drawCount > 0 ? "hover:brightness-110 cursor-pointer active:scale-95" : "cursor-default"} ${isDrawDragging ? "opacity-40" : ""}`}
-            style={{ width: 176, height: 258, touchAction: "none" }}
+            style={{ width: 176, height: 258, top: drawCount > 2 ? 0 : drawCount > 1 ? 3 : 6, left: drawCount > 2 ? 0 : drawCount > 1 ? 3 : 6, touchAction: "none" }}
             title={isMe ? (drawCount > 0 ? "Click or drag to draw a card" : "Draw pile empty") : undefined}
           >
             {drawCount > 0 && (
