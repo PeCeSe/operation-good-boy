@@ -125,6 +125,17 @@ Not every level has a boss. The early levels (including level 1) have **no boss*
 - [ ] Possibly: player avatars/emotes during other players' turns
 - [ ] Possibly: a tutorial or rules summary in-game
 
+### Game Log (lower priority, polish pass later)
+- [ ] Highlight player names in a distinct colour
+- [ ] Separator line between each new turn (`------`)
+- [ ] Card names styled differently (another colour + underline); on hover → tooltip showing the card
+- [ ] More icons in log text — e.g. show attack token image instead of writing "attack token"
+- [ ] Fix grammar: "life" → "lives" for plural
+- [ ] Stronger visual separation between rounds (e.g. a header row "— Round 3 —")
+- [ ] More tone of voice — e.g. 🎉 when an enemy is defeated
+- [ ] Clearer visual separation between individual lines (more padding/dividers)
+- [ ] Timestamp: show seconds as well (HH:MM:SS)
+
 ---
 
 ## Image Handling
