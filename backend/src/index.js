@@ -326,6 +326,12 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("advance_location", () => {
+    withGame(socket, (gs) => {
+      actions.advanceLocation(gs);
+    });
+  });
+
   // ── Turn ────────────────────────────────────────────────────────────────────
 
   socket.on("end_turn", () => {

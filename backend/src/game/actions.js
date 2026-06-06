@@ -295,6 +295,9 @@ function setCucumbers(state, count, playerId) {
     }
   }
   state.currentLocation.currentCucumbers = next;
+}
+
+function advanceLocation(state) {
   checkLocationLoss(state);
 }
 
@@ -348,6 +351,6 @@ module.exports = {
   placePayment, clearPayment, buyCard,
   drawOneEvent, discardEvent, shuffleEventDiscard,
   drawEnemy, defeatEnemy,
-  setCucumbers,
+  setCucumbers, advanceLocation,
   endTurn,
 };
