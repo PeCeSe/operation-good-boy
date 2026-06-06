@@ -27,9 +27,9 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
       <div className="flex flex-1 min-h-0">
         {/* ── Ability + reward ── */}
         <div className="flex flex-col px-2.5 py-2 min-w-0" style={{ width: 152 }}>
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden flex items-start">
             {enemy.ability ? (
-              <div className="text-[11px] font-body text-ink-700 leading-snug line-clamp-4">
+              <div className="text-[11px] font-body text-ink-700 leading-snug">
                 {renderDescription(enemy.ability.description)}
               </div>
             ) : (
@@ -42,7 +42,7 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
               <span className="text-[8px] font-body font-black tracking-[0.12em] text-ink-500 uppercase">Reward</span>
               <div className="h-px flex-1 bg-ink-border opacity-20" />
             </div>
-            <div className="text-[11px] font-body text-ink-700 leading-snug line-clamp-2">
+            <div className="text-[11px] font-body text-ink-700 leading-snug">
               {renderDescription(enemy.reward?.description)}
             </div>
           </div>
