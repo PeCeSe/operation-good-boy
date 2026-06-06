@@ -137,7 +137,6 @@ function EnemyDiscardPile({ enemyDiscard }) {
               }`}
               style={{ width: 286, height: 213 }}
             >
-              <span className="text-3xl opacity-40">💀</span>
               <span className={`text-xs font-semibold ${isOver ? "text-red" : "text-ink-300"}`}>
                 {isOver ? "Drop to defeat!" : "Drag defeated villains here"}
               </span>
@@ -437,6 +436,9 @@ export default function Game({ gameState, mySocketId }) {
     paymentZone,
     log,
   } = gameState;
+
+  // Level 1 (difficulty 0) fights one enemy at a time; later levels open all 3 slots.
+  const maxEnemySlots = (gameState.difficulty ?? 0) === 0 ? 1 : 3;
 
   const me = players.find((p) => p.socketId === mySocketId);
 
@@ -776,14 +778,14 @@ export default function Game({ gameState, mySocketId }) {
           <div style={{ position: "absolute", top: 310, left: 40, zIndex: 1, display: "flex", gap: 24 }}>
             <EnemyDrawPile
               count={enemyDeck?.length ?? 0}
-              canDraw={(enemyDeck?.length ?? 0) > 0 && (enemies?.filter(Boolean).length ?? 0) < 3}
+              canDraw={(enemyDeck?.length ?? 0) > 0 && (enemies?.filter(Boolean).length ?? 0) < maxEnemySlots}
             />
             <EnemyDiscardPile enemyDiscard={enemyDiscard ?? []} />
           </div>
 
           {/* ── Enemy slots row (row 2) ── */}
           <div style={{ position: "absolute", top: 560, left: 40, display: "flex", gap: 16, zIndex: 1 }}>
-            {Array.from({ length: 3 }).map((_, i) =>
+            {Array.from({ length: maxEnemySlots }).map((_, i) =>
               enemies[i] ? (
                 <EnemySlot key={enemies[i].id} enemy={enemies[i]} />
               ) : (

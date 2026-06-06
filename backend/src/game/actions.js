@@ -242,13 +242,20 @@ function shuffleEventDiscard(state) {
 
 // ── Enemies ───────────────────────────────────────────────────────────────────
 
+// Level 1 (difficulty 0) is a one-enemy-at-a-time introduction; later levels
+// open up all three slots.
+function maxEnemySlots(state) {
+  return (state.difficulty ?? 0) === 0 ? 1 : 3;
+}
+
 function drawEnemy(state, slotIndex) {
   if (state.enemyDeck.length === 0) return;
+  const slots = maxEnemySlots(state);
   const occupiedCount = state.enemies.filter(Boolean).length;
-  if (occupiedCount >= 3) return;
+  if (occupiedCount >= slots) return;
 
   let targetSlot;
-  if (slotIndex !== undefined && slotIndex >= 0 && slotIndex < 3 && !state.enemies[slotIndex]) {
+  if (slotIndex !== undefined && slotIndex >= 0 && slotIndex < slots && !state.enemies[slotIndex]) {
     targetSlot = slotIndex;
   } else {
     targetSlot = state.enemies.findIndex((e) => !e);
