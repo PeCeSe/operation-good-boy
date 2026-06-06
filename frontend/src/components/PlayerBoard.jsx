@@ -314,12 +314,12 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
                 Empty
               </div>
             )}
+            {discardCount > 0 && (
+              <div className="absolute top-2 right-2 bg-ink-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10, pointerEvents: "auto" }}>
+                {discardCount}
+              </div>
+            )}
           </div>
-          {discardCount > 0 && (
-            <div className="absolute top-2 right-2 bg-ink-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
-              {discardCount}
-            </div>
-          )}
         </div>
         {!isMe && (
           <span className="text-[10px] text-ink-300">{discardCount} cards</span>
