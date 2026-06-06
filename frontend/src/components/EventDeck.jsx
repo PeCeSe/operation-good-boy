@@ -192,11 +192,11 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
   };
 
   return (
-    <div className="flex items-start gap-2 flex-wrap">
+    <div className="flex items-start gap-6 flex-wrap">
       {/* Draw pile */}
       <div className="relative flex-shrink-0" style={{ width: 213, height: 213 }}>
-        {deckCount > 2 && <div className="absolute rounded-lg border-2 border-plum/50 bg-paper-300" style={{ width: 213, height: 213, top: 6, left: 6 }} />}
-        {deckCount > 1 && <div className="absolute rounded-lg border-2 border-plum/50 bg-paper-300" style={{ width: 213, height: 213, top: 3, left: 3 }} />}
+        {deckCount > 2 && <div className="absolute rounded-lg border-2 border-plum/50 bg-paper-300" style={{ width: 213, height: 213, top: -6, left: -6 }} />}
+        {deckCount > 1 && <div className="absolute rounded-lg border-2 border-plum/50 bg-paper-300" style={{ width: 213, height: 213, top: -3, left: -3 }} />}
       <button
         ref={setDeckRef}
         {...listeners}

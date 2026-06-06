@@ -170,8 +170,8 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
       <div className="flex flex-col items-center gap-1.5 shrink-0">
         <div className="text-[9px] text-ink-300 uppercase tracking-[0.12em] font-bold">Draw</div>
         <div ref={setDrawRef} className="relative" style={{ width: 176, height: 258 }}>
-          {drawCount > 2 && <div className="absolute rounded-xl border-2 border-brown/50 bg-paper-300" style={{ width: 176, height: 258, top: 6, left: 6 }} />}
-          {drawCount > 1 && <div className="absolute rounded-xl border-2 border-brown/50 bg-paper-300" style={{ width: 176, height: 258, top: 3, left: 3 }} />}
+          {drawCount > 2 && <div className="absolute rounded-xl border-2 border-brown/50 bg-paper-300" style={{ width: 176, height: 258, top: -6, left: -6 }} />}
+          {drawCount > 1 && <div className="absolute rounded-xl border-2 border-brown/50 bg-paper-300" style={{ width: 176, height: 258, top: -3, left: -3 }} />}
           <button
             ref={setDrawDragRef}
             {...drawListeners}
