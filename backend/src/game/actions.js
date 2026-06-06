@@ -295,6 +295,10 @@ function setCucumbers(state, count, playerId) {
     }
   }
   state.currentLocation.currentCucumbers = next;
+  // Filling a location with cucumbers is a forced loss — it falls back to the
+  // next location, or triggers defeat if none remain. (Manual navigation via
+  // the arrows is separate and voluntary.)
+  checkLocationLoss(state);
 }
 
 // Manual navigation between locations. The location the player moves to becomes
