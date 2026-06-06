@@ -293,7 +293,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
           className={`relative transition-all ${isMe && discardCount > 0 ? "cursor-pointer hover:opacity-90" : "cursor-default"} ${
             isOverDiscard ? "ring-2 ring-red ring-offset-1 rounded-xl" : isMe && selectedCards.size > 1 ? "ring-2 ring-moss/40 ring-offset-1 rounded-xl" : ""
           }`}
-          style={{ width: 176, height: 258 }}
+          style={{ width: 182, height: 264 }}
           title={isMe ? (discardCount > 0 ? "Click to browse discard pile" : "Discard pile empty") : undefined}
         >
           {/* Stack illusion */}
@@ -303,7 +303,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
           {discardCount > 1 && (
             <div className="absolute rounded-xl border-2 border-ink-300/50 bg-paper-200" style={{ width: 176, height: 258, top: 3, left: 3 }} />
           )}
-          <div className="absolute top-0 left-0" style={{ zIndex: 2, pointerEvents: "none" }}>
+          <div className="absolute" style={{ zIndex: 2, pointerEvents: "none", top: discardCount > 2 ? 0 : discardCount > 1 ? 3 : 6, left: discardCount > 2 ? 0 : discardCount > 1 ? 3 : 6 }}>
             {topDiscard ? (
               <CardComponent card={topDiscard} isPlayable={false} forceFullOpacity />
             ) : (

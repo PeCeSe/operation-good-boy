@@ -83,7 +83,7 @@ function DiscardZone({ count, eventDiscard }) {
         className={`relative flex-shrink-0 rounded-lg transition-all ${
           isOver ? "ring-2 ring-plum ring-offset-1" : ""
         } ${count > 0 ? "cursor-pointer hover:opacity-90" : "cursor-default"}`}
-        style={{ width: 213, height: 213 }}
+        style={{ width: 219, height: 219 }}
       >
         {count > 2 && (
           <div
@@ -101,7 +101,7 @@ function DiscardZone({ count, eventDiscard }) {
             <img src="/cards/event_back.png" className="w-full h-full object-cover opacity-90" />
           </div>
         )}
-        <div className="absolute top-0 left-0" style={{ zIndex: 2 }}>
+        <div className="absolute" style={{ zIndex: 2, top: count > 2 ? 0 : count > 1 ? 3 : 6, left: count > 2 ? 0 : count > 1 ? 3 : 6 }}>
           {topEvent ? (
             <EventCardDisplay event={topEvent} />
           ) : (
