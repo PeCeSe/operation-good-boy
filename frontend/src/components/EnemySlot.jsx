@@ -12,10 +12,10 @@ function DamageTokenChip({ token, enemyId }) {
         e.stopPropagation();
         socket.emit("remove_from_enemy", { enemyId, tokenId: token.id });
       }}
-      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center hover:scale-110 hover:brightness-90 transition-transform select-none ${cfg.bg} ${cfg.border}`}
+      className="w-11 h-11 flex items-center justify-center hover:scale-110 transition-transform select-none"
       title={`${cfg.label} — click to remove`}
     >
-      <ClawMark className={`w-[18px] h-[18px] ${cfg.text}`} />
+      <ClawMark className="w-11 h-11" />
     </button>
   );
 }

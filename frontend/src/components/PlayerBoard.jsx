@@ -26,13 +26,13 @@ export function StagingToken({ token }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center select-none transition-all ${cfg.bg} ${cfg.border} ${
-        isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110 shadow-sm"
+      className={`w-11 h-11 flex items-center justify-center select-none transition-all ${
+        isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110"
       }`}
       style={{ touchAction: "none" }}
       title={`${cfg.label} — drag to enemy`}
     >
-      <ClawMark className={`w-[18px] h-[18px] ${cfg.text}`} />
+      <ClawMark className="w-11 h-11" />
     </div>
   );
 }
@@ -944,7 +944,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
           </div>
           {/* Attack tokens */}
           <div className="flex items-center gap-1.5">
-            <ClawMark className="w-4 h-4 text-red-deep" />
+            <ClawMark className="w-5 h-5" />
             <span className="font-bold text-ink text-sm">{attackTokens?.length ?? 0}</span>
           </div>
           {/* Stunned badge */}

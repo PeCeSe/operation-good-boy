@@ -392,7 +392,7 @@ export default function PlayerHUD({
                   style={{ width: STAGING_W, minHeight: STAGING_H }}
                 >
                   {atkTokens.length === 0
-                    ? <div className="w-9 h-9 rounded-full border-2 border-ink-300/25 flex items-center justify-center opacity-25"><ClawMark className="w-[18px] h-[18px] text-red-deep" /></div>
+                    ? <div className="w-10 h-10 flex items-center justify-center opacity-25"><ClawMark className="w-10 h-10" /></div>
                     : atkTokens.map(t => <StagingToken key={t.id} token={t} />)
                   }
                 </div>

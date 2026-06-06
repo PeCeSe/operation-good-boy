@@ -1,15 +1,16 @@
 import { useDraggable } from "@dnd-kit/core";
 
-// Cat claw-swipe mark — three tapered, fanned slashes. Used as the attack token
-// icon everywhere instead of a sword emoji (cats scratch, they don't fence).
+// Attack token — a comic "pow" fight cloud with cat paws bursting out. The
+// illustration is self-contained (transparent background, its own shape), so it
+// renders as an image and is shown without a coloured chip behind it.
 export function ClawMark({ className = "" }) {
-  const claw = "M0,-8 C1.4,-4.5 1.4,4 0.7,8.5 C0.2,4.5 -1.4,-4.5 0,-8 Z";
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
-      <path d={claw} transform="translate(7.6 11.5) rotate(-13)" />
-      <path d={claw} transform="translate(12 10.8)" />
-      <path d={claw} transform="translate(16.4 11.5) rotate(13)" />
-    </svg>
+    <img
+      src="/AttackToken.png"
+      alt="Attack"
+      draggable={false}
+      className={`object-contain select-none pointer-events-none ${className}`}
+    />
   );
 }
 
@@ -23,20 +24,18 @@ function PoolChip() {
     data: { draggableType: "pool_token", attackType: "attack" },
   });
 
-  const cfg = ATTACK_CONFIG.attack;
-
   return (
     <div
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`w-10 h-10 rounded-full border-2 flex items-center justify-center select-none transition-all ${cfg.bg} ${cfg.border} ${
-        isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110 shadow-sm"
+      className={`w-11 h-11 flex items-center justify-center select-none transition-all ${
+        isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110"
       }`}
       style={{ touchAction: "none" }}
       title="Drag to add attack token"
     >
-      <ClawMark className={`w-5 h-5 ${cfg.text}`} />
+      <ClawMark className="w-11 h-11" />
     </div>
   );
 }
