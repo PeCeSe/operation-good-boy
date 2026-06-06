@@ -297,8 +297,23 @@ function setCucumbers(state, count, playerId) {
   state.currentLocation.currentCucumbers = next;
 }
 
+// Manual navigation between locations. The location the player moves to becomes
+// the active one (interactive, agurker can be added). Cucumber counts are kept
+// per-location so moving back and forth doesn't reset progress.
 function advanceLocation(state) {
-  checkLocationLoss(state);
+  if (!state.currentLocation || state.locationDeck.length === 0) return;
+  state.lostLocations.push(state.currentLocation);
+  const next = state.locationDeck.shift();
+  if (next.currentCucumbers == null) next.currentCucumbers = 0;
+  state.currentLocation = next;
+  log(state, `Moved on to ${next.name}.`);
+}
+
+function retreatLocation(state) {
+  if (!state.currentLocation || state.lostLocations.length === 0) return;
+  state.locationDeck.unshift(state.currentLocation);
+  state.currentLocation = state.lostLocations.pop();
+  log(state, `Went back to ${state.currentLocation.name}.`);
 }
 
 // ── Turn flow ─────────────────────────────────────────────────────────────────
@@ -351,6 +366,6 @@ module.exports = {
   placePayment, clearPayment, buyCard,
   drawOneEvent, discardEvent, shuffleEventDiscard,
   drawEnemy, defeatEnemy,
-  setCucumbers, advanceLocation,
+  setCucumbers, advanceLocation, retreatLocation,
   endTurn,
 };

@@ -332,6 +332,12 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("retreat_location", () => {
+    withGame(socket, (gs) => {
+      actions.retreatLocation(gs);
+    });
+  });
+
   // ── Turn ────────────────────────────────────────────────────────────────────
 
   socket.on("end_turn", () => {
