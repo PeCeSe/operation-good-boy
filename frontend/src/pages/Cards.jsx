@@ -27,10 +27,10 @@ function PackBadge({ pack }) {
 function CardBack() {
   return (
     <div
-      className="rounded-xl border-2 border-brown bg-brown-deep flex items-center justify-center select-none flex-shrink-0"
+      className="rounded-xl border-2 border-brown overflow-hidden select-none flex-shrink-0"
       style={{ width: 176, height: 258 }}
     >
-      <span className="text-5xl opacity-30">🐾</span>
+      <img src="/cards/HandBack.png" alt="Card back" className="w-full h-full object-cover" />
     </div>
   );
 }
