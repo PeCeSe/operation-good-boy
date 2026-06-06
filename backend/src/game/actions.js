@@ -3,7 +3,7 @@ const { shuffle } = require("./gameState");
 let _tokenId = 1;
 
 function log(state, msg) {
-  state.log = [...state.log.slice(-99), msg];
+  state.log = [...state.log.slice(-99), { msg, time: Date.now() }];
 }
 
 // ── Auto-detection ────────────────────────────────────────────────────────────

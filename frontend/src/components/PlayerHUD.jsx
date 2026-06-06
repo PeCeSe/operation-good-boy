@@ -7,6 +7,12 @@ import CHARACTERS from "../data/characters";
 import SKINS from "../data/skins";
 import { getDisplayData } from "../data/getDisplayData";
 import socket, { BACKEND_URL } from "../socket";
+import { renderDescription } from "../utils/renderDescription";
+
+function renderLogMsg(msg) {
+  // Same emoji substitutions as card text
+  return renderDescription(msg);
+}
 
 // ── Draggable pawcoin ──────────────────────────────────────────────────────────
 
@@ -512,7 +518,7 @@ export default function PlayerHUD({
               }
             `}
           >
-            📜 Log {log?.length > 0 && <span className="text-xs font-normal opacity-60">({log.length})</span>}
+            📜 Log
           </button>
           {/* Settings tab */}
           <button
@@ -537,10 +543,17 @@ export default function PlayerHUD({
               <div className="px-4 py-3">
                 {!log?.length
                   ? <p className="text-ink-300 text-xs italic">Nothing yet…</p>
-                  : <ul className="space-y-1">
-                      {log.map((entry, i) => (
-                        <li key={i} className="text-xs text-ink-700">{entry}</li>
-                      ))}
+                  : <ul className="space-y-2">
+                      {log.map((entry, i) => {
+                        const msg  = typeof entry === "string" ? entry : entry.msg;
+                        const time = entry.time ? new Date(entry.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : null;
+                        return (
+                          <li key={i} className="flex items-baseline gap-2 text-xs">
+                            {time && <span className="text-ink-300 shrink-0 tabular-nums">{time}</span>}
+                            <span className="text-ink-700">{renderLogMsg(msg)}</span>
+                          </li>
+                        );
+                      })}
                       <div ref={logBottomRef} />
                     </ul>
                 }
