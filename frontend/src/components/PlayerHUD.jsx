@@ -392,7 +392,7 @@ export default function PlayerHUD({
                   style={{ width: STAGING_W, minHeight: STAGING_H }}
                 >
                   {atkTokens.length === 0
-                    ? <div className="w-10 h-10 flex items-center justify-center opacity-25"><AttackToken className="w-10 h-10" /></div>
+                    ? <div className="w-11 h-11 flex items-center justify-center opacity-25"><AttackToken className="w-11 h-11" /></div>
                     : atkTokens.map(t => <StagingToken key={t.id} token={t} />)
                   }
                 </div>
