@@ -1,12 +1,17 @@
 import { useDraggable } from "@dnd-kit/core";
 
-// Attack token — a comic "pow" fight cloud with cat paws bursting out. The
-// illustration is self-contained (transparent background, its own shape), so it
-// renders as an image and is shown without a coloured chip behind it.
+// ── Attack token art — SINGLE SOURCE OF TRUTH ───────────────────────────────
+// To swap the attack token, change ONLY this path (or replace the file it points
+// to in /public). Everywhere in the app renders the <ClawMark> component below,
+// so nothing else needs to change.
+export const ATTACK_TOKEN_SRC = "/AttackToken.png";
+
+// The illustration is self-contained (transparent background, its own shape), so
+// it renders as an image and fills the token — no coloured chip behind it.
 export function ClawMark({ className = "" }) {
   return (
     <img
-      src="/AttackToken.png"
+      src={ATTACK_TOKEN_SRC}
       alt="Attack"
       draggable={false}
       className={`object-contain select-none pointer-events-none ${className}`}
