@@ -80,34 +80,39 @@ function EnemyDrawPile({ count, canDraw }) {
     disabled: !canDraw,
   });
 
+  const btnOffset = count > 2 ? 0 : count > 1 ? 3 : 6;
   return (
     <div className="flex flex-col items-center gap-1.5">
       <div className="text-[9px] text-ink-500 uppercase tracking-[0.12em] font-bold">Villain Deck</div>
-      <button
-        ref={setNodeRef}
-        {...listeners}
-        {...attributes}
-        onClick={() => canDraw && socket.emit("draw_enemy")}
-        disabled={!canDraw}
-        className={`relative rounded-xl border-2 flex items-center justify-center select-none overflow-hidden transition-all ${
-          count === 0
-            ? "border-dashed border-ink-300/50 cursor-default"
-            : canDraw
-            ? "border-ink hover:brightness-110 cursor-pointer active:scale-95"
-            : "border-ink-300 cursor-default opacity-60"
-        } ${isDragging ? "opacity-40" : ""}`}
-        style={{ width: 286, height: 213, touchAction: "none" }}
-        title={canDraw ? "Click or drag to draw a villain" : "Deck empty"}
-      >
-        {count > 0 && (
-          <>
-            <img src="/cards/EnemyBack.png" alt="Villain deck" className="absolute inset-0 w-full h-full object-cover" />
-            <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
-              {count}
-            </span>
-          </>
-        )}
-      </button>
+      <div className="relative" style={{ width: 292, height: 219 }}>
+        {count > 2 && <div className="absolute rounded-xl border-2 border-ink/40 bg-paper-300/60" style={{ width: 286, height: 213, top: 6, left: 6 }} />}
+        {count > 1 && <div className="absolute rounded-xl border-2 border-ink/40 bg-paper-300/60" style={{ width: 286, height: 213, top: 3, left: 3 }} />}
+        <button
+          ref={setNodeRef}
+          {...listeners}
+          {...attributes}
+          onClick={() => canDraw && socket.emit("draw_enemy")}
+          disabled={!canDraw}
+          className={`absolute rounded-xl border-2 flex items-center justify-center select-none overflow-hidden transition-all ${
+            count === 0
+              ? "border-dashed border-ink-300/50 cursor-default"
+              : canDraw
+              ? "border-ink hover:brightness-110 cursor-pointer active:scale-95"
+              : "border-ink-300 cursor-default opacity-60"
+          } ${isDragging ? "opacity-40" : ""}`}
+          style={{ width: 286, height: 213, top: btnOffset, left: btnOffset, touchAction: "none" }}
+          title={canDraw ? "Click or drag to draw a villain" : "Deck empty"}
+        >
+          {count > 0 && (
+            <>
+              <img src="/cards/EnemyBack.png" alt="Villain deck" className="absolute inset-0 w-full h-full object-cover" />
+              <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
+                {count}
+              </span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }
@@ -123,12 +128,12 @@ function EnemyDiscardPile({ enemyDiscard }) {
       <div
         ref={setNodeRef}
         className={`relative rounded-xl transition-all ${isOver ? "ring-2 ring-red ring-offset-2" : ""}`}
-        style={{ width: 286, height: 213 }}
+        style={{ width: 292, height: 219 }}
       >
         {/* Stack illusion */}
         {count > 2 && <div className="absolute rounded-xl border-2 border-ink-border/30 bg-paper-300/60" style={{ width: 286, height: 213, top: 6, left: 6 }} />}
         {count > 1 && <div className="absolute rounded-xl border-2 border-ink-border/30 bg-paper-300/60" style={{ width: 286, height: 213, top: 3, left: 3 }} />}
-        <div className="absolute top-0 left-0" style={{ zIndex: 2 }}>
+        <div className="absolute" style={{ zIndex: 2, top: count > 2 ? 0 : count > 1 ? 3 : 6, left: count > 2 ? 0 : count > 1 ? 3 : 6 }}>
           {topEnemy ? (
             <EnemyCardDisplay enemy={topEnemy} />
           ) : (
@@ -143,12 +148,12 @@ function EnemyDiscardPile({ enemyDiscard }) {
               </span>
             </div>
           )}
+          {count > 0 && (
+            <div className="absolute top-2 right-2 bg-ink-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
+              {count}
+            </div>
+          )}
         </div>
-        {count > 0 && (
-          <div className="absolute top-2 right-2 bg-ink-700 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow" style={{ zIndex: 10 }}>
-            {count}
-          </div>
-        )}
       </div>
     </div>
   );
