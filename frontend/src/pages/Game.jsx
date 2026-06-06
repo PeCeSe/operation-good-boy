@@ -671,7 +671,7 @@ export default function Game({ gameState, mySocketId }) {
                       <span className="text-ink-border">·</span>
                       {/* Cards in hand */}
                       <span className="flex items-center gap-0.5">
-                        <img src="/cards/CardIcon.png" alt="cards" className="w-5 h-5 object-contain" /><span>{p.hand?.length ?? 0}</span>
+                        <img src="/cards/CardIcon.png" alt="cards" className="w-3.5 h-5 object-contain" /><span>{p.hand?.length ?? 0}</span>
                       </span>
                     </div>
                   </div>
