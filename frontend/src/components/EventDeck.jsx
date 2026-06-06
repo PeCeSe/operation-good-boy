@@ -194,13 +194,16 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
   return (
     <div className="flex items-start gap-2 flex-wrap">
       {/* Draw pile */}
+      <div className="relative flex-shrink-0" style={{ width: 213, height: 213 }}>
+        {deckCount > 2 && <div className="absolute rounded-lg border-2 border-plum/50 bg-paper-300" style={{ width: 213, height: 213, top: 6, left: 6 }} />}
+        {deckCount > 1 && <div className="absolute rounded-lg border-2 border-plum/50 bg-paper-300" style={{ width: 213, height: 213, top: 3, left: 3 }} />}
       <button
         ref={setDeckRef}
         {...listeners}
         {...attributes}
         onClick={handleDraw}
         disabled={deckCount === 0}
-        className={`relative flex-shrink-0 rounded-lg border-2 overflow-hidden select-none transition-all ${
+        className={`absolute top-0 left-0 rounded-lg border-2 overflow-hidden select-none transition-all ${
           deckCount > 0
             ? "border-plum cursor-pointer active:scale-95 hover:brightness-105"
             : "border-dashed border-ink-300/50 cursor-default"
@@ -232,6 +235,7 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
           </>
         )}
       </button>
+      </div>
 
       {/* Discard pile */}
       <DiscardZone count={discardCount} eventDiscard={eventDiscard} />
