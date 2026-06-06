@@ -234,7 +234,7 @@ const CARDS = [
   },
   {
     id: "card_p2_a05",
-    name: "The Sphynx",
+    name: "Eugene the Sphynx",
     type: "ally",
     cost: 4,
     pack: 2,
