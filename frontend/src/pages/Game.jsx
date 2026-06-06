@@ -182,9 +182,9 @@ function EmptyEnemySlot({ slotIndex, isDeckBeingDragged }) {
 function ShopDeckPile({ count }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="w-24 h-32 bg-brown-deep rounded-xl border-2 border-brown flex flex-col items-center justify-center shadow-lg gap-1">
-        <span className="text-4xl">🃏</span>
-        <span className="text-brown-soft font-bold text-sm">{count}</span>
+      <div className="relative w-24 h-32 rounded-xl border-2 border-brown overflow-hidden shadow-lg">
+        <img src="/cards/HandBack.png" alt="Shop deck" className="absolute inset-0 w-full h-full object-cover" />
+        <span className="absolute bottom-1 right-1 bg-ink text-white font-bold text-xs rounded-full w-6 h-6 flex items-center justify-center shadow z-10">{count}</span>
       </div>
       <div className="text-[9px] text-ink-500 uppercase tracking-wide font-bold">Shop Deck</div>
     </div>
