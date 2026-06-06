@@ -185,7 +185,7 @@ function EmptyEnemySlot({ slotIndex, isDeckBeingDragged }) {
 function ShopDeckPile({ count }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className={`relative w-24 h-36 rounded-xl border-2 overflow-hidden ${
+      <div className={`relative w-24 h-36 rounded-md border-2 overflow-hidden ${
         count > 0 ? "border-brown shadow-lg" : "border-dashed border-ink-300/50"
       }`}>
         {count > 0 && (
