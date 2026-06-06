@@ -149,7 +149,7 @@ const CARDS = [
     copies: 2,
     image: "/cards/fallbacks/MoveFallback.png",
     description: "Gain 2 ⚔️. Draw a card 🃏.",
-    flavorText: "",
+    flavorText: "Ready. Set. CHAOS.",
   },
   {
     id: "card_p2_m02",
@@ -160,7 +160,7 @@ const CARDS = [
     copies: 2,
     image: "/cards/fallbacks/MoveFallback.png",
     description: "Remove 1 🥒 from location.",
-    flavorText: "",
+    flavorText: "Ahhhhhh.",
   },
 
   // Items
@@ -173,7 +173,7 @@ const CARDS = [
     copies: 2,
     image: "/cards/fallbacks/ItemFallback.png",
     description: "Gain 2 ⚔️. If you defeat an enemy, also gain 2 🪙.",
-    flavorText: "",
+    flavorText: "It never stays dead.",
   },
   {
     id: "card_p2_i02",
@@ -184,7 +184,7 @@ const CARDS = [
     copies: 2,
     image: "/cards/fallbacks/ItemFallback.png",
     description: "Choose an Ally you have played this turn. You may copy the effects of that Ally.",
-    flavorText: "",
+    flavorText: "The best place to do nothing.",
   },
 
   // Allies
@@ -197,7 +197,7 @@ const CARDS = [
     copies: 1,
     image: "/cards/fallbacks/AllyFallback.png",
     description: "Gain 1 ⚔️ and 1 🪙.",
-    flavorText: "",
+    flavorText: "Don't let the size fool you.",
   },
   {
     id: "card_p2_a02",
@@ -208,7 +208,7 @@ const CARDS = [
     copies: 1,
     image: "/cards/fallbacks/AllyFallback.png",
     description: "ALL heroes gain 1 🪙 and 2 ❤️.",
-    flavorText: "",
+    flavorText: "Ancient wisdom. Zero patience for nonsense.",
   },
   {
     id: "card_p2_a03",
@@ -219,7 +219,7 @@ const CARDS = [
     copies: 1,
     image: "/cards/fallbacks/AllyFallback.png",
     description: "ALL heroes gain 2 🪙.",
-    flavorText: "",
+    flavorText: "Will help. Requires shinies.",
   },
   {
     id: "card_p2_a04",
@@ -230,7 +230,7 @@ const CARDS = [
     copies: 1,
     image: "/cards/fallbacks/AllyFallback.png",
     description: "Draw a card 🃏, then discard any one card. If you discard this, draw a card 🃏.",
-    flavorText: "",
+    flavorText: "They see me rollin'.",
   },
   {
     id: "card_p2_a05",
@@ -241,7 +241,7 @@ const CARDS = [
     copies: 1,
     image: "/cards/fallbacks/AllyFallback.png",
     description: "Remove 1 🥒 from location. Draw a card 🃏.",
-    flavorText: "",
+    flavorText: "Part cat. Part alien. All love.",
   },
   {
     id: "card_p2_a06",
@@ -252,7 +252,7 @@ const CARDS = [
     copies: 1,
     image: "/cards/fallbacks/AllyFallback.png",
     description: "Choose one: Gain 2 ⚔️, or ALL heroes gain 2 ❤️.",
-    flavorText: "",
+    flavorText: "Trash panda? He prefers 'collector'.",
   },
 ];
 
