@@ -49,7 +49,7 @@ export default function LocationBar({ currentLocation, lostLocations = [], locat
         <button
           onClick={() => socket.emit("advance_location")}
           title="Move on to next location"
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20 w-7 h-7 rounded-full bg-sepia text-white border-2 border-sepia-deep shadow-md flex items-center justify-center hover:bg-sepia-deep transition-colors"
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 z-20 w-7 h-7 rounded-full bg-paper-50 border-2 border-ink-border shadow-md flex items-center justify-center text-ink hover:bg-paper-200 transition-colors"
           style={{ fontSize: 14 }}
         >
           ›
