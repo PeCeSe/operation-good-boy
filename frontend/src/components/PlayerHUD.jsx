@@ -271,6 +271,13 @@ export default function PlayerHUD({
   const logBottomRef = useRef(null);
   const dragStateRef = useRef(null);
 
+  // All players in order — me first, then others
+  const allPlayers    = [me, ...(otherPlayers ?? [])].filter(Boolean);
+  const showTabs      = allPlayers.length > 1;
+  const isRulesTab    = activeTabId === RULES_TAB_ID;
+  const isSettingsTab = activeTabId === SETTINGS_TAB_ID;
+  const isLogTab      = activeTabId === LOG_TAB_ID;
+
   // Auto-scroll log to bottom when new entries arrive
   useEffect(() => {
     if (!isLogTab || !logBottomRef.current) return;
@@ -286,13 +293,6 @@ export default function PlayerHUD({
   }, [me?.playerId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { setNodeRef: setStagingRef, isOver: isOverStaging } = useDroppable({ id: "staging" });
-
-  // All players in order — me first, then others
-  const allPlayers   = [me, ...(otherPlayers ?? [])].filter(Boolean);
-  const showTabs     = allPlayers.length > 1;
-  const isRulesTab    = activeTabId === RULES_TAB_ID;
-  const isSettingsTab = activeTabId === SETTINGS_TAB_ID;
-  const isLogTab      = activeTabId === LOG_TAB_ID;
 
   // Active tab defaults to "me"
   const activePlayer = (isRulesTab || isSettingsTab || isLogTab) ? null : (allPlayers.find(p => p.playerId === activeTabId) ?? me ?? allPlayers[0] ?? null);
