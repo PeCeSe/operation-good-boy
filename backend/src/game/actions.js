@@ -20,19 +20,12 @@ function checkWin(state) {
 function checkLocationLoss(state) {
   if (!state.currentLocation) return;
   if (state.currentLocation.currentCucumbers < state.currentLocation.maxCucumberTokens) return;
+  // Locations no longer auto-advance when overrun — the player switches manually.
+  // Defeat only triggers when the LAST remaining location is fully filled.
+  if (state.locationDeck.length > 0) return;
 
-  log(state, `💀 ${state.currentLocation.name} has been overrun!`);
-  state.lostLocations.push(state.currentLocation);
-
-  if (state.locationDeck.length > 0) {
-    state.currentLocation = state.locationDeck.shift();
-    state.currentLocation.currentCucumbers = 0;
-    log(state, `Falling back to ${state.currentLocation.name}.`);
-  } else {
-    state.currentLocation = null;
-    state.phase = "defeat";
-    log(state, "🥒 Defeat. All locations have been lost.");
-  }
+  state.phase = "defeat";
+  log(state, "🥒 Defeat. The last location has been overrun.");
 }
 
 // ── Player stats ──────────────────────────────────────────────────────────────
