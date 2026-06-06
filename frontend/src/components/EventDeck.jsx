@@ -109,7 +109,7 @@ function DiscardZone({ count, eventDiscard }) {
               className={`rounded-lg border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all ${
                 isOver
                   ? "border-plum bg-plum-lighter"
-                  : "border-ink-border bg-paper-200"
+                  : "border-ink-300/50 bg-paper-200/20"
               }`}
               style={{ width: 213, height: 213 }}
             >
