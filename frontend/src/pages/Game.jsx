@@ -97,7 +97,7 @@ function EnemyDrawPile({ count, canDraw }) {
             : "border-ink-300 cursor-default opacity-60"
         } ${isDragging ? "opacity-40" : ""}`}
         style={{ width: 286, height: 213, touchAction: "none" }}
-        title={canDraw ? "Click or drag to draw a villain" : count === 0 ? "Deck empty" : "All slots full"}
+        title={canDraw ? "Click or drag to draw a villain" : "Deck empty"}
       >
         {count > 0 && (
           <>
@@ -785,7 +785,7 @@ export default function Game({ gameState, mySocketId }) {
           <div style={{ position: "absolute", top: 310, left: 40, zIndex: 1, display: "flex", gap: 24 }}>
             <EnemyDrawPile
               count={enemyDeck?.length ?? 0}
-              canDraw={(enemyDeck?.length ?? 0) > 0 && (enemies?.filter(Boolean).length ?? 0) < maxEnemySlots}
+              canDraw={(enemyDeck?.length ?? 0) > 0}
             />
             <EnemyDiscardPile enemyDiscard={enemyDiscard ?? []} />
           </div>
