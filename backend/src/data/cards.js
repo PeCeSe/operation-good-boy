@@ -19,7 +19,7 @@ const CARDS = [
     pack: 1,
     copies: 2,
     image: "/cards/pack1/moves/Meow.png",
-    description: "ALL heroes draw a card.",
+    description: "ALL heroes draw a card 🃏.",
     flavorText: "Loud. Insistent. Effective.",
   },
   {
@@ -30,7 +30,7 @@ const CARDS = [
     pack: 1,
     copies: 4,
     image: "/cards/pack1/moves/Zoomies.png",
-    description: "Gain 1 ⚔️. Draw a card.",
+    description: "Gain 1 ⚔️. Draw a card 🃏.",
     flavorText: "No warning. No reason. Full speed.",
   },
   {
@@ -41,7 +41,7 @@ const CARDS = [
     pack: 1,
     copies: 6,
     image: "/cards/pack1/moves/SlowBlink.png",
-    description: "Choose one: Gain 2 🪙, or draw a card.",
+    description: "Choose one: Gain 2 🪙, or draw a card 🃏.",
     flavorText: "This means I love you. Now do what I want.",
   },
   {
@@ -98,7 +98,7 @@ const CARDS = [
     pack: 1,
     copies: 1,
     image: "/cards/pack1/items/ToyMouse.png",
-    description: "Gain 2 🪙. Draw a card.",
+    description: "Gain 2 🪙. Draw a card 🃏.",
     flavorText: "Suspiciously lifelike.",
   },
 
@@ -111,7 +111,7 @@ const CARDS = [
     pack: 1,
     copies: 1,
     image: "/cards/pack1/allies/OldLadyNextDoor.png",
-    description: "ALL heroes gain 1 ⚔️, 1 🪙, 1 ♥ and draw a card.",
+    description: "ALL heroes gain 1 ⚔️, 1 🪙, 1 ♥ and draw a card 🃏.",
     flavorText: "She gives out treats. Loyalty secured.",
   },
   {
