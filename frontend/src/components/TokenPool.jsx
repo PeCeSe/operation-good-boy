@@ -4,7 +4,7 @@ import { useDraggable } from "@dnd-kit/core";
 // To swap the attack token, change ONLY this path (or replace the file it points
 // to in /public). Everywhere in the app renders the <AttackToken> component below,
 // so nothing else needs to change.
-export const ATTACK_TOKEN_SRC = "/AttackToken.png";
+export const ATTACK_TOKEN_SRC = "/pow.png";
 
 // The illustration is self-contained (transparent background, its own shape), so
 // it renders as an image and fills the token — no coloured chip behind it.
