@@ -72,6 +72,7 @@ const STAGING_H     = 44;
 
 const RULES_TAB_ID    = "__rules__";
 const SETTINGS_TAB_ID = "__settings__";
+const LOG_TAB_ID      = "__log__";
 
 // ── Turn order / rules tab content ────────────────────────────────────────────
 
@@ -260,13 +261,21 @@ export default function PlayerHUD({
   cardDrags,
   myColor,
   myName,
+  log,
   onHUDPointerEnter,
   onHUDPointerLeave,
 }) {
   const [drawerHeight, setDrawerHeight] = useState(MAX_DRAWER_H);
   const [isDragging,   setIsDragging]   = useState(false);
   const [activeTabId,  setActiveTabId]  = useState(null);
+  const logBottomRef = useRef(null);
   const dragStateRef = useRef(null);
+
+  // Auto-scroll log to bottom when new entries arrive
+  useEffect(() => {
+    if (!isLogTab || !logBottomRef.current) return;
+    logBottomRef.current.scrollIntoView({ behavior: "smooth" });
+  }, [log, isLogTab]);
 
   // Apply saved hand layout preference on mount
   useEffect(() => {
@@ -283,9 +292,10 @@ export default function PlayerHUD({
   const showTabs     = allPlayers.length > 1;
   const isRulesTab    = activeTabId === RULES_TAB_ID;
   const isSettingsTab = activeTabId === SETTINGS_TAB_ID;
+  const isLogTab      = activeTabId === LOG_TAB_ID;
 
   // Active tab defaults to "me"
-  const activePlayer = (isRulesTab || isSettingsTab) ? null : (allPlayers.find(p => p.playerId === activeTabId) ?? me ?? allPlayers[0] ?? null);
+  const activePlayer = (isRulesTab || isSettingsTab || isLogTab) ? null : (allPlayers.find(p => p.playerId === activeTabId) ?? me ?? allPlayers[0] ?? null);
   const isViewingMe  = activePlayer?.playerId === me?.playerId;
 
   const lives      = me?.lives ?? 0;
@@ -490,6 +500,20 @@ export default function PlayerHUD({
           >
             📋 Instructions
           </button>
+          {/* Log tab */}
+          <button
+            onClick={() => setActiveTabId(LOG_TAB_ID)}
+            className={`
+              flex items-center gap-1.5 px-4 py-2 rounded-t-lg text-sm font-bold
+              transition-colors select-none shrink-0 border-2 border-b-0
+              ${isLogTab
+                ? "bg-paper-100 text-ink-700 border-ink-border/20 translate-y-[2px] relative z-10"
+                : "bg-paper-200/60 text-ink-400 border-ink-border/20 hover:text-ink-600 hover:bg-paper-200/80"
+              }
+            `}
+          >
+            📜 Log {log?.length > 0 && <span className="text-xs font-normal opacity-60">({log.length})</span>}
+          </button>
           {/* Settings tab */}
           <button
             onClick={() => setActiveTabId(SETTINGS_TAB_ID)}
@@ -508,7 +532,21 @@ export default function PlayerHUD({
 
         {/* Scrollable content */}
         <div className="overflow-y-auto flex-1" style={{ maxHeight: MAX_DRAWER_H - TAB_BAR_H }}>
-          {isRulesTab
+          {isLogTab
+            ? (
+              <div className="px-4 py-3">
+                {!log?.length
+                  ? <p className="text-ink-300 text-xs italic">Nothing yet…</p>
+                  : <ul className="space-y-1">
+                      {log.map((entry, i) => (
+                        <li key={i} className="text-xs text-ink-700">{entry}</li>
+                      ))}
+                      <div ref={logBottomRef} />
+                    </ul>
+                }
+              </div>
+            )
+            : isRulesTab
             ? <RulesPanel />
             : isSettingsTab
             ? <SettingsPanel me={me} />

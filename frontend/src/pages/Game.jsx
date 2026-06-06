@@ -10,7 +10,6 @@ import EnemySlot from "../components/EnemySlot";
 import { EnemyCardDisplay } from "../components/EnemyComponent";
 import ShopRow from "../components/ShopRow";
 import EventDeck, { EventCardDisplay } from "../components/EventDeck";
-import GameLog from "../components/GameLog";
 import { AttackToken } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import StatsScreen from "../components/StatsScreen";
@@ -862,11 +861,6 @@ export default function Game({ gameState, mySocketId }) {
             </div>
           </div>
 
-          {/* ── Game log (bottom-right) ── */}
-          <div style={{ position: "absolute", bottom: 30, left: 1410, width: 270, zIndex: 1 }}>
-            <GameLog log={log} />
-          </div>
-
           {/* ── Other players' cursors and live board drags (board-relative) ── */}
           {Object.entries(otherCursors).map(([id, cursor]) => {
             const drag = boardDrags[id];
@@ -931,6 +925,7 @@ export default function Game({ gameState, mySocketId }) {
         cardDrags={cardDrags}
         myColor={me?.character?.bgFrom ?? "#f59e0b"}
         myName={me?.name ?? ""}
+        log={log}
         onHUDPointerEnter={() => { cursorInHUD.current = true; socket.emit("cursor_leave"); }}
         onHUDPointerLeave={() => { cursorInHUD.current = false; }}
       />
