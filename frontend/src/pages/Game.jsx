@@ -49,10 +49,10 @@ function DragGhostContent({ type, enemy }) {
   if (type === "enemy_deck_draw") {
     return (
       <div
-        className="rounded-xl border-2 border-ink bg-ink-700 flex items-center justify-center shadow-2xl pointer-events-none"
+        className="rounded-xl border-2 border-ink overflow-hidden shadow-2xl pointer-events-none"
         style={{ width: 286, height: 213 }}
       >
-        <span className="text-6xl opacity-60">👾</span>
+        <img src="/cards/EnemyBack.png" alt="" className="w-full h-full object-cover" />
       </div>
     );
   }
@@ -92,17 +92,17 @@ function EnemyDrawPile({ count, canDraw }) {
         {...attributes}
         onClick={() => canDraw && socket.emit("draw_enemy")}
         disabled={!canDraw}
-        className={`relative rounded-xl border-2 flex items-center justify-center select-none transition-all ${
+        className={`relative rounded-xl border-2 flex items-center justify-center select-none overflow-hidden transition-all ${
           canDraw
-            ? "border-ink bg-ink-700 hover:bg-ink cursor-pointer active:scale-95"
-            : "border-ink-300 bg-paper-300 cursor-default opacity-60"
+            ? "border-ink hover:brightness-110 cursor-pointer active:scale-95"
+            : "border-ink-300 cursor-default opacity-60"
         } ${isDragging ? "opacity-40" : ""}`}
         style={{ width: 286, height: 213, touchAction: "none" }}
         title={canDraw ? "Click or drag to draw a villain" : count === 0 ? "Deck empty" : "All slots full"}
       >
-        <span className="text-6xl">👾</span>
+        <img src="/cards/EnemyBack.png" alt="Villain deck" className="absolute inset-0 w-full h-full object-cover" />
         {count > 0 && (
-          <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
+          <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
             {count}
           </span>
         )}

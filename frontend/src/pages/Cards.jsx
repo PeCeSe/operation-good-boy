@@ -35,6 +35,17 @@ function CardBack() {
   );
 }
 
+function EnemyCardBack() {
+  return (
+    <div
+      className="rounded-xl border-2 border-ink overflow-hidden select-none flex-shrink-0"
+      style={{ width: 286, height: 213 }}
+    >
+      <img src="/cards/EnemyBack.png" alt="Enemy card back" className="w-full h-full object-cover" />
+    </div>
+  );
+}
+
 function EventCardBack() {
   return (
     <div
@@ -118,6 +129,10 @@ export default function Cards() {
           <div className="flex flex-col items-center gap-1.5">
             <EventCardBack />
             <span className="text-[9px] text-ink-300 italic">Event cards</span>
+          </div>
+          <div className="flex flex-col items-center gap-1.5">
+            <EnemyCardBack />
+            <span className="text-[9px] text-ink-300 italic">Enemy cards</span>
           </div>
         </div>
       </section>
