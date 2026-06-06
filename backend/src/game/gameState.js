@@ -32,19 +32,19 @@ function initGameState(room, difficulty) {
   // Per-game sequence counter — avoids ID collisions between concurrent games
   const seq = { _next: 1 };
 
-  const allEnemies = deepClone(ENEMIES);
+  const allEnemies = deepClone(ENEMIES.filter(e => e.pack === 1));
   const boss = allEnemies.find((e) => e.isBoss);
   const regularEnemies = shuffle(allEnemies.filter((e) => !e.isBoss));
   const enemyDeck = boss ? [...regularEnemies, boss] : regularEnemies;
 
-  const locationDeck = deepClone(LOCATIONS);
+  const locationDeck = deepClone(LOCATIONS.filter(l => l.pack === 1));
   const eventDeck = shuffle(
-    EVENTS.flatMap((e) =>
+    EVENTS.filter(e => e.pack === 1).flatMap((e) =>
       Array.from({ length: e.copies ?? 1 }, (_, i) => ({ ...deepClone(e), id: `${e.id}_${i + 1}` }))
     )
   );
   const shopDeck = shuffle(
-    CARDS.flatMap((c) =>
+    CARDS.filter(c => c.pack === 1).flatMap((c) =>
       Array.from({ length: c.copies ?? 1 }, () => uniqueCard(c, seq))
     )
   );

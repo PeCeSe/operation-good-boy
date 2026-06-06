@@ -35,6 +35,44 @@ const EVENTS = [
     description: "All heroes lose 1 ❤️ and cannot draw extra cards this turn.",
     flavorText: "Everyone scatter.",
   },
+
+  // ── Pack 2 events ──────────────────────────────────────────────────────────
+  {
+    id: "event_p2_001",
+    name: "Brush Time",
+    pack: 2,
+    copies: 1,
+    image: "/cards/event_back.png",
+    description: "ALL heroes choose one: Discard a Move, or lose 2 ❤️.",
+    flavorText: "",
+  },
+  {
+    id: "event_p2_002",
+    name: "Spring Cleaning",
+    pack: 2,
+    copies: 1,
+    image: "/cards/event_back.png",
+    description: "ALL heroes choose one: Discard an Item, or lose 2 ❤️.",
+    flavorText: "",
+  },
+  {
+    id: "event_p2_003",
+    name: "Dinner Guests",
+    pack: 2,
+    copies: 1,
+    image: "/cards/event_back.png",
+    description: "ALL heroes choose one: Discard an Ally, or lose 2 ❤️.",
+    flavorText: "",
+  },
+  {
+    id: "event_p2_004",
+    name: "BBQ in the Garden",
+    pack: 2,
+    copies: 2,
+    image: "/cards/event_back.png",
+    description: "Active hero loses 1 ❤️. Add 1 🥒 to the location.",
+    flavorText: "",
+  },
 ];
 
 module.exports = { EVENTS };

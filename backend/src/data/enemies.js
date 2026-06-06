@@ -66,6 +66,74 @@ const ENEMIES = [
     flavorText: "She's not sorry.",
     placedAttacks: {},
   },
+
+  // ── Pack 2 enemies ─────────────────────────────────────────────────────────
+  {
+    id: "enemy_p2_001",
+    name: "The Striped Snake",
+    emoji: "🐍",
+    pack: 2,
+    image: "/cards/EnemyBack.png",
+    maxHealth: 8,
+    currentHealth: 8,
+    attack: 0,
+    cucumberTokensOnSurvive: 1,
+    weakTo: [],
+    resistantTo: [],
+    ability: {
+      trigger: "passive",
+      description: "Heroes cannot draw extra cards.",
+    },
+    reward: {
+      description: "ALL heroes draw a card 🃏. Remove 1 🥒 from location.",
+    },
+    flavorText: "",
+    placedAttacks: {},
+  },
+  {
+    id: "enemy_p2_002",
+    name: "Stinky the Skunk",
+    emoji: "🦨",
+    pack: 2,
+    image: "/cards/EnemyBack.png",
+    maxHealth: 6,
+    currentHealth: 6,
+    attack: 0,
+    cucumberTokensOnSurvive: 1,
+    weakTo: [],
+    resistantTo: [],
+    ability: {
+      trigger: "passive",
+      description: "For each Ally in hand, active hero chooses one: Lose 2 ❤️ or discard a card.",
+    },
+    reward: {
+      description: "ALL heroes choose one: Gain 2 ❤️, or search their discard pile for an Ally and put it in their hand.",
+    },
+    flavorText: "",
+    placedAttacks: {},
+  },
+  {
+    id: "enemy_p2_003",
+    name: "The Grumpy Old Man",
+    emoji: "👴",
+    pack: 2,
+    image: "/cards/EnemyBack.png",
+    maxHealth: 7,
+    currentHealth: 7,
+    attack: 0,
+    cucumberTokensOnSurvive: 1,
+    weakTo: [],
+    resistantTo: [],
+    ability: {
+      trigger: "on_cucumber_added",
+      description: "Each time a 🥒 is added to the location, remove 1 ⚔️ from all enemies.",
+    },
+    reward: {
+      description: "ALL heroes gain 1 🪙. Remove 1 🥒 from location.",
+    },
+    flavorText: "",
+    placedAttacks: {},
+  },
 ];
 
 module.exports = { ENEMIES };
