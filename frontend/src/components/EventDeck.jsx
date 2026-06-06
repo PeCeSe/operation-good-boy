@@ -203,12 +203,12 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
         className={`relative flex-shrink-0 rounded-lg border-2 overflow-hidden select-none transition-all ${
           deckCount > 0
             ? "border-plum cursor-pointer active:scale-95 hover:brightness-105"
-            : "border-ink-border cursor-default opacity-60"
+            : "border-dashed border-ink-300/50 cursor-default"
         } ${isDeckDragging ? "opacity-40" : ""}`}
         style={{ width: 213, height: 213, touchAction: "none" }}
         title={deckCount > 0 ? "Click or drag to draw an event" : "Event deck empty"}
       >
-        {deckCount > 0 ? (
+        {deckCount > 0 && (
           <>
             {/* Card back background */}
             <img src="/cards/event_back.png" alt="Event deck" className="absolute inset-0 w-full h-full object-cover" />
@@ -226,16 +226,10 @@ export default function EventDeck({ eventDeck, activeEvents, eventDiscard }) {
                 />
               </div>
             </div>
+            <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
+              {deckCount}
+            </span>
           </>
-        ) : (
-          <div className="w-full h-full bg-paper-200 flex items-center justify-center">
-            <span className="text-4xl opacity-30">🎴</span>
-          </div>
-        )}
-        {deckCount > 0 && (
-          <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow">
-            {deckCount}
-          </span>
         )}
       </button>
 

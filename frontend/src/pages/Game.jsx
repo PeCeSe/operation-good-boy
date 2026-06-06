@@ -93,18 +93,22 @@ function EnemyDrawPile({ count, canDraw }) {
         onClick={() => canDraw && socket.emit("draw_enemy")}
         disabled={!canDraw}
         className={`relative rounded-xl border-2 flex items-center justify-center select-none overflow-hidden transition-all ${
-          canDraw
+          count === 0
+            ? "border-dashed border-ink-300/50 cursor-default"
+            : canDraw
             ? "border-ink hover:brightness-110 cursor-pointer active:scale-95"
             : "border-ink-300 cursor-default opacity-60"
         } ${isDragging ? "opacity-40" : ""}`}
         style={{ width: 286, height: 213, touchAction: "none" }}
         title={canDraw ? "Click or drag to draw a villain" : count === 0 ? "Deck empty" : "All slots full"}
       >
-        <img src="/cards/EnemyBack.png" alt="Villain deck" className="absolute inset-0 w-full h-full object-cover" />
         {count > 0 && (
-          <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
-            {count}
-          </span>
+          <>
+            <img src="/cards/EnemyBack.png" alt="Villain deck" className="absolute inset-0 w-full h-full object-cover" />
+            <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
+              {count}
+            </span>
+          </>
         )}
       </button>
     </div>
@@ -181,9 +185,15 @@ function EmptyEnemySlot({ slotIndex, isDeckBeingDragged }) {
 function ShopDeckPile({ count }) {
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="relative w-24 h-36 rounded-xl border-2 border-brown overflow-hidden shadow-lg">
-        <img src="/cards/HandBack.png" alt="Shop deck" className="absolute inset-0 w-full h-full object-cover" />
-        <span className="absolute bottom-1 right-1 bg-ink text-white font-bold text-xs rounded-full w-6 h-6 flex items-center justify-center shadow z-10">{count}</span>
+      <div className={`relative w-24 h-36 rounded-xl border-2 overflow-hidden ${
+        count > 0 ? "border-brown shadow-lg" : "border-dashed border-ink-300/50"
+      }`}>
+        {count > 0 && (
+          <>
+            <img src="/cards/HandBack.png" alt="Shop deck" className="absolute inset-0 w-full h-full object-cover" />
+            <span className="absolute bottom-1 right-1 bg-ink text-white font-bold text-xs rounded-full w-6 h-6 flex items-center justify-center shadow z-10">{count}</span>
+          </>
+        )}
       </div>
       <div className="text-[9px] text-ink-500 uppercase tracking-wide font-bold">Shop Deck</div>
     </div>

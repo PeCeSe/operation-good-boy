@@ -179,16 +179,20 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
             className={`relative rounded-xl border-2 flex items-center justify-center select-none overflow-hidden transition-all ${
               isOverDraw
                 ? "border-brown-soft ring-2 ring-brown-soft ring-offset-1"
-                : "border-brown"
-            } ${isMe && drawCount > 0 ? "hover:brightness-110 cursor-pointer active:scale-95" : "opacity-60 cursor-default"} ${isDrawDragging ? "opacity-40" : ""}`}
+                : drawCount > 0
+                ? "border-brown"
+                : "border-dashed border-ink-300/50"
+            } ${isMe && drawCount > 0 ? "hover:brightness-110 cursor-pointer active:scale-95" : "cursor-default"} ${isDrawDragging ? "opacity-40" : ""}`}
             style={{ width: 176, height: 258, touchAction: "none" }}
             title={isMe ? (drawCount > 0 ? "Click or drag to draw a card" : "Draw pile empty") : undefined}
           >
-            <img src="/cards/HandBack.png" alt="Draw pile" className="absolute inset-0 w-full h-full object-cover" />
             {drawCount > 0 && (
-              <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
-                {drawCount}
-              </span>
+              <>
+                <img src="/cards/HandBack.png" alt="Draw pile" className="absolute inset-0 w-full h-full object-cover" />
+                <span className="absolute top-2 right-2 bg-ink text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow z-10">
+                  {drawCount}
+                </span>
+              </>
             )}
           </button>
         </div>
