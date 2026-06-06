@@ -1,5 +1,5 @@
 import PawCoin from "../components/PawCoin";
-import { ClawMark } from "../components/TokenPool";
+import { AttackToken } from "../components/TokenPool";
 
 /**
  * Renders a description string with styled symbols:
@@ -17,7 +17,7 @@ export function renderDescription(text) {
     if (token === "🪙")
       return <PawCoin key={i} />;
     if (token === "⚔️" || token === "⚔")
-      return <ClawMark key={i} className="inline-block w-5 h-5 align-text-bottom" />;
+      return <AttackToken key={i} className="inline-block w-5 h-5 align-text-bottom" />;
     if (token === "🥒")
       return (
         <img

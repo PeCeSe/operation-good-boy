@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import PawCoin from "./PawCoin";
 import PlayerBoard, { StagingToken } from "./PlayerBoard";
-import { ClawMark } from "./TokenPool";
+import { AttackToken } from "./TokenPool";
 import CHARACTERS from "../data/characters";
 import SKINS from "../data/skins";
 import { getDisplayData } from "../data/getDisplayData";
@@ -392,7 +392,7 @@ export default function PlayerHUD({
                   style={{ width: STAGING_W, minHeight: STAGING_H }}
                 >
                   {atkTokens.length === 0
-                    ? <div className="w-10 h-10 flex items-center justify-center opacity-25"><ClawMark className="w-10 h-10" /></div>
+                    ? <div className="w-10 h-10 flex items-center justify-center opacity-25"><AttackToken className="w-10 h-10" /></div>
                     : atkTokens.map(t => <StagingToken key={t.id} token={t} />)
                   }
                 </div>

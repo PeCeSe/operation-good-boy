@@ -1,6 +1,6 @@
 import { useDroppable } from "@dnd-kit/core";
 import EnemyComponent, { EnemyCardDisplay } from "./EnemyComponent";
-import { ATTACK_CONFIG, ClawMark } from "./TokenPool";
+import { ATTACK_CONFIG, AttackToken } from "./TokenPool";
 import socket from "../socket";
 
 function DamageTokenChip({ token, enemyId }) {
@@ -15,7 +15,7 @@ function DamageTokenChip({ token, enemyId }) {
       className="w-11 h-11 flex items-center justify-center hover:scale-110 transition-transform select-none"
       title={`${cfg.label} — click to remove`}
     >
-      <ClawMark className="w-11 h-11" />
+      <AttackToken className="w-11 h-11" />
     </button>
   );
 }

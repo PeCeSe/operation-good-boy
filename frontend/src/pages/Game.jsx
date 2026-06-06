@@ -11,7 +11,7 @@ import { EnemyCardDisplay } from "../components/EnemyComponent";
 import ShopRow from "../components/ShopRow";
 import EventDeck, { EventCardDisplay } from "../components/EventDeck";
 import GameLog from "../components/GameLog";
-import { ClawMark } from "../components/TokenPool";
+import { AttackToken } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import StatsScreen from "../components/StatsScreen";
 import CHARACTERS from "../data/characters";
@@ -26,7 +26,7 @@ const GUTTER  = 500; // scroll space around the board so edge elements can be ce
 function DragChip() {
   return (
     <div className="w-12 h-12 flex items-center justify-center pointer-events-none drop-shadow-lg">
-      <ClawMark className="w-12 h-12" />
+      <AttackToken className="w-12 h-12" />
     </div>
   );
 }
@@ -666,7 +666,7 @@ export default function Game({ gameState, mySocketId }) {
                       <span className="text-ink-border">·</span>
                       {/* Attacks */}
                       <span className="flex items-center gap-0.5">
-                        <ClawMark className="w-5 h-5" /><span>{p.attackTokens?.length ?? 0}</span>
+                        <AttackToken className="w-5 h-5" /><span>{p.attackTokens?.length ?? 0}</span>
                       </span>
                       <span className="text-ink-border">·</span>
                       {/* Cards in hand */}
