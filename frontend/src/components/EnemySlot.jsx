@@ -1,10 +1,10 @@
 import { useDroppable } from "@dnd-kit/core";
 import EnemyComponent, { EnemyCardDisplay } from "./EnemyComponent";
-import { ATTACK_CONFIG } from "./TokenPool";
+import { ATTACK_CONFIG, ClawMark } from "./TokenPool";
 import socket from "../socket";
 
 function DamageTokenChip({ token, enemyId }) {
-  const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.scratch;
+  const cfg = ATTACK_CONFIG[token.type] ?? ATTACK_CONFIG.attack;
   return (
     <button
       onPointerDown={(e) => e.stopPropagation()}
@@ -12,10 +12,10 @@ function DamageTokenChip({ token, enemyId }) {
         e.stopPropagation();
         socket.emit("remove_from_enemy", { enemyId, tokenId: token.id });
       }}
-      className={`w-9 h-9 rounded-full border-2 text-lg flex items-center justify-center hover:scale-110 hover:brightness-90 transition-transform select-none ${cfg.bg} ${cfg.border}`}
+      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center hover:scale-110 hover:brightness-90 transition-transform select-none ${cfg.bg} ${cfg.border}`}
       title={`${cfg.label} — click to remove`}
     >
-      {cfg.icon}
+      <ClawMark className={`w-[18px] h-[18px] ${cfg.text}`} />
     </button>
   );
 }

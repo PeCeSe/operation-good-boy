@@ -11,7 +11,7 @@ import { EnemyCardDisplay } from "../components/EnemyComponent";
 import ShopRow from "../components/ShopRow";
 import EventDeck, { EventCardDisplay } from "../components/EventDeck";
 import GameLog from "../components/GameLog";
-import { ATTACK_CONFIG } from "../components/TokenPool";
+import { ATTACK_CONFIG, ClawMark } from "../components/TokenPool";
 import PlayerHUD from "../components/PlayerHUD";
 import StatsScreen from "../components/StatsScreen";
 import CHARACTERS from "../data/characters";
@@ -27,9 +27,9 @@ function DragChip() {
   const cfg = ATTACK_CONFIG.attack;
   return (
     <div
-      className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-lg shadow-xl pointer-events-none ${cfg.bg} ${cfg.border}`}
+      className={`w-10 h-10 rounded-full border-2 flex items-center justify-center shadow-xl pointer-events-none ${cfg.bg} ${cfg.border}`}
     >
-      {cfg.icon}
+      <ClawMark className={`w-5 h-5 ${cfg.text}`} />
     </div>
   );
 }
@@ -669,7 +669,7 @@ export default function Game({ gameState, mySocketId }) {
                       <span className="text-ink-border">·</span>
                       {/* Attacks */}
                       <span className="flex items-center gap-0.5">
-                        <span>⚔️</span><span>{p.attackTokens?.length ?? 0}</span>
+                        <ClawMark className="w-3.5 h-3.5 text-red-deep" /><span>{p.attackTokens?.length ?? 0}</span>
                       </span>
                       <span className="text-ink-border">·</span>
                       {/* Cards in hand */}

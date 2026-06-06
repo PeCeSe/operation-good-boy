@@ -7,7 +7,7 @@ import SKINS from "../data/skins";
 import { getDisplayData } from "../data/getDisplayData";
 import CardComponent from "./CardComponent";
 import PawCoin from "./PawCoin";
-import { ATTACK_CONFIG } from "./TokenPool";
+import { ATTACK_CONFIG, ClawMark } from "./TokenPool";
 import socket from "../socket";
 
 const CARD_W  = 176;
@@ -26,13 +26,13 @@ export function StagingToken({ token }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center text-base select-none transition-all ${cfg.bg} ${cfg.border} ${
+      className={`w-9 h-9 rounded-full border-2 flex items-center justify-center select-none transition-all ${cfg.bg} ${cfg.border} ${
         isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110 shadow-sm"
       }`}
       style={{ touchAction: "none" }}
       title={`${cfg.label} — drag to enemy`}
     >
-      {cfg.icon}
+      <ClawMark className={`w-[18px] h-[18px] ${cfg.text}`} />
     </div>
   );
 }
@@ -944,7 +944,7 @@ export default function PlayerBoard({ player, isMe, isCurrentTurn, paymentZone, 
           </div>
           {/* Attack tokens */}
           <div className="flex items-center gap-1.5">
-            <span className="text-base leading-none">{ATTACK_CONFIG.attack.icon}</span>
+            <ClawMark className="w-4 h-4 text-red-deep" />
             <span className="font-bold text-ink text-sm">{attackTokens?.length ?? 0}</span>
           </div>
           {/* Stunned badge */}
