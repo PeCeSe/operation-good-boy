@@ -346,8 +346,11 @@ function endTurn(state, playerId) {
     p.hand.push(p.drawPile.shift());
   }
 
-  // Refill shop: compact nulls then fill to 6
-  state.shop = state.shop.filter(Boolean);
+  // Refill shop: fill null slots in-place, then append if still under 6
+  state.shop = state.shop.map(slot => {
+    if (slot !== null) return slot;
+    return state.shopDeck.length > 0 ? state.shopDeck.shift() : null;
+  });
   while (state.shop.length < 6 && state.shopDeck.length > 0) {
     state.shop.push(state.shopDeck.shift());
   }
