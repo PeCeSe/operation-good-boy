@@ -26,7 +26,7 @@ export function StagingToken({ token }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`w-11 h-11 flex items-center justify-center select-none transition-all ${
+      className={`w-11 h-11 shrink-0 flex items-center justify-center select-none transition-all ${
         isDragging ? "opacity-30 scale-95" : "cursor-grab active:cursor-grabbing hover:scale-110"
       }`}
       style={{ touchAction: "none" }}
