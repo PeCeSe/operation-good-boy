@@ -760,6 +760,10 @@ export default function Game({ gameState, mySocketId }) {
             left: 0,
             transform: `scale(${zoom})`,
             transformOrigin: "top left",
+            // Keep the board on its own GPU layer so re-scaling composites instead
+            // of triggering a full repaint — cuts the occasional zoom flash.
+            willChange: "transform",
+            backfaceVisibility: "hidden",
             background: "#f3e3bf",
             borderRadius: 16,
             border: "2px solid #362c28",
