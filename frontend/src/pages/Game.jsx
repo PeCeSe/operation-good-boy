@@ -482,6 +482,9 @@ export default function Game({ gameState, mySocketId }) {
   // Monday/Tuesday: 1 slot. Wednesday: 2 slots. Thursday+: 3 slots.
   const d = gameState.difficulty ?? 0;
   const maxEnemySlots = d <= 1 ? 1 : d === 2 ? 2 : 3;
+  // Star reminder token — shown from Wednesday (difficulty 2) onwards
+  const showStarToken = d >= 2;
+  const [starPos, setStarPos] = useState({ x: 40, y: 800 });
 
   const me = players.find((p) => p.socketId === mySocketId);
 
@@ -848,6 +851,34 @@ export default function Game({ gameState, mySocketId }) {
               )
             )}
           </div>
+
+          {/* ── Star reminder token (Wednesday+) ── */}
+          {showStarToken && (
+            <div
+              style={{ position: "absolute", left: starPos.x, top: starPos.y, zIndex: 5, touchAction: "none", cursor: "grab" }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                e.currentTarget.setPointerCapture(e.pointerId);
+                const startX = e.clientX, startY = e.clientY;
+                const baseX = starPos.x, baseY = starPos.y;
+                const onMove = (ev) => {
+                  setStarPos({
+                    x: baseX + (ev.clientX - startX) / zoomRef.current,
+                    y: baseY + (ev.clientY - startY) / zoomRef.current,
+                  });
+                };
+                const onUp = () => {
+                  e.currentTarget.removeEventListener("pointermove", onMove);
+                  e.currentTarget.removeEventListener("pointerup", onUp);
+                };
+                e.currentTarget.addEventListener("pointermove", onMove);
+                e.currentTarget.addEventListener("pointerup", onUp);
+              }}
+              title="Ability suppressed reminder — drag onto an enemy"
+            >
+              <span style={{ fontSize: 40, lineHeight: 1, userSelect: "none", filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.4))" }}>⭐</span>
+            </div>
+          )}
 
           {/* ── Vertical divider ── */}
           <div
