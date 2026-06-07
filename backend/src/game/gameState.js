@@ -36,16 +36,14 @@ function initGameState(room, difficulty) {
   const level = Math.max(0, Math.min(6, difficulty ?? room.difficulty ?? 0));
 
   // Which packs feed each part of the game, by difficulty.
-  // Monday (0): pack 1 only.
-  // Tuesday+ (1+): locations come from pack 2 only; events, enemies and
-  //   shop cards are drawn from packs 1 and 2 combined.
-  const usePack2 = level >= 1;
-  const enemyPacks = usePack2 ? [1, 2] : [1];
-  const eventPacks = usePack2 ? [1, 2] : [1];
-  const shopPacks = usePack2 ? [1, 2] : [1];
-  const locationPacks = usePack2 ? [2] : [1];
+  // Monday (0):    pack 1 only.
+  // Tuesday (1):   locations pack 2 only; events/enemies/shop packs 1+2.
+  // Wednesday (2): locations pack 3 only; events/enemies/shop packs 1+2+3.
+  // Thursday+ (3+): same as Wednesday until further content is designed.
+  const packs = level === 0 ? [1] : level === 1 ? [1, 2] : [1, 2, 3];
+  const locationPacks = level === 0 ? [1] : level === 1 ? [2] : [3];
 
-  const allEnemies = deepClone(ENEMIES.filter((e) => enemyPacks.includes(e.pack)));
+  const allEnemies = deepClone(ENEMIES.filter((e) => packs.includes(e.pack)));
   const boss = allEnemies.find((e) => e.isBoss);
   const regularEnemies = shuffle(allEnemies.filter((e) => !e.isBoss));
   const enemyDeck = boss ? [...regularEnemies, boss] : regularEnemies;
@@ -54,12 +52,12 @@ function initGameState(room, difficulty) {
     LOCATIONS.filter((l) => locationPacks.includes(l.pack))
   ).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const eventDeck = shuffle(
-    EVENTS.filter((e) => eventPacks.includes(e.pack)).flatMap((e) =>
+    EVENTS.filter((e) => packs.includes(e.pack)).flatMap((e) =>
       Array.from({ length: e.copies ?? 1 }, (_, i) => ({ ...deepClone(e), id: `${e.id}_${i + 1}` }))
     )
   );
   const shopDeck = shuffle(
-    CARDS.filter((c) => shopPacks.includes(c.pack)).flatMap((c) =>
+    CARDS.filter((c) => packs.includes(c.pack)).flatMap((c) =>
       Array.from({ length: c.copies ?? 1 }, () => uniqueCard(c, seq))
     )
   );

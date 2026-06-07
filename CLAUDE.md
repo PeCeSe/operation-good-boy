@@ -99,9 +99,10 @@ Not every level has a boss. The early levels (including level 1) have **no boss*
 - **Event content**: Events are mostly placeholder — names and effects need a full content pass.
 - **Enemy content**: Enemy stats, abilities, and rewards are placeholder. Only level-1 enemies exist so far (3 of them, no boss).
 - **Levels / difficulty**: The difficulty slider (Monday–Sunday, 0-indexed: Monday=0 … Sunday=6) is selected by the host and synced to all players. It now changes which content packs are used at game start (in `gameState.js`):
-  - **Monday (0)**: pack 1 only — locations, events, enemies, shop cards (the original level-1 setup).
-  - **Tuesday (1)**: locations from **pack 2 only**; events, enemies, and shop cards from **packs 1 + 2 combined**. Still one enemy on the board at a time.
-  - **Wednesday–Sunday (2–6)**: not yet designed — currently fall through to the Tuesday (pack 1 + 2) setup, except enemy slots open up to 3 for difficulty ≥ 2 (`maxEnemySlots` in `actions.js`). Tougher stats and bosses come with later content.
+  - **Monday (0)**: pack 1 only — locations, events, enemies, shop cards. 1 enemy slot.
+  - **Tuesday (1)**: locations from pack 2 only; events/enemies/shop from packs 1+2. 1 enemy slot.
+  - **Wednesday (2)**: locations from pack 3 only; events/enemies/shop from packs 1+2+3. 2 enemy slots.
+  - **Thursday–Sunday (3–6)**: not yet designed — currently fall through to the Wednesday (packs 1+2+3) setup, with 3 enemy slots open (`maxEnemySlots` in `actions.js`). Tougher stats and bosses come with later content.
 - **Design and colors**: Current UI is functional but unstyled in many places. A full design pass (colors, typography, spacing, visual polish) is planned for later.
 - **Sound and animation**: Minimal animations exist. No sound effects yet.
 - **Card artwork**: Cards show type emoji placeholders. Real card art is not designed yet.
@@ -116,7 +117,7 @@ Not every level has a boss. The early levels (including level 1) have **no boss*
 
 - [ ] Full content pass on cards (names, effects, flavor text, artwork)
 - [ ] Full content pass on events and enemies
-- [ ] Difficulty levels — Monday/Tuesday wired up (pack selection); design Wednesday–Sunday (tougher stats, more enemy slots, bosses on later levels)
+- [ ] Difficulty levels — Monday/Tuesday/Wednesday wired up (pack selection + enemy slots); design Thursday–Sunday (tougher stats, bosses on later levels)
 - [ ] Design and color system pass — consistent visual identity
 - [ ] 4th playable character
 - [ ] Card artwork (replacing emoji placeholders)

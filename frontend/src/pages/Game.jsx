@@ -479,8 +479,9 @@ export default function Game({ gameState, mySocketId }) {
     log,
   } = gameState;
 
-  // Monday (0) and Tuesday (1) fight one enemy at a time; later levels open all 3 slots.
-  const maxEnemySlots = (gameState.difficulty ?? 0) <= 1 ? 1 : 3;
+  // Monday/Tuesday: 1 slot. Wednesday: 2 slots. Thursday+: 3 slots.
+  const d = gameState.difficulty ?? 0;
+  const maxEnemySlots = d <= 1 ? 1 : d === 2 ? 2 : 3;
 
   const me = players.find((p) => p.socketId === mySocketId);
 
