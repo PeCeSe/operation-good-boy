@@ -97,7 +97,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* ── Description ── */}
-      <div className={`px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden ${isLongDesc ? "pb-7" : "pb-0"}`}>
+      <div className={`px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden ${isLongDesc ? "pb-10" : "pb-0"}`}>
         {card.description ? renderDescription(card.description) : "—"}
       </div>
 
