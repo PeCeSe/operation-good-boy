@@ -123,7 +123,7 @@ function initGameState(room, difficulty) {
     activeEvents: [],
     eventDiscard: [],
     paymentZone: { playerId: null, tokens: 0, lastPurchase: null },
-    starPos: { x: 40, y: 820 },
+    starPos: { x: 40, y: 960 },
     log: [],
   };
 }

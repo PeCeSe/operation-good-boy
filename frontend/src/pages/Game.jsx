@@ -484,14 +484,15 @@ export default function Game({ gameState, mySocketId }) {
   const maxEnemySlots = d <= 1 ? 1 : d === 2 ? 2 : 3;
   // Star reminder token — shown from Wednesday (difficulty 2) onwards
   const showStarToken = d >= 2;
-  // Local drag preview; falls back to server position when not dragging
   const [localStarPos, setLocalStarPos] = useState(null);
-  const starPos = localStarPos ?? gameState.starPos ?? { x: 40, y: 820 };
+  const starPos = localStarPos ?? gameState.starPos ?? { x: 40, y: 960 };
   const TOKEN_SIZE = 44;
   const clampStar = (x, y) => ({
     x: Math.max(0, Math.min(BOARD_W - TOKEN_SIZE, x)),
     y: Math.max(0, Math.min(BOARD_H - TOKEN_SIZE, y)),
   });
+  // Clear local preview once the server echoes the new position back
+  useEffect(() => { setLocalStarPos(null); }, [gameState.starPos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const me = players.find((p) => p.socketId === mySocketId);
 
@@ -883,7 +884,9 @@ export default function Game({ gameState, mySocketId }) {
                     baseX + (ev.clientX - startClientX) / zoomRef.current,
                     baseY + (ev.clientY - startClientY) / zoomRef.current,
                   );
-                  setLocalStarPos(null);
+                  // Keep localStarPos at final position — the useEffect above will
+                  // clear it once gameState.starPos echoes back from the server.
+                  setLocalStarPos(final);
                   socket.emit("move_star", final);
                 };
                 el.addEventListener("pointermove", onMove);
