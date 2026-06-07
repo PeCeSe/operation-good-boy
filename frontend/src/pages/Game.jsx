@@ -1043,9 +1043,9 @@ export default function Game({ gameState, mySocketId }) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="font-display text-lg text-ink leading-tight mb-1">{pendingPurchase.name}</div>
-            <div className="text-sm text-ink-700 mb-4 flex flex-wrap items-center gap-1">
-              This card costs <strong className="inline-flex items-center gap-0.5">{pendingPurchase.cost} <PawCoin className="w-4 h-4" /></strong>, but the payment zone only has <strong className="inline-flex items-center gap-0.5">{paymentZone?.tokens ?? 0} <PawCoin className="w-4 h-4" /></strong>. Buy anyway?
-            </div>
+            <p className="text-sm text-ink-700 mb-4">
+              This card costs <strong className="inline-flex items-center gap-0.5 align-middle">{pendingPurchase.cost} <PawCoin className="w-4 h-4" /></strong>, but the payment zone only has <strong className="inline-flex items-center gap-0.5 align-middle">{paymentZone?.tokens ?? 0} <PawCoin className="w-4 h-4" /></strong>. Buy anyway?
+            </p>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setPendingPurchase(null)}
