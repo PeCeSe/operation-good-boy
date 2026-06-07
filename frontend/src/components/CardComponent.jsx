@@ -1,3 +1,4 @@
+import { useRef, useState, useLayoutEffect } from "react";
 import PawCoin from "./PawCoin";
 import { renderDescription } from "../utils/renderDescription";
 
@@ -25,9 +26,6 @@ const TYPE_CONFIG = {
   },
 };
 
-// Dividers use same colour + weight as the card outline
-
-
 function CostBadge({ cost }) {
   return (
     <div className="relative flex-shrink-0 w-7 h-7 flex items-center justify-center">
@@ -48,9 +46,18 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
   };
 
   const imgSrc = card.image ?? cfg.fallbackImage ?? null;
-  // Hide flavor text when description is long so it doesn't get clipped.
-  // Cost badge moves to an absolute position in that case.
-  const isLongDesc = (card.description?.length ?? 0) > 75;
+
+  // Measure whether the description text actually overflows its container.
+  // If it does, we hide the flavor text row so the description has more room.
+  // useLayoutEffect fires before paint, so there's no visible flash.
+  const descRef = useRef(null);
+  const [hideFlavor, setHideFlavor] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!descRef.current) return;
+    const el = descRef.current;
+    setHideFlavor(el.scrollHeight > el.clientHeight + 1);
+  }, [card.description, card.flavorText]);
 
   return (
     <button
@@ -97,24 +104,23 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* ── Description ── */}
-      <div className={`px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden pb-0`}>
-        {isLongDesc && card.cost > 0 && (
-          <div className="float-right ml-1 mb-1">
-            <CostBadge cost={card.cost} />
-          </div>
-        )}
+      <div ref={descRef} className="px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden pb-0">
         {card.description ? renderDescription(card.description) : "—"}
       </div>
 
-      {/* ── Flavor + cost — hidden when description is long ── */}
-      {!isLongDesc && (
+      {/* ── Bottom row: flavor text + cost badge ── */}
+      {!hideFlavor ? (
         <div className="flex items-end gap-1 px-2.5 pb-2 pt-1 shrink-0">
           <div className="flex-1 text-[9px] font-flavor italic text-ink-500 leading-snug line-clamp-2">
             {card.flavorText && `"${card.flavorText}"`}
           </div>
           {card.cost > 0 && <CostBadge cost={card.cost} />}
         </div>
-      )}
+      ) : card.cost > 0 ? (
+        <div className="flex justify-end px-2.5 pb-2 pt-1 shrink-0">
+          <CostBadge cost={card.cost} />
+        </div>
+      ) : null}
     </button>
   );
 }
