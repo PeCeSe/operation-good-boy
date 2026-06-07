@@ -327,15 +327,35 @@ export default function Game({ gameState, mySocketId }) {
         pinch.active = false;
       }
     };
+    // Coalesce pinch updates to one zoom per animation frame. touchmove can fire
+    // faster than the screen refreshes, and zoomToward() uses flushSync — running
+    // it on every event caused a synchronous re-render storm that made pinch-zoom
+    // janky and flickery on tablets.
+    let pinchRaf = null;
+    let pinchPending = null;
     const onTouchMove = (e) => {
       if (e.touches.length === 2 && pinch.active) {
         e.preventDefault();
         const ratio   = getDist(e.touches) / pinch.dist;
         const newZoom = clampZoom(pinch.zoom * (1 + (ratio - 1) * 0.5));
-        zoomToward(pinch.midX, pinch.midY, newZoom);
+        const c = containerRef.current;
+        const rect = c ? c.getBoundingClientRect() : { left: 0, top: 0 };
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+        pinchPending = { midX, midY, newZoom };
+        if (pinchRaf == null) {
+          pinchRaf = requestAnimationFrame(() => {
+            pinchRaf = null;
+            if (pinchPending) zoomToward(pinchPending.midX, pinchPending.midY, pinchPending.newZoom);
+          });
+        }
       }
     };
-    const onTouchEnd = () => { pinch.active = false; };
+    const onTouchEnd = () => {
+      pinch.active = false;
+      if (pinchRaf != null) { cancelAnimationFrame(pinchRaf); pinchRaf = null; }
+      pinchPending = null;
+    };
 
     // Drag-to-pan on the gutter (background outside the board)
     const onGutterPointerDown = (e) => {

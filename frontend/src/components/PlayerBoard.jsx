@@ -213,7 +213,7 @@ function HandAreaInner({ hand, drawPile, discardPile, peekCard, cardPositions, z
 
       {/* ── Hand Canvas ── */}
       <div className="w-px bg-ink-border/20 self-stretch shrink-0" />
-      <div ref={handCanvasRef} className="flex-1 relative" style={{ minHeight: 320 }} onPointerDown={onCanvasPointerDown}>
+      <div ref={handCanvasRef} className="flex-1 relative" style={{ minHeight: 320, touchAction: "none" }} onPointerDown={onCanvasPointerDown}>
         {isMe && hand?.length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center text-ink-300/60 text-sm italic select-none pointer-events-none">
             No cards in hand

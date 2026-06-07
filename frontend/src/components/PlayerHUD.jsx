@@ -275,7 +275,7 @@ export default function PlayerHUD({
   const [isDragging,   setIsDragging]   = useState(false);
   const [activeTabId,  setActiveTabId]  = useState(null);
   const logBottomRef = useRef(null);
-  const dragStateRef = useRef(null);
+  const pointerToggledRef = useRef(false);
 
   // All players in order — me first, then others
   const allPlayers    = [me, ...(otherPlayers ?? [])].filter(Boolean);
@@ -316,27 +316,37 @@ export default function PlayerHUD({
     e.preventDefault();
     const startY      = e.clientY;
     const startHeight = drawerHeight;
-    dragStateRef.current = { hasDragged: false };
+    let hasDragged = false;
     setIsDragging(true);
 
     const onMove = (ev) => {
       const delta = startY - ev.clientY;
-      if (Math.abs(delta) > 4) dragStateRef.current.hasDragged = true;
+      if (Math.abs(delta) > 4) hasDragged = true;
       setDrawerHeight(Math.max(0, Math.min(MAX_DRAWER_H, startHeight + delta)));
     };
 
     const onUp = () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup",   onUp);
+      window.removeEventListener("pointermove",   onMove);
+      window.removeEventListener("pointerup",     onUp);
+      window.removeEventListener("pointercancel", onUp);
       setIsDragging(false);
+      // A tap (no real drag) toggles the drawer here — done in pointerup rather
+      // than onClick because preventDefault() above can suppress the synthetic
+      // click on touch, which made tapping flaky.
+      if (!hasDragged) setDrawerHeight(h => h > 0 ? 0 : MAX_DRAWER_H);
+      // Swallow the click the browser may still fire after this pointer sequence.
+      pointerToggledRef.current = true;
     };
 
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup",   onUp);
+    window.addEventListener("pointermove",   onMove);
+    window.addEventListener("pointerup",     onUp);
+    window.addEventListener("pointercancel", onUp);
   };
 
+  // Keyboard activation (Enter/Space) fires a click with no preceding pointer
+  // sequence — toggle here for those, but ignore the click that trails a tap.
   const handleClick = () => {
-    if (dragStateRef.current?.hasDragged) return;
+    if (pointerToggledRef.current) { pointerToggledRef.current = false; return; }
     setDrawerHeight(h => h > 0 ? 0 : MAX_DRAWER_H);
   };
 
@@ -350,6 +360,7 @@ export default function PlayerHUD({
         <button
           onPointerDown={handlePointerDown}
           onClick={handleClick}
+          style={{ touchAction: "none" }}
           className={`bg-paper-50 border-2 border-b-0 border-ink-border rounded-t-lg px-6 py-0.5 text-ink-400 hover:text-ink transition-colors text-[11px] font-bold tracking-wide flex items-center gap-1.5 shadow-[0_-2px_6px_rgba(0,0,0,0.06)] select-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
         >
           {drawerHeight > 0 ? "▼ Hide" : "▲ Show"}
