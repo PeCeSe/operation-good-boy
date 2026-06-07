@@ -76,7 +76,7 @@ const CARDS = [
     pack: 1,
     copies: 4,
     image: "/cards/pack1/items/ScratchingPost.png",
-    description: "Gain 1 ⚔️ and gain 2 ♥.",
+    description: "Gain 1 ⚔️ and gain 1 ♥.",
     flavorText: "Also works on furniture.",
   },
   {
