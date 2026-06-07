@@ -732,6 +732,10 @@ export default function Game({ gameState, mySocketId }) {
           overflow: "auto",
           scrollbarWidth: "none",
           cursor: "grab",
+          // Allow native one-finger panning (smooth) but disable the browser's own
+          // pinch-zoom so it doesn't fight our JS pinch handler — that fight was
+          // the two-finger jump/flicker.
+          touchAction: "pan-x pan-y",
         }}
       >
         {/* Wrapper: always wider/taller than the board + gutter, centred horizontally.
