@@ -72,15 +72,16 @@ export default function StatsScreen({ gameState, mySocketId }) {
   const me = players.find((p) => p.socketId === mySocketId);
   const myStats = me?.stats ?? {};
 
-  // Compute "best" player per stat (for highlighting)
+  // Compute "best" value per stat — a Set of playerIds who share the top value
   const best = useMemo(() => {
     const result = {};
     for (const { key } of STAT_COLS) {
-      let max = -1, bestId = null;
+      let max = -1;
       for (const p of players) {
-        if ((p.stats?.[key] ?? 0) > max) { max = p.stats[key]; bestId = p.playerId; }
+        const v = p.stats?.[key] ?? 0;
+        if (v > max) max = v;
       }
-      result[key] = max > 0 ? bestId : null;
+      result[key] = max > 0 ? new Set(players.filter(p => (p.stats?.[key] ?? 0) === max).map(p => p.playerId)) : null;
     }
     return result;
   }, [players]);
@@ -177,7 +178,7 @@ export default function StatsScreen({ gameState, mySocketId }) {
                   </td>
                   {players.map((p) => {
                     const val = p.stats?.[key] ?? 0;
-                    const isBest = best[key] === p.playerId;
+                    const isBest = best[key]?.has(p.playerId);
                     const isMe = p.socketId === mySocketId;
                     return (
                       <td key={p.playerId} className="text-center px-3 py-2">

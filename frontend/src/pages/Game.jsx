@@ -872,7 +872,7 @@ export default function Game({ gameState, mySocketId }) {
 
           {/* ── Payment drop zone ── */}
           <div style={{ position: "absolute", top: 60, left: 1210, zIndex: 1 }}>
-            <PaymentDropZone paymentZone={paymentZone} />
+            <PaymentDropZone paymentZone={paymentZone} isMyTurn={isMyTurn} />
           </div>
 
           {/* ── Shop cards (3-column × 2-row grid) ── */}
@@ -1020,7 +1020,7 @@ export default function Game({ gameState, mySocketId }) {
 
 // ── Inline sub-components ─────────────────────────────────────────────────────
 
-function PaymentDropZone({ paymentZone }) {
+function PaymentDropZone({ paymentZone, isMyTurn }) {
   const { setNodeRef, isOver } = useDroppable({ id: "payment_zone" });
   const count = paymentZone?.tokens ?? 0;
   const displayCount = Math.min(count, 18);
@@ -1054,13 +1054,15 @@ function PaymentDropZone({ paymentZone }) {
       {count > 0 && (
         <div className="flex items-center justify-between px-0.5">
           <span className="text-sm font-bold text-gold-deep flex items-center gap-1">{count} <PawCoin className="w-4 h-4" /></span>
-          <button
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={() => socket.emit("clear_payment")}
-            className="text-[10px] text-ink-500 hover:text-ink-700 font-semibold transition-colors"
-          >
-            Return ↩
-          </button>
+          {isMyTurn && (
+            <button
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={() => socket.emit("clear_payment")}
+              className="text-[10px] text-ink-500 hover:text-ink-700 font-semibold transition-colors"
+            >
+              Return ↩
+            </button>
+          )}
         </div>
       )}
     </div>
