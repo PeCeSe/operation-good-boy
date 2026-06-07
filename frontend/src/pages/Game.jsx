@@ -207,6 +207,7 @@ export default function Game({ gameState, mySocketId }) {
   const boardSurfaceRef = useRef(null);
   const panState = useRef({ active: false, startX: 0, startY: 0, scrollLeft: 0, scrollTop: 0 });
   const dndActiveRef = useRef(false);
+  const pinchActiveRef = useRef(false); // true while two fingers are down (pinch-zoom)
   const [activeDrag, setActiveDrag] = useState(null);
   const [pendingPurchase, setPendingPurchase] = useState(null);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -317,6 +318,10 @@ export default function Game({ gameState, mySocketId }) {
     const onTouchStart = (e) => {
       if (e.touches.length === 2) {
         pinch.active = true;
+        pinchActiveRef.current = true;
+        // A pan may have started on the first finger — cancel it so it doesn't
+        // fight the pinch-zoom for the scroll position.
+        panState.current.active = false;
         pinch.dist   = getDist(e.touches);
         pinch.zoom   = zoomRef.current;
         const c = containerRef.current;
@@ -351,8 +356,11 @@ export default function Game({ gameState, mySocketId }) {
         }
       }
     };
-    const onTouchEnd = () => {
+    const onTouchEnd = (e) => {
       pinch.active = false;
+      // Keep panning disabled until the second finger fully lifts, so the leftover
+      // finger doesn't immediately yank the board via the pan handler.
+      pinchActiveRef.current = (e?.touches?.length ?? 0) >= 2;
       if (pinchRaf != null) { cancelAnimationFrame(pinchRaf); pinchRaf = null; }
       pinchPending = null;
     };
@@ -361,8 +369,8 @@ export default function Game({ gameState, mySocketId }) {
     const onGutterPointerDown = (e) => {
       // If the pointer landed inside the board surface, let the board's own handler deal with it
       if (boardSurfaceRef.current?.contains(e.target)) return;
-      // Don't start panning while a DnD drag is in progress
-      if (dndActiveRef.current) return;
+      // Don't start panning while a DnD drag or a pinch-zoom is in progress
+      if (dndActiveRef.current || pinchActiveRef.current) return;
       e.preventDefault();
       panState.current = { active: true, startX: e.clientX, startY: e.clientY, scrollLeft: el.scrollLeft, scrollTop: el.scrollTop };
       el.setPointerCapture(e.pointerId);
@@ -370,7 +378,7 @@ export default function Game({ gameState, mySocketId }) {
     };
     const onGutterPointerMove = (e) => {
       const p = panState.current;
-      if (!p.active || dndActiveRef.current) return;
+      if (!p.active || dndActiveRef.current || pinchActiveRef.current) return;
       el.scrollLeft = p.scrollLeft - (e.clientX - p.startX);
       el.scrollTop  = p.scrollTop  - (e.clientY - p.startY);
     };
@@ -425,6 +433,9 @@ export default function Game({ gameState, mySocketId }) {
   const handleBgPointerDown = useCallback((e) => {
     const c = containerRef.current;
     if (!c) return;
+    // Don't start a one-finger pan if a pinch-zoom is in progress — the two would
+    // fight over scroll position and make the board spring between two spots.
+    if (pinchActiveRef.current) return;
     panState.current = {
       active: true,
       startX: e.clientX,
@@ -438,7 +449,7 @@ export default function Game({ gameState, mySocketId }) {
 
   const handleBgPointerMove = useCallback((e) => {
     const p = panState.current;
-    if (!p.active || !containerRef.current) return;
+    if (!p.active || pinchActiveRef.current || !containerRef.current) return;
     containerRef.current.scrollLeft = p.scrollLeft - (e.clientX - p.startX);
     containerRef.current.scrollTop = p.scrollTop - (e.clientY - p.startY);
   }, []);
