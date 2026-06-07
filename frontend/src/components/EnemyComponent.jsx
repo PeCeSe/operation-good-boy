@@ -42,7 +42,7 @@ export function EnemyCardDisplay({ enemy, isOver = false, pack }) {
               <span className="text-[8px] font-body font-black tracking-[0.12em] text-ink-500 uppercase">Reward</span>
               <div className="h-px flex-1 bg-ink-border opacity-20" />
             </div>
-            <div className="text-[10px] font-body text-ink-700 leading-snug">
+            <div className="text-[9px] font-body text-ink-700 leading-snug">
               {renderDescription(enemy.reward?.description)}
             </div>
           </div>

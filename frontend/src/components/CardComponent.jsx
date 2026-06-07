@@ -48,6 +48,9 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
   };
 
   const imgSrc = card.image ?? cfg.fallbackImage ?? null;
+  // Hide flavor text when description is long so it doesn't get clipped.
+  // Cost badge moves to an absolute position in that case.
+  const isLongDesc = (card.description?.length ?? 0) > 75;
 
   return (
     <button
@@ -56,7 +59,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       title={card.flavorText}
       style={{ width: 176, height: 258 }}
       className={`
-        flex-shrink-0 flex flex-col rounded-lg border-2 border-ink-border overflow-hidden shadow-md
+        relative flex-shrink-0 flex flex-col rounded-lg border-2 border-ink-border overflow-hidden shadow-md
         bg-paper-50 text-left select-none
         transition-all duration-300
         ${isPlaying ? "-translate-y-10 scale-110 opacity-0 pointer-events-none" : ""}
@@ -94,17 +97,26 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* ── Description ── */}
-      <div className="px-2.5 pt-1.5 pb-0 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden">
+      <div className={`px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden ${isLongDesc ? "pb-7" : "pb-0"}`}>
         {card.description ? renderDescription(card.description) : "—"}
       </div>
 
-      {/* ── Flavor + cost (no divider — flows from description) ── */}
-      <div className="flex items-end gap-1 px-2.5 pb-2 pt-1 shrink-0">
-        <div className="flex-1 text-[9px] font-flavor italic text-ink-500 leading-snug line-clamp-2">
-          {card.flavorText && `"${card.flavorText}"`}
+      {/* ── Flavor + cost — hidden when description is long ── */}
+      {!isLongDesc && (
+        <div className="flex items-end gap-1 px-2.5 pb-2 pt-1 shrink-0">
+          <div className="flex-1 text-[9px] font-flavor italic text-ink-500 leading-snug line-clamp-2">
+            {card.flavorText && `"${card.flavorText}"`}
+          </div>
+          {card.cost > 0 && <CostBadge cost={card.cost} />}
         </div>
-        {card.cost > 0 && <CostBadge cost={card.cost} />}
-      </div>
+      )}
+
+      {/* ── Cost badge only, overlaid bottom-right when description is long ── */}
+      {isLongDesc && card.cost > 0 && (
+        <div className="absolute bottom-2 right-2">
+          <CostBadge cost={card.cost} />
+        </div>
+      )}
     </button>
   );
 }
