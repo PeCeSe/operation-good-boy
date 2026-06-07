@@ -365,6 +365,14 @@ function endTurn(state, playerId) {
   log(state, `It's ${next.name}'s turn (Round ${state.roundNumber}).`);
 }
 
+function moveStar(state, x, y) {
+  const TOKEN_SIZE = 44;
+  state.starPos = {
+    x: Math.max(0, Math.min(1700 - TOKEN_SIZE, x)),
+    y: Math.max(0, Math.min(1080 - TOKEN_SIZE, y)),
+  };
+}
+
 module.exports = {
   setLives, toggleStun, setPawTokens,
   addAttackToken, moveTokenToEnemy, removeDamageToken,
@@ -374,5 +382,6 @@ module.exports = {
   drawOneEvent, discardEvent, shuffleEventDiscard,
   drawEnemy, defeatEnemy,
   setCucumbers, advanceLocation, retreatLocation,
+  moveStar,
   endTurn,
 };

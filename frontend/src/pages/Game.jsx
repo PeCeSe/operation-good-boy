@@ -484,7 +484,14 @@ export default function Game({ gameState, mySocketId }) {
   const maxEnemySlots = d <= 1 ? 1 : d === 2 ? 2 : 3;
   // Star reminder token — shown from Wednesday (difficulty 2) onwards
   const showStarToken = d >= 2;
-  const [starPos, setStarPos] = useState({ x: 40, y: 800 });
+  // Local drag preview; falls back to server position when not dragging
+  const [localStarPos, setLocalStarPos] = useState(null);
+  const starPos = localStarPos ?? gameState.starPos ?? { x: 40, y: 820 };
+  const TOKEN_SIZE = 44;
+  const clampStar = (x, y) => ({
+    x: Math.max(0, Math.min(BOARD_W - TOKEN_SIZE, x)),
+    y: Math.max(0, Math.min(BOARD_H - TOKEN_SIZE, y)),
+  });
 
   const me = players.find((p) => p.socketId === mySocketId);
 
@@ -858,21 +865,29 @@ export default function Game({ gameState, mySocketId }) {
               style={{ position: "absolute", left: starPos.x, top: starPos.y, zIndex: 5, touchAction: "none", cursor: "grab" }}
               onPointerDown={(e) => {
                 e.stopPropagation();
-                e.currentTarget.setPointerCapture(e.pointerId);
-                const startX = e.clientX, startY = e.clientY;
+                const el = e.currentTarget;
+                el.setPointerCapture(e.pointerId);
+                const startClientX = e.clientX, startClientY = e.clientY;
                 const baseX = starPos.x, baseY = starPos.y;
                 const onMove = (ev) => {
-                  setStarPos({
-                    x: baseX + (ev.clientX - startX) / zoomRef.current,
-                    y: baseY + (ev.clientY - startY) / zoomRef.current,
-                  });
+                  const next = clampStar(
+                    baseX + (ev.clientX - startClientX) / zoomRef.current,
+                    baseY + (ev.clientY - startClientY) / zoomRef.current,
+                  );
+                  setLocalStarPos(next);
                 };
-                const onUp = () => {
-                  e.currentTarget.removeEventListener("pointermove", onMove);
-                  e.currentTarget.removeEventListener("pointerup", onUp);
+                const onUp = (ev) => {
+                  el.removeEventListener("pointermove", onMove);
+                  el.removeEventListener("pointerup", onUp);
+                  const final = clampStar(
+                    baseX + (ev.clientX - startClientX) / zoomRef.current,
+                    baseY + (ev.clientY - startClientY) / zoomRef.current,
+                  );
+                  setLocalStarPos(null);
+                  socket.emit("move_star", final);
                 };
-                e.currentTarget.addEventListener("pointermove", onMove);
-                e.currentTarget.addEventListener("pointerup", onUp);
+                el.addEventListener("pointermove", onMove);
+                el.addEventListener("pointerup", onUp);
               }}
               title="Ability suppressed reminder — drag onto an enemy"
             >

@@ -326,6 +326,10 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("move_star", ({ x, y } = {}) => {
+    withGame(socket, (gs) => actions.moveStar(gs, x, y));
+  });
+
   socket.on("advance_location", () => {
     withGame(socket, (gs) => {
       actions.advanceLocation(gs);
