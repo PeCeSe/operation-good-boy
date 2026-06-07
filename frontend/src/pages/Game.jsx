@@ -448,8 +448,8 @@ export default function Game({ gameState, mySocketId }) {
     log,
   } = gameState;
 
-  // Level 1 (difficulty 0) fights one enemy at a time; later levels open all 3 slots.
-  const maxEnemySlots = (gameState.difficulty ?? 0) === 0 ? 1 : 3;
+  // Monday (0) and Tuesday (1) fight one enemy at a time; later levels open all 3 slots.
+  const maxEnemySlots = (gameState.difficulty ?? 0) <= 1 ? 1 : 3;
 
   const me = players.find((p) => p.socketId === mySocketId);
 
