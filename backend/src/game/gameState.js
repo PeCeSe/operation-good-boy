@@ -32,19 +32,34 @@ function initGameState(room, difficulty) {
   // Per-game sequence counter — avoids ID collisions between concurrent games
   const seq = { _next: 1 };
 
-  const allEnemies = deepClone(ENEMIES.filter(e => e.pack === 1));
+  // Difficulty: Monday=0, Tuesday=1, … Sunday=6.
+  const level = Math.max(0, Math.min(6, difficulty ?? room.difficulty ?? 0));
+
+  // Which packs feed each part of the game, by difficulty.
+  // Monday (0): pack 1 only.
+  // Tuesday+ (1+): locations come from pack 2 only; events, enemies and
+  //   shop cards are drawn from packs 1 and 2 combined.
+  const usePack2 = level >= 1;
+  const enemyPacks = usePack2 ? [1, 2] : [1];
+  const eventPacks = usePack2 ? [1, 2] : [1];
+  const shopPacks = usePack2 ? [1, 2] : [1];
+  const locationPacks = usePack2 ? [2] : [1];
+
+  const allEnemies = deepClone(ENEMIES.filter((e) => enemyPacks.includes(e.pack)));
   const boss = allEnemies.find((e) => e.isBoss);
   const regularEnemies = shuffle(allEnemies.filter((e) => !e.isBoss));
   const enemyDeck = boss ? [...regularEnemies, boss] : regularEnemies;
 
-  const locationDeck = deepClone(LOCATIONS.filter(l => l.pack === 1));
+  const locationDeck = deepClone(
+    LOCATIONS.filter((l) => locationPacks.includes(l.pack))
+  ).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const eventDeck = shuffle(
-    EVENTS.filter(e => e.pack === 1).flatMap((e) =>
+    EVENTS.filter((e) => eventPacks.includes(e.pack)).flatMap((e) =>
       Array.from({ length: e.copies ?? 1 }, (_, i) => ({ ...deepClone(e), id: `${e.id}_${i + 1}` }))
     )
   );
   const shopDeck = shuffle(
-    CARDS.filter(c => c.pack === 1).flatMap((c) =>
+    CARDS.filter((c) => shopPacks.includes(c.pack)).flatMap((c) =>
       Array.from({ length: c.copies ?? 1 }, () => uniqueCard(c, seq))
     )
   );
@@ -93,7 +108,7 @@ function initGameState(room, difficulty) {
 
   return {
     roomCode: room.code,
-    difficulty: Math.max(0, Math.min(6, difficulty ?? room.difficulty ?? 0)),
+    difficulty: level,
     totalEnemies: enemyDeck.length,
     phase: "playing",
     currentPlayerId: players[0].playerId,

@@ -242,10 +242,10 @@ function shuffleEventDiscard(state) {
 
 // ── Enemies ───────────────────────────────────────────────────────────────────
 
-// Level 1 (difficulty 0) is a one-enemy-at-a-time introduction; later levels
+// Monday (0) and Tuesday (1) are one-enemy-at-a-time levels; later levels
 // open up all three slots.
 function maxEnemySlots(state) {
-  return (state.difficulty ?? 0) === 0 ? 1 : 3;
+  return (state.difficulty ?? 0) <= 1 ? 1 : 3;
 }
 
 function drawEnemy(state, slotIndex) {
