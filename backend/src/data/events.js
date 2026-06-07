@@ -73,6 +73,35 @@ const EVENTS = [
     description: "Active hero loses 1 ❤️. Add 1 🥒 to the location.",
     flavorText: "",
   },
+
+  // ── Pack 3 events ──────────────────────────────────────────────────────────
+  {
+    id: "event_p3_001",
+    name: "Favourite Spot Is Taken",
+    pack: 3,
+    copies: 1,
+    image: "/cards/event_back.png",
+    description: "ALL heroes reveal top card of deck. Heroes that reveal a card with a value of 1 🪙 or more, discard it and lose 2 ❤️.",
+    flavorText: "",
+  },
+  {
+    id: "event_p3_002",
+    name: "Closed Door",
+    pack: 3,
+    copies: 1,
+    image: "/cards/event_back.png",
+    description: "Active hero loses 1 ❤️ and cannot assign more than 1 ⚔️ to each enemy this turn.",
+    flavorText: "",
+  },
+  {
+    id: "event_p3_003",
+    name: "Sloppy Dog Kiss",
+    pack: 3,
+    copies: 2,
+    image: "/cards/event_back.png",
+    description: "Active hero loses 2 ❤️ and all other heroes lose 1 ❤️.",
+    flavorText: "",
+  },
 ];
 
 module.exports = { EVENTS };

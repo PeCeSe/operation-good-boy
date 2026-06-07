@@ -134,6 +134,52 @@ const ENEMIES = [
     flavorText: "",
     placedAttacks: {},
   },
+
+  // ── Pack 3 enemies ─────────────────────────────────────────────────────────
+  {
+    id: "enemy_p3_001",
+    name: "The Sewer Rat",
+    emoji: "🐀",
+    pack: 3,
+    image: "/cards/EnemyBack.png",
+    maxHealth: 7,
+    currentHealth: 7,
+    attack: 0,
+    cucumberTokensOnSurvive: 1,
+    weakTo: [],
+    resistantTo: [],
+    ability: {
+      trigger: "passive",
+      description: "Active hero reveals top card of deck. If its value is 1 🪙 or more, discard it and add 1 🥒 to location.",
+    },
+    reward: {
+      description: "ALL heroes may search their discard pile for a Move and put it in their hand. Remove 1 🥒 from location.",
+    },
+    flavorText: "",
+    placedAttacks: {},
+  },
+  {
+    id: "enemy_p3_002",
+    name: "Playful Buster",
+    emoji: "🐕",
+    pack: 3,
+    image: "/cards/EnemyBack.png",
+    maxHealth: 8,
+    currentHealth: 8,
+    attack: 0,
+    cucumberTokensOnSurvive: 1,
+    weakTo: [],
+    resistantTo: [],
+    ability: {
+      trigger: "start_of_round",
+      description: "Active hero loses 2 ❤️.",
+    },
+    reward: {
+      description: "ALL heroes gain 2 ❤️. Remove 1 🥒 from location.",
+    },
+    flavorText: "",
+    placedAttacks: {},
+  },
 ];
 
 module.exports = { ENEMIES };

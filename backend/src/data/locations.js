@@ -51,6 +51,38 @@ const LOCATIONS = [
     currentCucumberTokens: 0,
     eventsToDraw: 2,
   },
+
+  // ── Pack 3 locations ───────────────────────────────────────────────────────
+  {
+    id: "location_006",
+    name: "The Kitchen",
+    pack: 3,
+    order: 1,
+    image: "/cards/HandBack.png",
+    maxCucumberTokens: 5,
+    currentCucumberTokens: 0,
+    eventsToDraw: 1,
+  },
+  {
+    id: "location_007",
+    name: "The Playground",
+    pack: 3,
+    order: 2,
+    image: "/cards/HandBack.png",
+    maxCucumberTokens: 6,
+    currentCucumberTokens: 0,
+    eventsToDraw: 2,
+  },
+  {
+    id: "location_008",
+    name: "The Bushes",
+    pack: 3,
+    order: 3,
+    image: "/cards/HandBack.png",
+    maxCucumberTokens: 6,
+    currentCucumberTokens: 0,
+    eventsToDraw: 2,
+  },
 ];
 
 module.exports = { LOCATIONS };
