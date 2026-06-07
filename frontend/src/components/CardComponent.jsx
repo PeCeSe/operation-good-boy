@@ -97,7 +97,12 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* ── Description ── */}
-      <div className={`px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden ${isLongDesc ? "pb-10" : "pb-0"}`}>
+      <div className={`px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden pb-0`}>
+        {isLongDesc && card.cost > 0 && (
+          <div className="float-right ml-1 mb-1">
+            <CostBadge cost={card.cost} />
+          </div>
+        )}
         {card.description ? renderDescription(card.description) : "—"}
       </div>
 
@@ -108,13 +113,6 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
             {card.flavorText && `"${card.flavorText}"`}
           </div>
           {card.cost > 0 && <CostBadge cost={card.cost} />}
-        </div>
-      )}
-
-      {/* ── Cost badge only, overlaid bottom-right when description is long ── */}
-      {isLongDesc && card.cost > 0 && (
-        <div className="absolute bottom-2 right-2">
-          <CostBadge cost={card.cost} />
         </div>
       )}
     </button>
