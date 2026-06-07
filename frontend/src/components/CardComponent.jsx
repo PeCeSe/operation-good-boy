@@ -47,16 +47,16 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
 
   const imgSrc = card.image ?? cfg.fallbackImage ?? null;
 
-  // Measure whether the description text actually overflows its container.
-  // If it does, we hide the flavor text row so the description has more room.
-  // useLayoutEffect fires before paint, so there's no visible flash.
+  // Measure actual DOM overflow to decide whether to hide the flavor row.
+  // We measure with hideFlavor=false (flavor row present, description div is shorter).
+  // If it overflows there, we hide the flavor row entirely so description gets full space.
+  // useLayoutEffect fires before paint — no visible flash.
   const descRef = useRef(null);
   const [hideFlavor, setHideFlavor] = useState(false);
 
   useLayoutEffect(() => {
     if (!descRef.current) return;
-    const el = descRef.current;
-    setHideFlavor(el.scrollHeight > el.clientHeight + 1);
+    setHideFlavor(descRef.current.scrollHeight > descRef.current.clientHeight + 1);
   }, [card.description, card.flavorText]);
 
   return (
@@ -75,7 +75,7 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
         ${className}
       `}
     >
-      {/* ── Coloured header: card name in Patrick Hand SC ── */}
+      {/* ── Coloured header ── */}
       <div className={`px-2.5 shrink-0 flex items-center justify-between gap-1 border-b-2 border-ink-border ${cfg.header}`} style={{ paddingTop: "0.2rem", paddingBottom: "0.2rem" }}>
         <span className="font-display text-base text-white leading-tight line-clamp-1 block">
           {card.name}
@@ -104,23 +104,32 @@ export default function CardComponent({ card, onClick, isPlayable, isPlaying = f
       </div>
 
       {/* ── Description ── */}
-      <div ref={descRef} className="px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden pb-0">
+      {/* When hideFlavor, this div grows to fill the card bottom (no row below it).   */}
+      {/* Add right padding only when the badge will be overlaid to keep text clear.   */}
+      <div
+        ref={descRef}
+        className="px-2.5 pt-1.5 text-[10px] font-body text-ink-700 leading-snug flex-1 min-h-0 overflow-hidden"
+        style={hideFlavor && card.cost > 0 ? { paddingBottom: "0.375rem", paddingRight: "2.25rem" } : { paddingBottom: 0 }}
+      >
         {card.description ? renderDescription(card.description) : "—"}
       </div>
 
-      {/* ── Bottom row: flavor text + cost badge ── */}
-      {!hideFlavor ? (
+      {/* ── Flavor row (shown when description fits) ── */}
+      {!hideFlavor && (
         <div className="flex items-end gap-1 px-2.5 pb-2 pt-1 shrink-0">
           <div className="flex-1 text-[9px] font-flavor italic text-ink-500 leading-snug line-clamp-2">
             {card.flavorText && `"${card.flavorText}"`}
           </div>
           {card.cost > 0 && <CostBadge cost={card.cost} />}
         </div>
-      ) : card.cost > 0 ? (
-        <div className="flex justify-end px-2.5 pb-2 pt-1 shrink-0">
+      )}
+
+      {/* ── Cost badge overlay (shown when flavor is hidden, takes no layout space) ── */}
+      {hideFlavor && card.cost > 0 && (
+        <div className="absolute bottom-2 right-2">
           <CostBadge cost={card.cost} />
         </div>
-      ) : null}
+      )}
     </button>
   );
 }
