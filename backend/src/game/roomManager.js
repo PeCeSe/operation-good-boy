@@ -179,11 +179,17 @@ function getLobbyState(code) {
   };
 }
 
+// Removes rooms idle for 30 minutes and returns their codes.
 function cleanup() {
   const cutoff = Date.now() - 30 * 60 * 1000;
+  const removed = [];
   for (const [code, room] of rooms.entries()) {
-    if (room.lastActivity < cutoff) rooms.delete(code);
+    if (room.lastActivity < cutoff) {
+      rooms.delete(code);
+      removed.push(code);
+    }
   }
+  return removed;
 }
 
 module.exports = {

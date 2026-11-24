@@ -119,15 +119,19 @@ function handleRejoin(socket, playerToken, roomCode, playerName) {
 io.on("connection", (socket) => {
   console.log(`Connected: ${socket.id}`);
 
-  // Persist the room this socket belongs to after each handler has run.
+  // Mark the room as active and persist it after each handler has run.
   // onAny listeners fire before the event handler, and handlers are synchronous,
   // so setImmediate sees the updated state. Checking the room both before and
   // after also catches leaving one room for another.
+  // Touching lastActivity here keeps cleanup() from deleting a game that is
+  // being played: game actions do not update it themselves.
   socket.onAny((event) => {
     if (EPHEMERAL_EVENTS.has(event)) return;
     const before = roomManager.getRoomBySocket(socket.id)?.code;
     setImmediate(() => {
-      const after = roomManager.getRoomBySocket(socket.id)?.code;
+      const afterRoom = roomManager.getRoomBySocket(socket.id);
+      if (afterRoom) afterRoom.lastActivity = Date.now();
+      const after = afterRoom?.code;
       persistRoom(before);
       if (after !== before) persistRoom(after);
     });
@@ -501,7 +505,10 @@ io.on("connection", (socket) => {
   });
 });
 
-setInterval(() => roomManager.cleanup(), 5 * 60 * 1000);
+// Drop rooms idle for 30 minutes, from memory and from storage.
+setInterval(() => {
+  for (const code of roomManager.cleanup()) roomStore.deleteRoom(code);
+}, 5 * 60 * 1000);
 
 const PORT = process.env.PORT || 3001;
 
