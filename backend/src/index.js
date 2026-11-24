@@ -4,6 +4,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 
 const roomManager = require("./game/roomManager");
+const roomStore = require("./game/roomStore");
 const { rejoinRoom, setName, setSkin, setDifficulty } = roomManager;
 const { initGameState } = require("./game/gameState");
 const actions = require("./game/actions");
@@ -64,30 +65,81 @@ function getPlayerId(gameState, socketId) {
   return gameState.players.find((p) => p.socketId === socketId)?.playerId ?? null;
 }
 
+// ── Persistence ─────────────────────────────────────────────────────────────
+// Rooms are snapshotted to Redis/Valkey after every state-changing event, so a
+// restart or redeploy can pick the game up where it was.
+
+// High-frequency events that only relay cursors/drags and never change state.
+const EPHEMERAL_EVENTS = new Set([
+  "cursor_move", "cursor_leave", "hand_cursor", "hand_cursor_leave",
+  "card_drag", "card_drag_end", "board_drag", "board_drag_end",
+]);
+
+function persistRoom(code) {
+  if (!code) return;
+  const room = roomManager.getRoom(code);
+  if (room) roomStore.saveRoom(room);
+  else roomStore.deleteRoom(code);
+}
+
+// During a rolling deploy the old and new backend run side by side for a moment.
+// Before rejoining, take the stored copy if it is newer than the one in memory.
+async function refreshRoomFromStore(code) {
+  const stored = await roomStore.loadRoom(code);
+  if (!stored) return;
+  const current = roomManager.getRoom(code);
+  if (!current || (stored.savedAt ?? 0) > (current.savedAt ?? 0)) {
+    roomManager.restoreRoom(stored);
+  }
+}
+
+function handleRejoin(socket, playerToken, roomCode, playerName) {
+  const rejoin = rejoinRoom(socket.id, playerToken, roomCode);
+  if (rejoin.success) {
+    if (playerName) setName(socket.id, playerName);
+    socket.join(roomCode);
+    emitRoomUpdate(roomCode);
+    if (rejoin.hasGame) emitGameUpdate(roomCode);
+  } else {
+    const join = roomManager.joinRoom(socket.id, roomCode, null, playerToken);
+    if (join.success) {
+      if (playerName) setName(socket.id, playerName);
+      socket.join(roomCode);
+      socket.emit("room_joined", { code: roomCode });
+      emitRoomUpdate(roomCode);
+    } else if (join.error === "Wrong password.") {
+      socket.emit("room_requires_password", { code: roomCode });
+    } else if (join.error) {
+      socket.emit("error", { message: join.error });
+    }
+  }
+  persistRoom(roomCode);
+}
+
 io.on("connection", (socket) => {
   console.log(`Connected: ${socket.id}`);
 
+  // Persist the room this socket belongs to after each handler has run.
+  // onAny listeners fire before the event handler, and handlers are synchronous,
+  // so setImmediate sees the updated state. Checking the room both before and
+  // after also catches leaving one room for another.
+  socket.onAny((event) => {
+    if (EPHEMERAL_EVENTS.has(event)) return;
+    const before = roomManager.getRoomBySocket(socket.id)?.code;
+    setImmediate(() => {
+      const after = roomManager.getRoomBySocket(socket.id)?.code;
+      persistRoom(before);
+      if (after !== before) persistRoom(after);
+    });
+  });
+
   const { playerToken, roomCode, playerName } = socket.handshake.auth || {};
   if (playerToken && roomCode) {
-    const rejoin = rejoinRoom(socket.id, playerToken, roomCode);
-    if (rejoin.success) {
-      if (playerName) setName(socket.id, playerName);
-      socket.join(roomCode);
-      emitRoomUpdate(roomCode);
-      if (rejoin.hasGame) emitGameUpdate(roomCode);
-    } else {
-      const join = roomManager.joinRoom(socket.id, roomCode, null, playerToken);
-      if (join.success) {
-        if (playerName) setName(socket.id, playerName);
-        socket.join(roomCode);
-        socket.emit("room_joined", { code: roomCode });
-        emitRoomUpdate(roomCode);
-      } else if (join.error === "Wrong password.") {
-        socket.emit("room_requires_password", { code: roomCode });
-      } else if (join.error) {
-        socket.emit("error", { message: join.error });
-      }
-    }
+    refreshRoomFromStore(roomCode)
+      .catch((err) => console.error("Refresh failed:", err.message))
+      .finally(() => {
+        if (socket.connected) handleRejoin(socket, playerToken, roomCode, playerName);
+      });
   }
 
   // ── Lobby ───────────────────────────────────────────────────────────────────
@@ -452,4 +504,10 @@ io.on("connection", (socket) => {
 setInterval(() => roomManager.cleanup(), 5 * 60 * 1000);
 
 const PORT = process.env.PORT || 3001;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+(async () => {
+  const stored = await roomStore.loadAllRooms();
+  stored.forEach((room) => roomManager.restoreRoom(room));
+  if (roomStore.enabled()) console.log(`Restored ${stored.length} room(s) from storage`);
+  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+})();

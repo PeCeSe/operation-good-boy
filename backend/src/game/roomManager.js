@@ -92,6 +92,11 @@ function leaveRoom(socketId) {
   return null;
 }
 
+// Puts a room loaded from storage back into memory.
+function restoreRoom(room) {
+  if (room?.code) rooms.set(room.code, room);
+}
+
 function getRoom(code) {
   return rooms.get(code) || null;
 }
@@ -188,6 +193,7 @@ module.exports = {
   leaveRoom,
   setName,
   getRoom,
+  restoreRoom,
   getRoomBySocket,
   setCharacter,
   setSkin,

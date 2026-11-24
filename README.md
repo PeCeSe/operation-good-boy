@@ -55,7 +55,7 @@ Approximately five brain cells, all pointed at one thing: that squeaky toy. Good
 - **Frontend**: React + Vite + Tailwind CSS
 - **Backend**: Node.js + Express + Socket.IO
 - **Realtime**: Socket.IO for multiplayer sync
-- **Hosting**: Vercel (frontend) + Render (backend)
+- **Hosting**: Coolify on a home server (frontend + backend), Valkey for game state
 
 ---
 

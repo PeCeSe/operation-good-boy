@@ -23,10 +23,17 @@ export default function App() {
       token = crypto.randomUUID();
       localStorage.setItem("ogb_player_token", token);
     }
-    const roomCodeMatch = window.location.pathname.match(/\/room\/([A-Z0-9-]+)/i);
-    const roomCode = roomCodeMatch?.[1]?.toUpperCase() || null;
-
-    socket.auth = { playerToken: token, roomCode, playerName: localStorage.getItem("ogb_player_name") || null };
+    // A function, so every (re)connect sends the room from the current URL.
+    // After a backend restart or redeploy, socket.io reconnects on its own and
+    // the server puts the player back into their room and game.
+    socket.auth = (cb) => {
+      const roomCodeMatch = window.location.pathname.match(/\/room\/([A-Z0-9-]+)/i);
+      cb({
+        playerToken: token,
+        roomCode: roomCodeMatch?.[1]?.toUpperCase() || null,
+        playerName: localStorage.getItem("ogb_player_name") || null,
+      });
+    };
     socket.connect();
 
     socket.on("connect", () => setMySocketId(socket.id));

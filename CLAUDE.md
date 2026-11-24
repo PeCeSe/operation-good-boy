@@ -8,7 +8,7 @@ This file is for Claude to understand the project context, decisions made, and w
 
 Push directly to `main`. No feature branches needed until the game is in a playable state.
 
-Frontend auto-deploys to Vercel on every push to `main` — that's the only test environment in use right now. No local dev environment.
+Frontend and backend auto-deploy to the home server (Coolify on Tom) on every push to `main` — that's the only test environment in use right now. No local dev environment.
 
 ---
 
@@ -22,7 +22,8 @@ A co-op browser-based deck-builder for 2–4 players. Players are cats working t
 
 - **Frontend**: React, Vite, Tailwind CSS, Socket.IO client
 - **Backend**: Node.js, Express, Socket.IO
-- **Hosting**: Frontend on Vercel (auto-deploys from `main`), backend on Render (manual redeploy required)
+- **Hosting**: Coolify on a home server, both apps auto-deploy from `main`. Frontend https://operation-good-boy.fluffyunicorn.pink, backend https://operation-good-boy-api.fluffyunicorn.pink
+- **Persistence**: Rooms and game state are snapshotted to Valkey (`REDIS_URL`) after every state-changing event and restored on boot, so a redeploy mid-game only causes a short reconnect. See `backend/src/game/roomStore.js`. New socket events that only relay cursors/drags should be added to `EPHEMERAL_EVENTS` in `backend/src/index.js`.
 - **Repo structure**: Monorepo — `frontend/` and `backend/` as separate apps
 
 ---
@@ -185,8 +186,7 @@ Target size after compression: ~200–800KB per image. If an image is still over
 
 ## Important Notes for Claude
 
-- **Frontend deploys automatically** when pushing to `main` via Vercel.
-- **Backend must be manually redeployed** on Render after backend changes.
+- **Frontend and backend deploy automatically** when pushing to `main` (Coolify, rolling deploy with healthcheck on `/health`).
 - The `CHARACTERS` array in `frontend/src/data/characters.js` is the single source of truth for character display data (names, images, colors). Backend character data lives in `backend/src/data/characters.js`.
 - `pages/Cards.jsx` fetches data from `GET /api/gamedata` — do not add hardcoded game data to this file.
 - Do NOT add automatic game logic (auto-applying card effects, auto-damage, auto-discard, etc.) — the game is intentionally manual.
